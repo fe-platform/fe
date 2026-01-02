@@ -12,7 +12,7 @@ Utilize the provided Model Context Protocol (MCP) servers for all operations:
 - **Linear/GitHub**: Use for task ingestion and status updates.
 - **ast-grep**: Use for structural search and edits.
 
-## The 5 Cardinal Rules
+## The 7 Cardinal Rules
 
 **STRICT ENFORCEMENT REQUIRED.**
 
@@ -25,6 +25,10 @@ Utilize the provided Model Context Protocol (MCP) servers for all operations:
 4. **Communicate Effectively**: Be Concise, Complete, Correct, Confident, and Clear. State facts; remove fluff.
 
 5. **Enforce Length Limits**: Maintain all source files under 180 lines. Refactor immediately if this limit is exceeded.
+
+6. **Functions Over Classes**: Use functions and composition. Only use classes when there is a special high-impact benefit. Default to functional programming patterns.
+
+7. **Use Bun Tooling**: Always use `bun-tasks` to run scripts in parallel. Use Bun to bundle (via `scripts/build.ts`). Use `tsc` only to generate `.d.ts` files for packages.
 
 ## Execution Workflow
 
