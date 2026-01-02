@@ -1,3 +1,4 @@
+// Test file: bun:test imports only allowed in *.test.ts files
 import { describe, it, expect, mock } from "bun:test";
 import { createPluginManager } from "./plugin-manager.ts";
 import type { Plugin } from "./types.ts";
@@ -22,7 +23,7 @@ describe("createPluginManager", () => {
 
   it("should provide hooks to plugins", async () => {
     const manager = createPluginManager({ name: "test", version: "1.0.0" });
-    let capturedHooks;
+    let capturedHooks: typeof manager extends { getHooks: () => infer H } ? H : never;
 
     const plugin: Plugin = {
       name: "test-plugin",
@@ -34,8 +35,8 @@ describe("createPluginManager", () => {
 
     await manager.register(plugin);
 
-    expect(capturedHooks).toBeDefined();
-    expect(capturedHooks.onBuildStart).toBeDefined();
+    expect(capturedHooks!).toBeDefined();
+    expect(capturedHooks!.onBuildStart).toBeDefined();
   });
 
   it("should teardown plugins", async () => {
