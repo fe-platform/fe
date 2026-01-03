@@ -1,28 +1,35 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**"]
-    },
-    "test": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"]
-    },
-    "typecheck": {
-      "dependsOn": ["^build"],
-      "outputs": []
-    },
-    "lint": {
-      "outputs": []
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "clean": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"globalDependencies": ["**/.env.*local"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": [
+				"src/**/*",
+				"!../../core/plugin/src/**/*",
+				"!../../create-fe-platform/src/**/*",
+				"../../core/plugin/dist/**/*",
+				"../../create-fe-platform/dist/**/*"
+			],
+			"outputs": ["dist/**", "build/**"]
+		},
+		"test": {
+			"dependsOn": ["build"],
+			"outputs": ["coverage/**"]
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"outputs": ["**/.tsbuildinfo"]
+		},
+		"lint": {
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		}
+	}
 }

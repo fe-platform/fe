@@ -22,7 +22,7 @@ Utilize the provided Model Context Protocol (MCP) servers for all operations:
 
 3. **Reject Stubbing**: Implement only production-ready code. Do not stub, mock, or create temporary workarounds unless explicitly instructed.
 
-4. **Communicate Effectively**: Be Concise, Complete, Correct, Confident, and Clear. State facts; remove fluff.
+4. **Communicate Effectively (CRITICAL)**: Be Concise, Complete, Correct, Confident, and Clear. State facts; remove fluff. DO NOT REPEAT. Avoid restating edits (e.g., quoting edited content in text after making file changes) — the IDE displays edits directly, so repetition is unnecessary. Do not print verbose summaries after each turn in the agent chat. Keep all chat summaries clean, clear, correct, complete, concise, and confident-neutral in tone.
 
 5. **Enforce Length Limits**: Maintain all source files under 180 lines. Refactor immediately if this limit is exceeded.
 
