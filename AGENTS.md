@@ -11,6 +11,13 @@ Utilize the provided Model Context Protocol (MCP) servers for all operations:
 - **Serena**: Use for AST analysis, symbol navigation, and semantic understanding.
 - **Linear/GitHub**: Use for task ingestion and status updates.
 - **ast-grep**: Use for structural search and edits.
+- **mcp-advisor**: Use for MCP configuration compliance advisory (bunx-powered).
+- **bun-doc-mcp**: Use for GitHub-focused Bun tooling documentation lookup (bunx-powered).
+- **context7**: Use for context-aware code reasoning (Upstash MCP, bunx-powered).
+- **vibe-check-mcp**: Use for code quality and protocol alignment validation (bunx-powered).
+- **taskmanager**: Use for task retrieval and tracking (MCP Task Manager, bunx-powered).
+- **sequential-thinking**: Use for structured, step-by-step problem solving (bunx-powered).
+- **ESLint**: Use for MCP-integrated ESLint rule enforcement (bunx-powered).
 
 ## The 7 Cardinal Rules
 
