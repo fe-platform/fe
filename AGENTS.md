@@ -8,16 +8,14 @@ Execute all development tasks within the Ore/Metal/Blade architecture. Adhere st
 
 Utilize the provided Model Context Protocol (MCP) servers for all operations:
 
-- **Serena**: Use for AST analysis, symbol navigation, and semantic understanding.
-- **Linear/GitHub**: Use for task ingestion and status updates.
-- **ast-grep**: Use for structural search and edits.
-- **mcp-advisor**: Use for MCP configuration compliance advisory (bunx-powered).
+- **Serena**: Use for AST analysis, symbol navigation, and semantic understanding (Tools: `find_symbol`, `find_referencing_symbols`, `insert_after_symbol`).
+- **mcp-advisor**: Use for MCP configuration compliance advisory and specification understanding (Tools: `explain`, `evaluate_server_compliance`).
 - **bun-doc-mcp**: Use for GitHub-focused Bun tooling documentation lookup (bunx-powered).
-- **context7**: Use for context-aware code reasoning (Upstash MCP, bunx-powered).
-- **vibe-check-mcp**: Use for code quality and protocol alignment validation (bunx-powered).
-- **taskmanager**: Use for task retrieval and tracking (MCP Task Manager, bunx-powered).
-- **sequential-thinking**: Use for structured, step-by-step problem solving (bunx-powered).
-- **ESLint**: Use for MCP-integrated ESLint rule enforcement (bunx-powered).
+- **context7**: Use for context-aware code reasoning and fetching up-to-date library documentation (Tools: `resolve-library-id`, `get-library-docs`).
+- **vibe-check-mcp**: Use for metacognitive oversight, preventing tunnel vision, and protocol alignment validation (Tools: `vibe_check`, `vibe_distill`, `vibe_learn`).
+- **taskmanager**: Use for queue-based task planning, execution, and tracking (Tools: `request_planning`, `get_next_task`, `mark_task_done`).
+- **sequential-thinking**: Use for structured, step-by-step problem solving and hypothesis generation (Tool: `sequential_thinking`).
+- **ESLint**: Use for MCP-integrated ESLint rule enforcement and code quality checks.
 
 ## The 7 Cardinal Rules
 
