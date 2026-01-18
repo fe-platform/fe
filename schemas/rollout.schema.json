@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fe-platform.dev/schemas/rollout.json",
+  "title": "FE Platform Rollout State",
+  "description": "Rollout configuration tracking (rollout.json)",
+  "type": "object",
+  "required": ["states"],
+  "properties": {
+    "states": {
+      "type": "array",
+      "description": "Rollout states per MFE and environment",
+      "items": {
+        "type": "object",
+        "required": ["mfeName", "environment", "rolledOut"],
+        "properties": {
+          "mfeName": {
+            "type": "string",
+            "description": "MFE package name",
+            "pattern": "^@[a-z0-9-]+/[a-z0-9-]+$"
+          },
+          "environment": {
+            "type": "string",
+            "description": "Environment name",
+            "minLength": 1
+          },
+          "rolledOut": {
+            "type": "string",
+            "description": "Currently rolled-out version",
+            "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?(\\+[a-z0-9.-]+)?$"
+          },
+          "rollingOut": {
+            "type": "object",
+            "description": "Version being rolled out (if any)",
+            "required": ["version", "percentage"],
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "Version being rolled out",
+                "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?(\\+[a-z0-9.-]+)?$"
+              },
+              "percentage": {
+                "type": "number",
+                "description": "Rollout percentage (0-100)",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

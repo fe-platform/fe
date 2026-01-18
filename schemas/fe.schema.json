@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fe-platform.dev/schemas/fe.json",
+  "title": "FE MFE Manifest",
+  "description": "Micro-frontend manifest (fe.json)",
+  "type": "object",
+  "required": ["name", "version", "main"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "MFE package name (scoped)",
+      "pattern": "^@[a-z0-9-]+/[a-z0-9-]+$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?(\\+[a-z0-9.-]+)?$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description"
+    },
+    "main": {
+      "type": "string",
+      "description": "Main entry point (must be .ts or .tsx)",
+      "pattern": "\\.(ts|tsx)$"
+    },
+    "framework": {
+      "type": "string",
+      "description": "Framework used (react, vue, svelte, etc.)"
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Platform package and MFE dependencies",
+      "patternProperties": {
+        "^(fe:|@)": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Required permissions",
+      "properties": {
+        "state": {
+          "type": "object",
+          "properties": {
+            "owns": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "reads": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "paths": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "localStorage": { "type": "boolean" },
+            "sessionStorage": { "type": "boolean" },
+            "cookies": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "apis": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "routes": {
+      "type": "array",
+      "description": "Routes exposed by this MFE",
+      "items": {
+        "type": "object",
+        "required": ["path", "component"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Route path pattern"
+          },
+          "component": {
+            "type": "string",
+            "description": "Component to render"
+          },
+          "meta": {
+            "type": "object",
+            "description": "Route metadata",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Capabilities this MFE provides",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Capability ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Capability description"
+          },
+          "intents": {
+            "type": "array",
+            "description": "Intent categories",
+            "items": { "type": "string" }
+          },
+          "examples": {
+            "type": "array",
+            "description": "Example invocations",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "ai": {
+      "type": "object",
+      "description": "AI context for catalog",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": {
+          "type": "string"
+        },
+        "useCases": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "related": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Custom metadata",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

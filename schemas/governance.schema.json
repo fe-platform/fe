@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fe-platform.dev/schemas/governance.json",
+  "title": "FE Platform Governance",
+  "description": "Governance configuration (governance.json)",
+  "type": "object",
+  "properties": {
+    "scoring": {
+      "type": "object",
+      "description": "Governance scoring thresholds",
+      "properties": {
+        "bundleSize": {
+          "type": "object",
+          "description": "Bundle size scoring",
+          "required": ["maxKb", "weight"],
+          "properties": {
+            "maxKb": {
+              "type": "number",
+              "description": "Maximum bundle size in kilobytes",
+              "minimum": 1
+            },
+            "weight": {
+              "type": "number",
+              "description": "Score weight",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "coverage": {
+          "type": "object",
+          "description": "Code coverage scoring",
+          "required": ["minPercent", "weight"],
+          "properties": {
+            "minPercent": {
+              "type": "number",
+              "description": "Minimum coverage percentage",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "weight": {
+              "type": "number",
+              "description": "Score weight",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "accessibility": {
+          "type": "object",
+          "description": "Accessibility scoring",
+          "required": ["minScore", "weight"],
+          "properties": {
+            "minScore": {
+              "type": "number",
+              "description": "Minimum accessibility score (0-100)",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "weight": {
+              "type": "number",
+              "description": "Score weight",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Permission enforcement settings",
+      "properties": {
+        "allowedScopes": {
+          "type": "array",
+          "description": "Allowed package scopes",
+          "items": {
+            "type": "string",
+            "pattern": "^@[a-z0-9-]+$"
+          }
+        },
+        "checksumVerification": {
+          "type": "boolean",
+          "description": "Enable checksum verification for packages"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

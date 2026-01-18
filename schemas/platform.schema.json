@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fe-platform.dev/schemas/platform.json",
+  "title": "FE Platform Configuration",
+  "description": "Core platform configuration (platform.json)",
+  "type": "object",
+  "required": ["name", "version", "org"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Platform name",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "description": "Platform version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?(\\+[a-z0-9.-]+)?$"
+    },
+    "org": {
+      "type": "string",
+      "description": "Organization identifier",
+      "minLength": 1
+    },
+    "registry": {
+      "type": "object",
+      "description": "Registry configuration",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Registry base URL"
+        },
+        "source": {
+          "type": "string",
+          "format": "uri",
+          "description": "Source registry URL"
+        },
+        "build": {
+          "type": "string",
+          "format": "uri",
+          "description": "Build artifacts URL"
+        }
+      },
+      "required": ["url"]
+    }
+  },
+  "additionalProperties": true
+}

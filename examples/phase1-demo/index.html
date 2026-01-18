@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FE Platform - Phase 1 Demo</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #333;
+      }
+      .status {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+        background: #f0f0f0;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        margin: 0.5rem 0.5rem 0.5rem 0;
+        border: none;
+        border-radius: 4px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>FE Platform - Phase 1 Demo</h1>
+    <p>
+      This demo showcases Phase 1 core runtime features:
+    </p>
+    <ul>
+      <li>Import maps for fe: specifier resolution</li>
+      <li>__fePreload runtime for dynamic imports</li>
+      <li>Module loading and caching</li>
+    </ul>
+
+    <h2>Actions</h2>
+    <div>
+      <button onclick="loadMockMFE()">Load Mock MFE</button>
+      <button onclick="showCache()">Show Module Cache</button>
+      <button onclick="showStats()">Show Statistics</button>
+      <button onclick="clearCache()">Clear Cache</button>
+    </div>
+
+    <h2>Status</h2>
+    <div id="status" class="status">
+      Ready. Click "Load Mock MFE" to test dynamic loading.
+    </div>
+
+    <h2>Import Map</h2>
+    <pre id="import-map"></pre>
+
+    <!-- Import Map Definition -->
+    <script type="importmap">
+      {
+        "imports": {
+          "fe:@demo/hello": "./mfe-hello.js",
+          "fe:state": "https://esm.sh/@ungap/global-this@0.4.4",
+          "fe:routing": "https://esm.sh/@ungap/global-this@0.4.4"
+        }
+      }
+    </script>
+
+    <!-- __fePreload Runtime (inline for demo) -->
+    <script type="module">
+      // Install __fePreload runtime
+      window.__fePreload = (function () {
+        const moduleCache = new Map();
+        const loadingPromises = new Map();
+
+        async function __fePreload(specifier) {
+          const cached = moduleCache.get(specifier);
+          if (cached?.state === "loaded") {
+            return cached.exports;
+          }
+          if (cached?.state === "error") {
+            throw cached.error;
+          }
+
+          if (loadingPromises.has(specifier)) {
+            return loadingPromises.get(specifier);
+          }
+
+          const loadPromise = (async () => {
+            const entry = {
+              specifier,
+              url: specifier,
+              exports: null,
+              loadedAt: Date.now(),
+              state: "loading",
+            };
+            moduleCache.set(specifier, entry);
+
+            try {
+              const module = await import(specifier);
+              entry.exports = module;
+              entry.state = "loaded";
+              entry.loadedAt = Date.now();
+              return module;
+            } catch (error) {
+              entry.state = "error";
+              entry.error = error;
+              throw error;
+            }
+          })();
+
+          loadingPromises.set(specifier, loadPromise);
+          try {
+            return await loadPromise;
+          } finally {
+            loadingPromises.delete(specifier);
+          }
+        }
+
+        __fePreload.getCache = () => new Map(moduleCache);
+        __fePreload.isLoaded = (specifier) =>
+          moduleCache.get(specifier)?.state === "loaded";
+        __fePreload.clearCache = () => {
+          moduleCache.clear();
+          loadingPromises.clear();
+        };
+        __fePreload.getStats = () => {
+          let loaded = 0,
+            loading = 0,
+            errors = 0;
+          for (const entry of moduleCache.values()) {
+            if (entry.state === "loaded") loaded++;
+            else if (entry.state === "loading") loading++;
+            else if (entry.state === "error") errors++;
+          }
+          return { total: moduleCache.size, loaded, loading, errors };
+        };
+
+        return __fePreload;
+      })();
+
+      // Display import map
+      const importMapScript = document.querySelector(
+        'script[type="importmap"]'
+      );
+      if (importMapScript) {
+        document.getElementById("import-map").textContent =
+          importMapScript.textContent;
+      }
+
+      // Demo functions
+      window.loadMockMFE = async function () {
+        const status = document.getElementById("status");
+        status.className = "status";
+        status.textContent = "Loading fe:@demo/hello...";
+
+        try {
+          const module = await __fePreload("fe:@demo/hello");
+          status.className = "status success";
+          status.textContent = `✓ Successfully loaded MFE!\n\nExports: ${JSON.stringify(
+            Object.keys(module),
+            null,
+            2
+          )}`;
+        } catch (error) {
+          status.className = "status error";
+          status.textContent = `✗ Failed to load MFE: ${error.message}\n\nNote: This demo needs mfe-hello.js to exist. The important part is that __fePreload and import maps are working.`;
+        }
+      };
+
+      window.showCache = function () {
+        const cache = __fePreload.getCache();
+        const status = document.getElementById("status");
+        status.className = "status";
+
+        if (cache.size === 0) {
+          status.textContent = "Module cache is empty.";
+          return;
+        }
+
+        const entries = Array.from(cache.entries())
+          .map(
+            ([specifier, entry]) =>
+              `${specifier}\n  State: ${entry.state}\n  Loaded: ${new Date(
+                entry.loadedAt
+              ).toLocaleTimeString()}`
+          )
+          .join("\n\n");
+
+        status.textContent = `Module Cache (${cache.size} entries):\n\n${entries}`;
+      };
+
+      window.showStats = function () {
+        const stats = __fePreload.getStats();
+        const status = document.getElementById("status");
+        status.className = "status";
+        status.textContent = `Statistics:\n\nTotal modules: ${stats.total}\nLoaded: ${stats.loaded}\nLoading: ${stats.loading}\nErrors: ${stats.errors}`;
+      };
+
+      window.clearCache = function () {
+        __fePreload.clearCache();
+        const status = document.getElementById("status");
+        status.className = "status success";
+        status.textContent = "✓ Module cache cleared.";
+      };
+
+      console.log("✓ __fePreload runtime installed");
+      console.log("✓ Import map loaded");
+      console.log(
+        "Ready to load MFEs using fe: specifiers"
+      );
+    </script>
+  </body>
+</html>
