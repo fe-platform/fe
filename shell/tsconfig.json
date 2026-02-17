@@ -4,17 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    "paths": {
-      "fe:@acme/mfe-b": [
-        "../mfe-b/src/index.ts"
-      ]
-    }
+    "lib": ["ES2022", "DOM"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

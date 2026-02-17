@@ -5,11 +5,11 @@
     "": {
       "name": "@acme/mfe-b",
       "devDependencies": {
-        "@acme/mfe-a": "file:../mfe-a",
+        "fe(@acme/mfe-a)": "file:../mfe-a",
       },
     },
   },
   "packages": {
-    "@acme/mfe-a": ["@acme/mfe-a@file:../mfe-a", {}],
+    "fe(@acme/mfe-a)": ["fe(@acme/mfe-a)@file:../mfe-a", {}],
   }
 }

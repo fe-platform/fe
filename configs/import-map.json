@@ -1,6 +1,6 @@
 {
   "imports": {
-    "fe:@acme/mfe-a": "./uploads/mfe-a/1.0.0/index.js",
-    "fe:@acme/mfe-b": "./uploads/mfe-b/1.0.0/index.js"
+    "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js",
+    "fe(@acme/mfe-b)": "./uploads/mfe-b/1.0.0/index.js"
   }
 }

@@ -19,7 +19,7 @@ function notifyReload(): void {
 }
 
 // Minimal sandbox HTML served at "/" for isolated MFE development.
-// The import map points fe:<name> to the locally built /index.js.
+// The import map points the fe() specifier to the locally built /index.js.
 function sandboxHtml(name: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -27,13 +27,13 @@ function sandboxHtml(name: string): string {
   <meta charset="utf-8" />
   <title>dev: ${name}</title>
   <script type="importmap">
-  { "imports": { "fe:${name}": "/index.js" } }
+  { "imports": { "${name}": "/index.js" } }
   </script>
 </head>
 <body>
   <div id="sandbox" style="padding:16px"></div>
   <script type="module">
-    import { render } from "fe:${name}";
+    import { render } from "${name}";
     render(document.getElementById("sandbox"), {});
   </script>
   <!-- SSE-based hot reload: no runtime, just a full page reload on rebuild. -->

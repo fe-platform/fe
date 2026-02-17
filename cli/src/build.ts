@@ -1,8 +1,15 @@
 import { join } from "path";
+import { readFileSync } from "fs";
 import { ROOT, readImportMap } from "./config";
 
+// Reads devDependencies from a package.json and returns all fe() specifiers.
+// These are the MFE deps that must be external — resolved at runtime via import map.
+function feDeps(dir: string): string[] {
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  return Object.keys(pkg.devDependencies ?? {}).filter((k) => k.startsWith("fe("));
+}
+
 // Builds mfe-a, mfe-b, or shell into their respective dist/ folders.
-// All fe:* imports are marked as external — the import map handles them at runtime.
 export async function build(target: string): Promise<void> {
   if (target === "shell") return buildShell();
 
@@ -12,8 +19,8 @@ export async function build(target: string): Promise<void> {
     outdir: join(dir, "dist"),
     format: "esm",
     target: "browser",
-    // fe:* specifiers are NOT bundled — resolved at runtime via import map.
-    external: ["fe:*"],
+    // Externalize all fe() deps — the browser resolves them via import map at runtime.
+    external: feDeps(dir),
   });
 
   if (!result.success) {
@@ -28,14 +35,13 @@ async function buildShell(): Promise<void> {
   const dir = join(ROOT, "shell");
   const importMap = readImportMap();
 
-  // Bundle shell JS; fe:* deps are external, resolved via the injected import map.
   const result = await Bun.build({
     entrypoints: [join(dir, "src", "index.ts")],
     outdir: join(dir, "dist"),
     naming: "app.js",
     format: "esm",
     target: "browser",
-    external: ["fe:*"],
+    external: feDeps(dir),
   });
 
   if (!result.success) {

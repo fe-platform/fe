@@ -5,6 +5,6 @@
     "build": "bun ../../cli/src/index.ts build shell"
   },
   "devDependencies": {
-    "@acme/mfe-b": "file:../mfe-b"
+    "fe(@acme/mfe-b)": "file:../mfe-b"
   }
 }

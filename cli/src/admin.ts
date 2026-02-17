@@ -20,8 +20,8 @@ export function adminUpload(target: string): void {
   }
 
   const { name, version } = readPackageMeta(dir);
-  // Strip scope prefix for the path (e.g. @acme/mfe-a → mfe-a)
-  const slug = name.replace(/^@[^/]+\//, "");
+  // Extract slug from fe(@acme/mfe-a) → mfe-a
+  const slug = name.replace(/^fe\(/, "").replace(/\)$/, "").replace(/^@[^/]+\//, "");
   const uploadPath = join(UPLOADS_DIR, slug, version);
 
   mkdirSync(uploadPath, { recursive: true });
@@ -34,5 +34,5 @@ export function adminUpload(target: string): void {
   console.log(`URL: ${url}`);
   console.log(``);
   console.log(`Update configs/import-map.json manually:`);
-  console.log(`  "fe:${name}": "${url}"`);
+  console.log(`  "${name}": "${url}"`);
 }

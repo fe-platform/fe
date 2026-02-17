@@ -1,6 +1,4 @@
-// fe: imports are externalized at build time.
-// The browser resolves them at runtime via the import map.
-import { render as renderA } from "fe:@acme/mfe-a";
+import { render as renderA } from "fe(@acme/mfe-a)";
 
 export function render(
   container: HTMLElement,

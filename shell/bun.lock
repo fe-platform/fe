@@ -5,13 +5,13 @@
     "": {
       "name": "shell",
       "devDependencies": {
-        "@acme/mfe-b": "file:../mfe-b",
+        "fe(@acme/mfe-b)": "file:../mfe-b",
       },
     },
   },
   "packages": {
-    "@acme/mfe-b": ["@acme/mfe-b@file:../mfe-b", { "devDependencies": { "@acme/mfe-a": "file:../mfe-a" } }],
+    "fe(@acme/mfe-b)": ["fe(@acme/mfe-b)@file:../mfe-b", { "devDependencies": { "fe(@acme/mfe-a)": "file:../mfe-a" } }],
 
-    "@acme/mfe-b/@acme/mfe-a": ["@acme/mfe-a@file:../mfe-a", {}],
+    "fe(@acme/mfe-b)/fe(@acme/mfe-a)": ["fe(@acme/mfe-a)@file:../mfe-a", {}],
   }
 }
