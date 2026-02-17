@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "paths": {
+      "fe:@acme/mfe-a": [
+        "../mfe-a/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

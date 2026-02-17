@@ -1,5 +1,6 @@
 // Usage (run from repo root):
 //   bun cli/src/index.ts build <mfe-a|mfe-b|shell>
+//   bun cli/src/index.ts link <consumer> <dep>      -- wire up fe: types + file: dep
 //   bun cli/src/index.ts serve [port]
 //   bun cli/src/index.ts dev <mfe-a|mfe-b> [port]
 //   bun cli/src/index.ts admin upload <mfe-a|mfe-b>
@@ -26,6 +27,14 @@ switch (command) {
     if (!target) { console.error("Usage: dev <target> [port]"); process.exit(1); }
     const { dev } = await import("./dev");
     await dev(target, port);
+    break;
+  }
+  case "link": {
+    const consumer = args[0];
+    const dep = args[1];
+    if (!consumer || !dep) { console.error("Usage: link <consumer> <dep>"); process.exit(1); }
+    const { link } = await import("./link");
+    await link(consumer, dep);
     break;
   }
   case "admin": {

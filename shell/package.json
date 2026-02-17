@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "bun ../../cli/src/index.ts build shell"
+  },
+  "devDependencies": {
+    "@acme/mfe-b": "file:../mfe-b"
   }
 }

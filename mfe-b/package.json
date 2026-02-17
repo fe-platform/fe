@@ -4,5 +4,8 @@
   "module": "dist/index.js",
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --format esm --target browser --external 'fe:*'"
+  },
+  "devDependencies": {
+    "@acme/mfe-a": "file:../mfe-a"
   }
 }

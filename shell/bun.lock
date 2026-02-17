@@ -1,0 +1,17 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "shell",
+      "devDependencies": {
+        "@acme/mfe-b": "file:../mfe-b",
+      },
+    },
+  },
+  "packages": {
+    "@acme/mfe-b": ["@acme/mfe-b@file:../mfe-b", { "devDependencies": { "@acme/mfe-a": "file:../mfe-a" } }],
+
+    "@acme/mfe-b/@acme/mfe-a": ["@acme/mfe-a@file:../mfe-a", {}],
+  }
+}
