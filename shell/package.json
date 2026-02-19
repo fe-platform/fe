@@ -2,7 +2,7 @@
   "name": "shell",
   "version": "1.0.0",
   "scripts": {
-    "build": "bun ../../cli/src/index.ts build shell"
+    "build": "bun ../cli/src/index.ts build shell"
   },
   "devDependencies": {
     "fe(@acme/mfe-b)": "file:../mfe-b"
