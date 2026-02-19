@@ -1,25 +1,83 @@
 import { join } from "path";
 import { readFileSync } from "fs";
 
+// --- Types ---
+
 export type ImportMap = { imports: Record<string, string> };
+
+export interface PackageVersion {
+  url: string;
+  deps: Record<string, string>; // specifier → semver range (e.g. "^1.0.0")
+}
+
+export interface PackageEntry {
+  versions: Record<string, PackageVersion>;
+}
+
+export interface PlatformConfig {
+  routes: Record<string, string>; // path → "specifier@version"
+  packages: Record<string, PackageEntry>;
+}
+
+// --- Paths ---
 
 export const ROOT = join(import.meta.dir, "..", "..");
 export const CONFIGS_DIR = join(ROOT, "configs");
-export const IMPORT_MAP_PATH = join(CONFIGS_DIR, "import-map.json");
+export const PLATFORM_CONFIG_PATH = join(CONFIGS_DIR, "platform.json");
 export const UPLOADS_DIR = join(ROOT, "uploads");
 
-export function readImportMap(): ImportMap {
-  const text = readFileSync(IMPORT_MAP_PATH, "utf8");
+// --- Platform config I/O ---
+
+export function readPlatformConfig(): PlatformConfig {
+  const text = readFileSync(PLATFORM_CONFIG_PATH, "utf8");
   return JSON.parse(text);
 }
 
-export function writeImportMap(map: ImportMap): void {
-  Bun.write(IMPORT_MAP_PATH, JSON.stringify(map, null, 2) + "\n");
+export function writePlatformConfig(config: PlatformConfig): void {
+  Bun.write(PLATFORM_CONFIG_PATH, JSON.stringify(config, null, 2) + "\n");
 }
 
-// Reads the name + version from a package.json in the given directory.
+// --- Helpers ---
+
 export function readPackageMeta(dir: string): { name: string; version: string } {
   const raw = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
   if (!raw.name || !raw.version) throw new Error(`Missing name/version in ${dir}/package.json`);
   return { name: raw.name, version: raw.version };
+}
+
+// Reads devDependencies from a package.json, returns only fe() keys with their values.
+export function readFeDeps(dir: string): Record<string, string> {
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  const devDeps: Record<string, string> = pkg.devDependencies ?? {};
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(devDeps)) {
+    if (key.startsWith("fe(")) result[key] = value;
+  }
+  return result;
+}
+
+// Parse "fe(@acme/mfe-b)@1.0.0" → { specifier, version }.
+export function parseSpecVersion(sv: string): { specifier: string; version: string } {
+  const idx = sv.indexOf(")@");
+  if (idx === -1) throw new Error(`Invalid specifier@version: ${sv}`);
+  return { specifier: sv.slice(0, idx + 1), version: sv.slice(idx + 2) };
+}
+
+// Extract slug from fe(@acme/mfe-a) → mfe-a
+export function slugFromSpecifier(specifier: string): string {
+  return specifier.replace(/^fe\(/, "").replace(/\)$/, "").replace(/^@[^/]+\//, "");
+}
+
+// Generate the browser import map for top-level route MFEs from platform config.
+export function generateRouteImportMap(config: PlatformConfig): ImportMap {
+  const imports: Record<string, string> = {};
+  for (const entry of Object.values(config.routes)) {
+    const { specifier, version } = parseSpecVersion(entry);
+    const pkg = config.packages[specifier];
+    if (!pkg) throw new Error(`Route references unknown package: ${specifier}`);
+    const ver = pkg.versions[version];
+    if (!ver) throw new Error(`Route references unknown version ${version} of ${specifier}`);
+    imports[specifier] = ver.url;
+  }
+  return { imports };
 }

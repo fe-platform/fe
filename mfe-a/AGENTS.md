@@ -40,7 +40,7 @@ output: mfe-a/dist/index.js
 bun cli/src/index.ts admin upload mfe-a
   prereq: dist/index.js must exist
   copies dist/ → uploads/mfe-a/1.0.0/
-  prints snippet for configs/import-map.json
+  registers package version in configs/platform.json (URL + deps)
 ```
 
 ## dev (from repo root)

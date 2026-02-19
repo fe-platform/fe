@@ -1,6 +1,6 @@
 import { join } from "path";
 import { readFileSync } from "fs";
-import { ROOT, readImportMap } from "./config";
+import { ROOT, readPlatformConfig, generateRouteImportMap } from "./config";
 
 // Reads devDependencies from a package.json and returns all fe() specifiers.
 // These are the MFE deps that must be external — resolved at runtime via import map.
@@ -33,7 +33,8 @@ export async function build(target: string): Promise<void> {
 
 async function buildShell(): Promise<void> {
   const dir = join(ROOT, "shell");
-  const importMap = readImportMap();
+  const config = readPlatformConfig();
+  const importMap = generateRouteImportMap(config);
 
   const result = await Bun.build({
     entrypoints: [join(dir, "src", "index.ts")],
@@ -50,10 +51,13 @@ async function buildShell(): Promise<void> {
     process.exit(1);
   }
 
-  // Inject import map into the HTML template.
+  // Inject route import map + platform config into the HTML template.
   const template = await Bun.file(join(dir, "index.html")).text();
-  const scriptTag = `<script type="importmap">\n  ${JSON.stringify(importMap, null, 2)}\n  </script>`;
-  const html = template.replace("<!-- __IMPORT_MAP__ -->", scriptTag);
+  const importMapTag = `<script type="importmap">\n  ${JSON.stringify(importMap, null, 2)}\n  </script>`;
+  const configTag = `<script id="__platform__" type="application/json">\n  ${JSON.stringify(config, null, 2)}\n  </script>`;
+  const html = template
+    .replace("<!-- __IMPORT_MAP__ -->", importMapTag)
+    .replace("<!-- __PLATFORM_CONFIG__ -->", configTag);
   await Bun.write(join(dir, "dist", "index.html"), html);
 
   console.log("Built shell → shell/dist/");
