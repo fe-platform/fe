@@ -1,76 +1,73 @@
-# Agent Guide — fe-platform
+# ⬡ fe-platform · root · agent-ref
+CLAUDE.md→symlink→here
 
-This file is the authoritative guide for AI agents (Claude, Codex, etc.) working in this repo.
-`CLAUDE.md` symlinks here.
-
-## Repo layout
-
+## topology
 ```
-/
-├── mfe-a/          Standalone microfrontend — exports render()
-├── mfe-b/          Composes mfe-a — exports render(), imports fe(@acme/mfe-a)
-├── shell/          Host app — imports fe(@acme/mfe-b), renders into <div id="app">
-├── cli/src/        CLI tools: build, serve, dev, link, admin
-│   ├── index.ts    Entry point / command router
-│   ├── build.ts    Bun build wrapper (externalizes fe() deps)
-│   ├── serve.ts    Static file server for built shell
-│   ├── dev.ts      Dev sandbox with SSE hot reload
-│   ├── link.ts     Wires fe() devDependency + bun install
-│   ├── admin.ts    Upload artifact to local registry
-│   └── config.ts   Shared paths and helpers
-└── configs/
-    └── import-map.json   Active specifier → URL mapping
+/ (!npm-workspace !monorepo-config plain-dir)
+├─ mfe-a/      name=fe(@acme/mfe-a) v1.0.0  standalone-MFE  fe()-deps=∅
+├─ mfe-b/      name=fe(@acme/mfe-b) v1.0.0  composes-mfe-a  devDep→fe(@acme/mfe-a)
+├─ shell/      name=shell           v1.0.0  host-app        devDep→fe(@acme/mfe-b)
+├─ cli/        name=cli             v1.0.0  tooling · entry=src/index.ts
+├─ configs/import-map.json          specifier→URL · consumed by buildShell+browser
+└─ uploads/    gitignored · local-registry · path: slug/version/index.js
 ```
+each subdir has own AGENTS.md with full local detail
 
-## Key conventions
+## toolchain
+bun@latest ONLY · !node !npm !webpack !vite !rollup
+lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler
+tests=∅  CI=typecheck+build
 
-### `fe()` package naming
+## ⟿ fe() convention
+```
+fe(@scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
+pkg.json  "name":"fe(@acme/mfe-a)"
+src       import {x} from "fe(@acme/mfe-a)"
+importmap "fe(@acme/mfe-a)":"./uploads/mfe-a/1.0.0/index.js"
+```
+build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]
+ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths
+runtime: browser importmap resolves bare-specifier → JS url
 
-Federated MFE packages use the naming pattern `fe(@scope/name)` as their `package.name`.
-This is the import specifier used in source code:
-
+## MFE interface (∀ MFE must export)
 ```ts
-import { render } from "fe(@acme/mfe-a)";
+export function render(container:HTMLElement,props:Record<string,unknown>):()=>void
+//                                                                         ↑ unmount/cleanup
+```
+!framework · DOM-only · return removes own DOM nodes
+
+## CLI (cwd=root · `bun cli/src/index.ts <cmd>`)
+```
+build  mfe-a|mfe-b|shell   →dist/ · shell: +inject importmap→HTML
+serve  [port=3000]          shell/dist/ · /uploads/→ROOT/uploads/
+dev    <tgt> [port=3000]    sandbox+SSE · watch src/→rebuild→reload
+link   <consumer> <dep>     write devDep file:URI + bun-install in consumer
+admin upload <tgt>          cp dist/→uploads/slug/ver/ · print URL+snippet · !edit importmap
 ```
 
-This is **not** a URL scheme. It is a bare specifier matched by the browser's import map.
+## deploy flow
+```
+build <mfe> → admin upload <mfe>
+  ↓ prints: "fe(@acme/mfe-a)":"./uploads/mfe-a/1.0.0/index.js"
+edit configs/import-map.json (manual|CD)
+  ↓
+build shell  (re-injects map → shell/dist/index.html)
+  ↓
+serve
+```
 
-### `devDependencies` as the externalization signal
+## CI · .github/workflows/ci.yml
+trigger: push→main | PR→main
+ubuntu-latest · setup-bun@latest · cache ~/.bun/install/cache
+install: (cd mfe-b && bun install) (cd shell && bun install)
+typecheck: bunx tsc --noEmit -p {mfe-a,mfe-b,shell}/tsconfig.json
+build: mfe-a(bun run build) mfe-b(bun run build) shell(bun run build)
 
-`build.ts` reads `devDependencies` from each `package.json` and externalizes any key
-that starts with `fe(`. No separate config is needed — the naming convention is the signal.
-
-### Import map
-
-`configs/import-map.json` maps each `fe()` specifier to a URL served at runtime.
-The shell build injects it into `shell/index.html` via the `<!-- __IMPORT_MAP__ -->`
-placeholder.
-
-Update the import map **manually** (or via CD pipeline) after uploading a new artifact.
-The `admin upload` command prints the required JSON snippet.
-
-## Running things
-
-All CLI commands are run from the repo root with `bun cli/src/index.ts <command>`.
-
-| Command | Effect |
-|---|---|
-| `build mfe-a` | Bun bundles `mfe-a/src/index.ts` → `mfe-a/dist/` |
-| `build mfe-b` | Bun bundles `mfe-b/src/index.ts` → `mfe-b/dist/` |
-| `build shell` | Bundles shell + injects import map → `shell/dist/` |
-| `serve` | Serves `shell/dist/` and `uploads/` on port 3000 |
-| `dev mfe-a` | Sandbox server for mfe-a with SSE hot reload |
-| `link mfe-b mfe-a` | Adds `fe(@acme/mfe-a)` devDep + runs bun install in mfe-b |
-| `admin upload mfe-a` | Copies `mfe-a/dist/` → `uploads/mfe-a/<version>/` |
-
-## CI
-
-CI runs on push/PR to `main`. Steps: install deps (mfe-b, shell) → type-check all three
-packages → build all three packages. No test suite yet.
-
-## What not to do
-
-- Do not bundle `fe(...)` imports — they must stay external.
-- Do not update `configs/import-map.json` inside `admin upload`; that separation is intentional.
-- Do not add framework dependencies. The render interface uses plain DOM APIs.
-- Do not add workspace configuration; this is intentionally not a monorepo workspace.
+## ✗ invariants
+- !bundle fe(*) · must stay external · importmap resolves runtime
+- admin-upload !touches configs/import-map.json (separation intentional: upload=artifact config=separate)
+- !framework-deps · DOM only
+- !workspace-config (not a monorepo workspace)
+- fe() devDeps → devDependencies only (build.ts reads devDeps, not deps)
+- shell-build output: shell/dist/{index.html(importmap-injected) app.js}
+- uploads/ !git-tracked
