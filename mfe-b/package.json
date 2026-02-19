@@ -1,0 +1,12 @@
+{
+  "name": "fe(@acme/mfe-b)",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --format esm --target browser"
+  },
+  "devDependencies": {
+    "fe(@acme/mfe-a)": "file:../mfe-a"
+  }
+}

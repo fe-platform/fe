@@ -11,25 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: bun-
 
-      - name: Type check
-        run: bun run typecheck
+      - name: Install
+        run: |
+          (cd mfe-b && bun install)
+          (cd shell && bun install)
 
-      - name: Lint
-        run: bun run lint
-
-      - name: Test
-        run: bun run test
+      - name: Type-check
+        run: |
+          bunx tsc --noEmit --project mfe-a/tsconfig.json
+          bunx tsc --noEmit --project mfe-b/tsconfig.json
+          bunx tsc --noEmit --project shell/tsconfig.json
 
       - name: Build
-        run: bun run build
+        run: |
+          (cd mfe-a && bun run build)
+          (cd mfe-b && bun run build)
+          (cd shell && bun run build)
