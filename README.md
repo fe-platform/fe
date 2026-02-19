@@ -9,26 +9,26 @@ Minimal microfrontend platform using **import maps** and **Bun** as the only bui
 ├── mfe-a/                 # Standalone microfrontend
 ├── mfe-b/                 # Microfrontend that composes mfe-a
 ├── shell/                 # Host app that renders mfe-b
-├── cli/                   # Build, serve, dev, and admin commands
+├── cli/                   # Build, serve, dev, link, and admin commands
 ├── configs/
-│   └── import-map.json    # Maps fe: specifiers → URLs (the deployment config)
+│   └── import-map.json    # Maps fe() specifiers → URLs (the deployment config)
 └── uploads/               # Local filesystem "registry" (swap for CDN in production)
 ```
 
-## The `fe:` specifier scheme
+## The `fe()` specifier scheme
 
-MFEs import each other using the `fe:@scope/package` scheme:
+MFEs import each other using the `fe(@scope/package)` package naming convention:
 
 ```ts
-import { render } from "fe:@acme/mfe-a";
+import { render } from "fe(@acme/mfe-a)";
 ```
 
-- **At build time**: Bun treats `fe:*` as external — not bundled.
-- **At runtime**: The browser resolves `fe:@acme/mfe-a` via the injected `<script type="importmap">`.
-- This makes the scheme a universal marker: any `fe:` import is a federated dependency.
+- **Package names** follow the `fe(@scope/name)` pattern — this is the package `name` field in `package.json`.
+- **At build time**: Bun externalizes all packages whose names start with `fe(` (read from `devDependencies`) — they are not bundled.
+- **At runtime**: The browser resolves `fe(@acme/mfe-a)` to a URL via the injected `<script type="importmap">`.
+- This convention makes federated dependencies universally identifiable: any `fe(...)` import is a cross-MFE boundary.
 
-> **Browser compatibility note**: `fe:` is an unknown URL scheme. Import maps should intercept it
-> before any fetch, but this needs validation across browsers. Fallback: use `@mfe/` bare specifiers.
+The `fe()` wrapper is a plain package name string, not a URL scheme. Import maps match it as a bare specifier.
 
 ## MFE interface
 
@@ -54,6 +54,9 @@ bun cli/src/index.ts serve         # http://localhost:3000
 # Dev mode: sandbox + hot reload for a single MFE
 bun cli/src/index.ts dev mfe-a     # http://localhost:3000
 
+# Wire up a fe() dependency between packages (TypeScript + runtime)
+bun cli/src/index.ts link mfe-b mfe-a
+
 # Upload a built MFE to the local registry
 bun cli/src/index.ts admin upload mfe-a
 ```
@@ -77,14 +80,34 @@ bun cli/src/index.ts build mfe-a
 
 # 2. Upload (prints the URL, no auth for filesystem backend)
 bun cli/src/index.ts admin upload mfe-a
-# → Uploaded @acme/mfe-a@1.0.0
-# → URL: ./uploads/mfe-a/1.0.0/index.js
+# Uploaded fe(@acme/mfe-a)@1.0.0
+# URL: ./uploads/mfe-a/1.0.0/index.js
+#
+# Update configs/import-map.json manually:
+#   "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js"
 
-# 3. Update configs/import-map.json manually (or via pipeline):
-#    "fe:@acme/mfe-a": "./uploads/mfe-a/1.0.0/index.js"
+# 3. Edit configs/import-map.json (or let a CD pipeline do it):
+#    "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js"
 
 # 4. Rebuild shell to inject the new import map, then serve
 bun cli/src/index.ts build shell && bun cli/src/index.ts serve
+```
+
+### Linking a new MFE dependency
+
+The `link` command adds a `devDependency` with a `file:` URI and runs `bun install`,
+so TypeScript resolves the `fe()` import directly from `node_modules` without any
+`tsconfig` paths config:
+
+```bash
+# Make mfe-b depend on mfe-a
+bun cli/src/index.ts link mfe-b mfe-a
+```
+
+For packages in separate repos, swap `file:../mfe-a` for a git URI — nothing else changes:
+
+```json
+"fe(@acme/mfe-a)": "git+https://github.com/org/mfe-a#v1.0.0"
 ```
 
 ### Developing an MFE in isolation
@@ -95,6 +118,24 @@ bun cli/src/index.ts dev mfe-a
 # Edit src/ → Bun rebuilds → SSE notifies browser → location.reload().
 # No HMR runtime. Full reload is fast enough with Bun.
 ```
+
+## How `fe()` deps are externalized at build time
+
+`build.ts` reads `devDependencies` from each package's `package.json` and externalizes
+any entry whose key starts with `fe(`. This means the package name convention _is_ the
+build signal — no extra config file needed.
+
+```json
+// mfe-b/package.json
+{
+  "devDependencies": {
+    "fe(@acme/mfe-a)": "file:../mfe-a"
+  }
+}
+```
+
+At build time, `fe(@acme/mfe-a)` is left as an external import. At runtime, the browser
+resolves it via the import map in `configs/import-map.json`.
 
 ## Hot reload design
 
