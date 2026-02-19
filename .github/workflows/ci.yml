@@ -26,8 +26,8 @@ jobs:
 
       - name: Install
         run: |
-          (cd mfe-b && bun install --frozen-lockfile)
-          (cd shell && bun install --frozen-lockfile)
+          (cd mfe-b && bun install)
+          (cd shell && bun install)
 
       - name: Type-check
         run: |
