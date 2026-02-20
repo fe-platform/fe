@@ -1,0 +1,25 @@
+{
+  "routes": {
+    "/": "fe(@acme/mfe-b)@1.0.0"
+  },
+  "packages": {
+    "fe(@acme/mfe-a)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-a/1.0.0/index.js",
+          "deps": {}
+        }
+      }
+    },
+    "fe(@acme/mfe-b)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-b/1.0.0/index.js",
+          "deps": {
+            "fe(@acme/mfe-a)": "^1.0.0"
+          }
+        }
+      }
+    }
+  }
+}

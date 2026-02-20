@@ -6,25 +6,34 @@ pkg=cli@1.0.0 · entry: src/index.ts · run: `bun cli/src/index.ts <cmd>` from r
 ## src/ file map
 ```
 index.ts   argv-router (process.argv[2]=cmd) · dynamic import each module
-config.ts  shared constants+helpers
+config.ts  shared constants+helpers+types for platform config
 build.ts   Bun.build wrapper
 serve.ts   static HTTP server
 dev.ts     sandbox server + SSE hotreload
 link.ts    devDep wiring + bun-install
-admin.ts   artifact upload to local registry
+admin.ts   artifact upload + platform.json registration
 ```
 
 ## config.ts — exports
 ```
-ROOT            = import.meta.dir/../../          (repo root, absolute)
-CONFIGS_DIR     = ROOT/configs/
-IMPORT_MAP_PATH = ROOT/configs/import-map.json
-UPLOADS_DIR     = ROOT/uploads/
+ROOT                 = import.meta.dir/../../          (repo root, absolute)
+CONFIGS_DIR          = ROOT/configs/
+PLATFORM_CONFIG_PATH = ROOT/configs/platform.json
+UPLOADS_DIR          = ROOT/uploads/
 
-readImportMap()→ImportMap          JSON.parse(IMPORT_MAP_PATH)
-writeImportMap(map)→void           Bun.write(IMPORT_MAP_PATH, JSON.stringify+\n)  [unused currently]
-readPackageMeta(dir)→{name,ver}    JSON.parse(dir/package.json) · throws if !name||!version
-ImportMap type = {imports:Record<string,string>}
+Types:
+  ImportMap          = {imports:Record<string,string>}
+  PackageVersion     = {url:string, deps:Record<string,string>}
+  PackageEntry       = {versions:Record<string,PackageVersion>}
+  PlatformConfig     = {routes:Record<string,string>, packages:Record<string,PackageEntry>}
+
+readPlatformConfig()→PlatformConfig    JSON.parse(PLATFORM_CONFIG_PATH)
+writePlatformConfig(config)→void       Bun.write(PLATFORM_CONFIG_PATH, JSON.stringify+\n)
+readPackageMeta(dir)→{name,ver}        JSON.parse(dir/package.json) · throws if !name||!version
+readFeDeps(dir)→Record<string,string>  filter devDeps starting with "fe("
+parseSpecVersion(sv)→{specifier,ver}   "fe(@acme/x)@1.0.0" → {specifier,version}
+slugFromSpecifier(spec)→string         "fe(@acme/mfe-a)" → "mfe-a"
+generateRouteImportMap(config)→ImportMap  routes → {imports: {specifier: url}}
 ```
 
 ## build.ts — logic
@@ -49,7 +58,8 @@ build(target):Promise<void>
 
 buildShell():Promise<void>
   dir = ROOT/shell
-  importMap ← readImportMap()
+  config ← readPlatformConfig()
+  importMap ← generateRouteImportMap(config)
   Bun.build({
     entrypoints:[dir/src/index.ts]
     outdir:dir/dist
@@ -58,8 +68,8 @@ buildShell():Promise<void>
     external:feDeps(dir)
   })
   template ← Bun.file(dir/index.html).text()
-  scriptTag = <script type="importmap">\n  {JSON.stringify(importMap,null,2)}\n  </script>
-  html = template.replace("<!-- __IMPORT_MAP__ -->", scriptTag)
+  replace <!-- __IMPORT_MAP__ --> with <script type="importmap">{importMap}</script>
+  replace <!-- __PLATFORM_CONFIG__ --> with <script id="__platform__" type="application/json">{config}</script>
   Bun.write(dir/dist/index.html, html)
   log "Built shell → shell/dist/"
 ```
@@ -125,17 +135,24 @@ adminUpload(target):void
   dir=ROOT/target · distDir=dir/dist
   !Bun.file(distDir/index.js).size → error+exit(1)
   {name,version} ← readPackageMeta(dir)
-  slug = name.replace(/^fe\(/,"").replace(/\)$/,"").replace(/^@[^/]+\//,"")
-    e.g. "fe(@acme/mfe-a)"→"mfe-a"
+  slug = slugFromSpecifier(name)
   uploadPath = UPLOADS_DIR/slug/version
   mkdirSync(uploadPath,{recursive:true})
   cpSync(distDir, uploadPath, {recursive:true})
   url = "./uploads/{slug}/{version}/index.js"
+
+  rawFeDeps ← readFeDeps(dir)
+  for each depSpecifier: resolve dep version → "^X.Y.Z" range
+  deps = { specifier: "^version", ... }
+
+  config ← readPlatformConfig()
+  config.packages[name].versions[version] = { url, deps }
+  writePlatformConfig(config)
+
   prints:
     "Uploaded {name}@{version}"
     "URL: {url}"
-    ""
-    "Update configs/import-map.json manually:"
-    '  "{name}": "{url}"'
-  !modifies configs/import-map.json
+    "Deps: ..."
+    "Registered in configs/platform.json"
+    "To activate for a route, update the 'routes' section."
 ```

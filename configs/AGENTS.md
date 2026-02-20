@@ -1,43 +1,77 @@
 # ⬡ configs/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
-## import-map.json
+## platform.json
 ```json
 {
-  "imports": {
-    "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js",
-    "fe(@acme/mfe-b)": "./uploads/mfe-b/1.0.0/index.js"
+  "routes": {
+    "/": "fe(@acme/mfe-b)@1.0.0"
+  },
+  "packages": {
+    "fe(@acme/mfe-a)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-a/1.0.0/index.js",
+          "deps": {}
+        }
+      }
+    },
+    "fe(@acme/mfe-b)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-b/1.0.0/index.js",
+          "deps": {
+            "fe(@acme/mfe-a)": "^1.0.0"
+          }
+        }
+      }
+    }
   }
 }
 ```
 
 ## semantics
-key   = fe() bare-specifier = exact string in `import … from "fe(@acme/…)"`
-value = URL served at runtime
-  local:   "./uploads/<slug>/<ver>/index.js"  (relative to index.html · served by cli-serve at /uploads/*)
-  prod:    "https://cdn.example.com/<slug>/<ver>/index.js"
+
+### routes
+key   = URL path (e.g. "/", "/dashboard")
+value = "specifier@version" — the top-level MFE for that route
+  goes into the default import map served with the HTML
+
+### packages
+key   = fe() bare-specifier (exact string in `import … from "fe(@acme/…)"`)
+value = { versions: { "X.Y.Z": { url, deps } } }
+  url:  runtime URL for the built artifact
+    local:   "./uploads/<slug>/<ver>/index.js"
+    remote:  "https://cdn.example.com/<slug>/<ver>/index.js"
+  deps: fe() dependencies with semver ranges (e.g. "^1.0.0")
 
 ## consumers
 ```
 cli/src/build.ts:buildShell()
-  ← readImportMap()
-  → inject as <script type="importmap"> into shell/dist/index.html
-  (happens every `build shell` · must rebuild shell after editing this file)
+  ← readPlatformConfig() + generateRouteImportMap()
+  → inject <script type="importmap"> (routes only) into shell/dist/index.html
+  → inject <script id="__platform__" type="application/json"> (full config)
 
-browser at runtime
-  → resolves fe() bare-specifiers to JS file URLs
+cli/src/admin.ts:adminUpload()
+  ← readPlatformConfig()
+  → writePlatformConfig() (adds package version entry with URL + deps)
+
+shell/src/platform.ts (browser runtime)
+  ← reads <script id="__platform__"> from DOM
+  → resolves fe() dep graph · injects additional import maps · dynamic import()
 ```
 
 ## update procedure
 ```
 1. bun cli/src/index.ts admin upload <mfe>
-     prints:  "fe(@acme/mfe-x)":"./uploads/mfe-x/1.0.0/index.js"
-2. edit import-map.json: add/update the printed key-value
-3. bun cli/src/index.ts build shell   (re-injects updated map)
+     registers package version in platform.json (URL + deps)
+2. edit platform.json "routes": update specifier@version for the route
+3. bun cli/src/index.ts build shell   (re-injects updated map + config)
 ```
 
 ## invariants
-- !edited by admin-upload (intentional separation: artifact≠config)
-- !remove existing entries without ensuring no live shell references them
-- key must exactly match import specifier in consuming source files
-- value must be reachable from shell/dist/index.html at runtime
+- admin-upload writes to `packages` only, never `routes` (separation preserved)
+- `routes` updated manually or by CD pipeline
+- package URL must be reachable from shell/dist/index.html at runtime
+- deps use semver ranges (e.g. "^1.0.0"); resolved by shell runtime in browser
+- cross-ecosystem packages use full URLs (https://...)

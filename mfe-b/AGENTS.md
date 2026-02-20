@@ -55,7 +55,7 @@ bun cli/src/index.ts link mfe-b <new-dep>  (from repo root)
 ```
 bun cli/src/index.ts admin upload mfe-b
   copies dist/ → uploads/mfe-b/1.0.0/
-  prints snippet for configs/import-map.json
+  registers package version in configs/platform.json (URL + deps)
 ```
 
 ## dev (from repo root)

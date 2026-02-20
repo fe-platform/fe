@@ -6,9 +6,10 @@ CLAUDE.md→symlink→here
 / (!npm-workspace !monorepo-config plain-dir)
 ├─ mfe-a/      name=fe(@acme/mfe-a) v1.0.0  standalone-MFE  fe()-deps=∅
 ├─ mfe-b/      name=fe(@acme/mfe-b) v1.0.0  composes-mfe-a  devDep→fe(@acme/mfe-a)
-├─ shell/      name=shell           v1.0.0  host-app        devDep→fe(@acme/mfe-b)
+├─ shell/      name=shell           v1.0.0  host-app        dynamic MFE loading via platform runtime
 ├─ cli/        name=cli             v1.0.0  tooling · entry=src/index.ts
-├─ configs/import-map.json          specifier→URL · consumed by buildShell+browser
+├─ configs/platform.json            routes+packages registry · consumed by buildShell+browser runtime
+├─ docs/                            architecture docs
 └─ uploads/    gitignored · local-registry · path: slug/version/index.js
 ```
 each subdir has own AGENTS.md with full local detail
@@ -23,11 +24,11 @@ tests=∅  CI=typecheck+build
 fe(@scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
 pkg.json  "name":"fe(@acme/mfe-a)"
 src       import {x} from "fe(@acme/mfe-a)"
-importmap "fe(@acme/mfe-a)":"./uploads/mfe-a/1.0.0/index.js"
+platform  configs/platform.json packages section: specifier → versions → {url, deps}
 ```
 build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]
 ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths
-runtime: browser importmap resolves bare-specifier → JS url
+runtime: browser import maps resolve bare-specifier → JS url (multiple maps, injected lazily)
 
 ## MFE interface (∀ MFE must export)
 ```ts
@@ -38,22 +39,45 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
 
 ## CLI (cwd=root · `bun cli/src/index.ts <cmd>`)
 ```
-build  mfe-a|mfe-b|shell   →dist/ · shell: +inject importmap→HTML
+build  mfe-a|mfe-b|shell   →dist/ · shell: +inject importmap+config→HTML
 serve  [port=3000]          shell/dist/ · /uploads/→ROOT/uploads/
 dev    <tgt> [port=3000]    sandbox+SSE · watch src/→rebuild→reload
 link   <consumer> <dep>     write devDep file:URI + bun-install in consumer
-admin upload <tgt>          cp dist/→uploads/slug/ver/ · print URL+snippet · !edit importmap
+admin upload <tgt>          cp dist/→uploads/slug/ver/ · register in platform.json
 ```
+
+## platform.json config
+```json
+{
+  "routes": { "/": "fe(@acme/mfe-b)@1.0.0" },
+  "packages": {
+    "fe(@acme/mfe-a)": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
+    "fe(@acme/mfe-b)": { "versions": { "1.0.0": { "url": "...", "deps": { "fe(@acme/mfe-a)": "^1.0.0" } } } }
+  }
+}
+```
+routes: path → specifier@version (top-level MFEs, go in default import map)
+packages: specifier → versions → {url, deps} (registry of all published MFE versions)
 
 ## deploy flow
 ```
 build <mfe> → admin upload <mfe>
-  ↓ prints: "fe(@acme/mfe-a)":"./uploads/mfe-a/1.0.0/index.js"
-edit configs/import-map.json (manual|CD)
+  ↓ registers package in platform.json (URL + deps)
+edit configs/platform.json "routes" (manual|CD)
   ↓
-build shell  (re-injects map → shell/dist/index.html)
+build shell  (re-injects route map + config → shell/dist/index.html)
   ↓
 serve
+```
+
+## runtime flow (browser)
+```
+1. HTML loads with default import map (route MFEs only) + embedded platform config
+2. shell app.js calls platform.load(path)
+3. load() reads config, resolves route → specifier@version
+4. resolves transitive fe() deps via semver (from packages registry in config)
+5. injects additional <script type="importmap"> for deps
+6. import(specifier) → browser resolves via initial + injected maps
 ```
 
 ## CI · .github/workflows/ci.yml
@@ -65,9 +89,12 @@ build: mfe-a(bun run build) mfe-b(bun run build) shell(bun run build)
 
 ## ✗ invariants
 - !bundle fe(*) · must stay external · importmap resolves runtime
-- admin-upload !touches configs/import-map.json (separation intentional: upload=artifact config=separate)
+- admin-upload writes to packages only, never routes (separation preserved)
+- routes updated manually or by CD pipeline
 - !framework-deps · DOM only
 - !workspace-config (not a monorepo workspace)
 - fe() devDeps → devDependencies only (build.ts reads devDeps, not deps)
-- shell-build output: shell/dist/{index.html(importmap-injected) app.js}
+- shell-build output: shell/dist/{index.html(importmap+config injected) app.js}
 - uploads/ !git-tracked
+- multiple import maps: deps injected lazily, deduped via versioned resolution
+- cross-ecosystem: packages can use remote URLs (https://cdn.other-org.com/...)
