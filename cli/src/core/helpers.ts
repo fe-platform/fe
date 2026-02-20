@@ -1,41 +1,13 @@
 import { join } from "path";
 import { readFileSync } from "fs";
-
-// --- Types ---
-
-export type ImportMap = { imports: Record<string, string> };
-
-export interface PackageVersion {
-  url: string;
-  deps: Record<string, string>; // specifier → semver range (e.g. "^1.0.0")
-}
-
-export interface PackageEntry {
-  versions: Record<string, PackageVersion>;
-}
-
-export interface PlatformConfig {
-  routes: Record<string, string>; // path → "specifier@version"
-  packages: Record<string, PackageEntry>;
-}
+import type { ImportMap, PlatformConfig } from "./types";
 
 // --- Paths ---
 
-export const ROOT = join(import.meta.dir, "..", "..");
+export const ROOT = join(import.meta.dir, "..", "..", "..");
 export const CONFIGS_DIR = join(ROOT, "configs");
 export const PLATFORM_CONFIG_PATH = join(CONFIGS_DIR, "platform.json");
 export const UPLOADS_DIR = join(ROOT, "uploads");
-
-// --- Platform config I/O ---
-
-export function readPlatformConfig(): PlatformConfig {
-  const text = readFileSync(PLATFORM_CONFIG_PATH, "utf8");
-  return JSON.parse(text);
-}
-
-export function writePlatformConfig(config: PlatformConfig): void {
-  Bun.write(PLATFORM_CONFIG_PATH, JSON.stringify(config, null, 2) + "\n");
-}
 
 // --- Helpers ---
 
@@ -56,14 +28,20 @@ export function readFeDeps(dir: string): Record<string, string> {
   return result;
 }
 
-// Parse "fe(@acme/mfe-b)@1.0.0" → { specifier, version }.
+// Reads devDependencies from a package.json and returns all fe() specifier keys.
+export function readFeDepKeys(dir: string): string[] {
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  return Object.keys(pkg.devDependencies ?? {}).filter((k) => k.startsWith("fe("));
+}
+
+// Parse "fe(@acme/mfe-b)@1.0.0" -> { specifier, version }.
 export function parseSpecVersion(sv: string): { specifier: string; version: string } {
   const idx = sv.indexOf(")@");
   if (idx === -1) throw new Error(`Invalid specifier@version: ${sv}`);
   return { specifier: sv.slice(0, idx + 1), version: sv.slice(idx + 2) };
 }
 
-// Extract slug from fe(@acme/mfe-a) → mfe-a
+// Extract slug from fe(@acme/mfe-a) -> mfe-a
 export function slugFromSpecifier(specifier: string): string {
   return specifier.replace(/^fe\(/, "").replace(/\)$/, "").replace(/^@[^/]+\//, "");
 }
