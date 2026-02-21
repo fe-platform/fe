@@ -12,8 +12,9 @@ import { adminPlugin } from "./plugins/admin";
 import { devPlugin } from "./plugins/dev";
 import { linkPlugin } from "./plugins/link";
 import { servePlugin } from "./plugins/serve";
+import { checkPlugin } from "./plugins/check";
 
-const BUILTIN_PLUGINS: Plugin[] = [buildPlugin, servePlugin, devPlugin, linkPlugin, adminPlugin];
+const BUILTIN_PLUGINS: Plugin[] = [buildPlugin, servePlugin, devPlugin, linkPlugin, adminPlugin, checkPlugin];
 
 export async function bootstrap(root: string): Promise<{ ctx: CliContext; hooks: Hooks }> {
   const feConfig = readFeConfig(root);

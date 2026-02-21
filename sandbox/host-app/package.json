@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "cd .. && fe build shell",
+    "check": "cd .. && fe check shell",
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {

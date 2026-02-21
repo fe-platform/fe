@@ -4,10 +4,14 @@
   "module": "src/index.tsx",
   "types": "src/index.tsx",
   "scripts": {
-    "build": "bun build src/index.tsx --outdir dist --format esm --target browser --external 'fe(*)'",
-    "typecheck": "bunx tsc --noEmit"
+    "build": "bun build src/index.ts --outdir dist --format esm --target browser --external 'fe(*)'",
+    "typecheck": "bunx tsc --noEmit",
+    "check": "cd ../.. && fe check sandbox/devtools"
   },
   "dependencies": {
     "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*"
   }
 }

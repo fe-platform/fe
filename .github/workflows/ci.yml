@@ -54,7 +54,7 @@ jobs:
           bunx tsc --noEmit --project sandbox/devtools/tsconfig.json
       - name: Build sandbox
         run: |
-          (cd sandbox/mfe-a && bun run build)
-          (cd sandbox/mfe-b && bun run build)
-          (cd sandbox/devtools && bun run build)
-          (cd sandbox/host-app && bun run build)
+          (cd sandbox/mfe-a && bun run check)
+          (cd sandbox/mfe-b && bun run check)
+          (cd sandbox/devtools && bun run check)
+          (cd sandbox/host-app && bun run check)
