@@ -8,6 +8,7 @@ CLAUDE.md→symlink→here
 ├─ mfe-b/      name=fe(@acme/mfe-b) v1.0.0  composes-mfe-a  devDep→fe(@acme/mfe-a)
 ├─ shell/      name=shell           v1.0.0  host-app        dynamic MFE loading via platform runtime
 ├─ cli/        name=cli             v1.0.0  tooling · entry=src/index.ts
+├─ devtools/   name=fe(@acme/devtools) v1.0.0  developer overlay MFE · uses Solid.js · loaded via loadDevtools()
 ├─ configs/platform.json            routes+packages registry · consumed by buildShell+browser runtime
 ├─ docs/                            architecture docs
 └─ uploads/    gitignored · local-registry · path: slug/version/index.js
@@ -35,11 +36,11 @@ runtime: browser import maps resolve bare-specifier → JS url (multiple maps, i
 export function render(container:HTMLElement,props:Record<string,unknown>):()=>void
 //                                                                         ↑ unmount/cleanup
 ```
-!framework · DOM-only · return removes own DOM nodes
+!framework · DOM-only · return removes own DOM nodes (devtools/ exception: uses Solid.js)
 
 ## CLI (cwd=root · `bun cli/src/index.ts <cmd>`)
 ```
-build  mfe-a|mfe-b|shell   →dist/ · shell: +inject importmap+config→HTML
+build  mfe-a|mfe-b|shell   →dist/ · shell: +inject config→HTML (import maps injected at runtime)
 serve  [port=3000]          shell/dist/ · /uploads/→ROOT/uploads/
 dev    <tgt> [port=3000]    sandbox+SSE · watch src/→rebuild→HMR module-swap (no page reload)
 link   <consumer> <dep>     write devDep file:URI + bun-install in consumer
@@ -65,19 +66,19 @@ build <mfe> → admin upload <mfe>
   ↓ registers package in platform.json (URL + deps)
 edit configs/platform.json "routes" (manual|CD)
   ↓
-build shell  (re-injects route map + config → shell/dist/index.html)
+build shell  (injects config → shell/dist/index.html · import maps injected at runtime)
   ↓
 serve
 ```
 
 ## runtime flow (browser)
 ```
-1. HTML loads with default import map (route MFEs only) + embedded platform config
-2. shell app.js calls platform.load(path)
+1. HTML loads with embedded platform config · no static import map
+2. shell app.js calls loadDevtools() then platform.load(path)
 3. load() reads config, resolves route → specifier@version
 4. resolves transitive fe() deps via semver (from packages registry in config)
-5. injects additional <script type="importmap"> for deps
-6. import(specifier) → browser resolves via initial + injected maps
+5. injects <script type="importmap"> for all resolved deps (including route MFE)
+6. import(specifier) → browser resolves via injected maps
 ```
 
 ## CI · .github/workflows/ci.yml
@@ -100,10 +101,10 @@ when a PR merges that implements a plan:
 - !bundle fe(*) · must stay external · importmap resolves runtime
 - admin-upload writes to packages only, never routes (separation preserved)
 - routes updated manually or by CD pipeline
-- !framework-deps · DOM only
+- !framework-deps · DOM only (exception: devtools/ bundles Solid.js internally)
 - !workspace-config (not a monorepo workspace)
 - fe() devDeps → devDependencies only (build.ts reads devDeps, not deps)
-- shell-build output: shell/dist/{index.html(importmap+config injected) app.js}
+- shell-build output: shell/dist/{index.html(config injected) app.js} · import maps runtime-only
 - uploads/ !git-tracked
 - multiple import maps: deps injected lazily, deduped via versioned resolution
 - cross-ecosystem: packages can use remote URLs (https://cdn.other-org.com/...)

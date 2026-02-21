@@ -1,8 +1,5 @@
-// Platform runtime: reads the embedded config, resolves fe() dependency graphs,
-// injects multiple import maps, and dynamically loads route MFEs.
-// Supports per-tab local overrides via sessionStorage for developer workflows.
-
-// --- Types (mirrors cli/src/config.ts for browser use) ---
+import { resolveVersion } from "./semver";
+import { readOverrides, processUrlParams } from "./overrides";
 
 interface PackageVersion {
   url: string;
@@ -24,80 +21,6 @@ type RenderFn = (
   props: Record<string, unknown>
 ) => () => void;
 
-// --- Semver (minimal, browser-safe) ---
-
-function parseSemver(v: string): [number, number, number] {
-  const parts = v.split(".").map(Number);
-  return [parts[0], parts[1], parts[2]];
-}
-
-function satisfies(version: string, range: string): boolean {
-  if (!range.startsWith("^")) return version === range;
-  const [vMaj, vMin, vPatch] = parseSemver(version);
-  const [rMaj, rMin, rPatch] = parseSemver(range.slice(1));
-  if (rMaj > 0) {
-    if (vMaj !== rMaj) return false;
-    if (vMin < rMin) return false;
-    if (vMin === rMin && vPatch < rPatch) return false;
-    return true;
-  }
-  if (rMin > 0) {
-    if (vMaj !== 0 || vMin !== rMin) return false;
-    return vPatch >= rPatch;
-  }
-  return vMaj === 0 && vMin === 0 && vPatch === rPatch;
-}
-
-function resolveVersion(versions: string[], range: string): string | null {
-  const matching = versions.filter((v) => satisfies(v, range));
-  if (matching.length === 0) return null;
-  matching.sort((a, b) => {
-    const [aMaj, aMin, aPatch] = parseSemver(a);
-    const [bMaj, bMin, bPatch] = parseSemver(b);
-    return bMaj - aMaj || bMin - aMin || bPatch - aPatch;
-  });
-  return matching[0];
-}
-
-// --- Overrides ---
-
-const OVERRIDES_KEY = "platform:overrides";
-
-function processUrlParams(): void {
-  const params = new URLSearchParams(location.search);
-
-  if (params.has("platform:clear-overrides")) {
-    sessionStorage.removeItem(OVERRIDES_KEY);
-    params.delete("platform:clear-overrides");
-    const qs = params.toString();
-    history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
-    return;
-  }
-
-  const raw = params.get("platform:overrides");
-  if (!raw) return;
-  try {
-    const incoming = JSON.parse(raw) as Record<string, string>;
-    const merged = { ...readOverrides(), ...incoming };
-    sessionStorage.setItem(OVERRIDES_KEY, JSON.stringify(merged));
-  } catch {
-    // ignore malformed param
-  }
-  params.delete("platform:overrides");
-  const qs = params.toString();
-  history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
-}
-
-export function readOverrides(): Record<string, string> {
-  try {
-    return JSON.parse(sessionStorage.getItem(OVERRIDES_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
-// --- Config ---
-
 processUrlParams();
 
 function readConfig(): PlatformConfig {
@@ -106,19 +29,15 @@ function readConfig(): PlatformConfig {
   return JSON.parse(el.textContent!);
 }
 
-// Parse "fe(@acme/mfe-b)@1.0.0" → { specifier, version }
 function parseSpecVersion(sv: string): { specifier: string; version: string } {
   const idx = sv.indexOf(")@");
   if (idx === -1) throw new Error(`Invalid specifier@version: ${sv}`);
   return { specifier: sv.slice(0, idx + 1), version: sv.slice(idx + 2) };
 }
 
-// --- Dependency resolution ---
-
 const config = readConfig();
-const injectedSpecifiers = new Map<string, string>(); // specifier → url
+const injectedSpecifiers = new Map<string, string>();
 
-// Seed with specifiers already present in import maps on the page.
 (function initInjected() {
   const scripts = Array.from(document.querySelectorAll('script[type="importmap"]'));
   for (const script of scripts) {
@@ -130,13 +49,11 @@ const injectedSpecifiers = new Map<string, string>(); // specifier → url
         injectedSpecifiers.set(spec, url);
       }
     } catch {
-      /* ignore malformed maps */
+      /* ignore */
     }
   }
 })();
 
-// Walk the transitive dep graph for a specifier@version.
-// Returns a flat map of specifier → url.
 function resolveDeps(
   specifier: string,
   version: string,
@@ -164,8 +81,6 @@ function resolveDeps(
   return resolved;
 }
 
-// --- Import map injection ---
-
 function injectImportMap(imports: Record<string, string>): void {
   const newImports: Record<string, string> = {};
   for (const [spec, url] of Object.entries(imports)) {
@@ -190,7 +105,6 @@ function injectImportMap(imports: Record<string, string>): void {
   document.head.appendChild(script);
 }
 
-// Apply any active overrides to the resolved dep map, then inject import maps.
 function applyOverridesAndInject(allDeps: Map<string, string>): void {
   const overrides = readOverrides();
   for (const [spec, url] of Object.entries(overrides)) {
@@ -204,8 +118,6 @@ function applyOverridesAndInject(allDeps: Map<string, string>): void {
   injectImportMap(imports);
 }
 
-// --- Public API ---
-
 export async function load(
   path: string
 ): Promise<{ render: RenderFn; [key: string]: unknown }> {
@@ -213,14 +125,9 @@ export async function load(
   if (!routeEntry) throw new Error(`No route for path: ${path}`);
 
   const { specifier, version } = parseSpecVersion(routeEntry);
-
-  // Resolve the full transitive dep graph (including the route MFE itself).
   const allDeps = resolveDeps(specifier, version);
-
-  // Apply overrides and inject all import maps — route MFE included.
   applyOverridesAndInject(allDeps);
 
-  // Dynamic import — browser resolves via injected maps.
   return import(specifier);
 }
 

@@ -3,16 +3,12 @@ import { readFileSync, writeFileSync } from "fs";
 import type { Plugin } from "../core/plugin";
 import { readPackageMeta } from "../core/helpers";
 
-// --- Hook declarations ---
-
 declare module "../core/hooks" {
   interface HookMap {
     "link:before": [consumer: string, dep: string];
     "link:after": [consumer: string, depName: string];
   }
 }
-
-// --- Plugin ---
 
 export const linkPlugin: Plugin = {
   name: "link",

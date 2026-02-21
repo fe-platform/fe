@@ -5,8 +5,6 @@ import type { Hooks } from "../core/hooks";
 import type { BuildOptions, BuildResult } from "../core/types";
 import { readFeDepKeys } from "../core/helpers";
 
-// --- Hook declarations ---
-
 declare module "../core/hooks" {
   interface HookMap {
     "build:before": [target: string, options: BuildOptions];
@@ -15,8 +13,6 @@ declare module "../core/hooks" {
     "build:shell:after": [];
   }
 }
-
-// --- Public helper for other plugins (e.g. dev) ---
 
 export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string): Promise<void> {
   if (target === "shell") return buildShell(ctx, hooks);
@@ -70,8 +66,6 @@ async function buildShell(ctx: CliContext, hooks: Hooks): Promise<void> {
     process.exit(1);
   }
 
-  // Inject platform config into the HTML template.
-  // Import maps are no longer static — platform.ts injects them all at runtime.
   const template = await Bun.file(join(dir, "index.html")).text();
   const configTag = `<script id="__platform__" type="application/json">\n  ${JSON.stringify(config, null, 2)}\n  </script>`;
   const html = template.replace("<!-- __PLATFORM_CONFIG__ -->", configTag);
@@ -80,8 +74,6 @@ async function buildShell(ctx: CliContext, hooks: Hooks): Promise<void> {
   await hooks.callHook("build:shell:after");
   console.log("Built shell → shell/dist/");
 }
-
-// --- Plugin ---
 
 export const buildPlugin: Plugin = {
   name: "build",

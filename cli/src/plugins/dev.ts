@@ -3,8 +3,6 @@ import type { Plugin } from "../core/plugin";
 import { readPackageMeta } from "../core/helpers";
 import { buildTarget } from "./build";
 
-// --- Hook declarations ---
-
 declare module "../core/hooks" {
   interface HookMap {
     "dev:start": [target: string, port: number];
@@ -12,8 +10,6 @@ declare module "../core/hooks" {
     "dev:reload": [];
   }
 }
-
-// --- SSE infrastructure ---
 
 const SSE_PATH = "/__dev";
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
@@ -56,7 +52,6 @@ function sandboxHtml(name: string): string {
   <script type="module">
     import { render } from "${name}";
     let unmount = render(document.getElementById("sandbox"), {});
-    // HMR: on rebuild, swap the module in-place without a full page reload.
     new EventSource("${SSE_PATH}").onmessage = async (e) => {
       const { t } = JSON.parse(e.data);
       const mod = await import("/index.js?t=" + t);
@@ -67,8 +62,6 @@ function sandboxHtml(name: string): string {
 </body>
 </html>`;
 }
-
-// --- Plugin ---
 
 export const devPlugin: Plugin = {
   name: "dev",

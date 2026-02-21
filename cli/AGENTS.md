@@ -17,7 +17,7 @@ core/
   adapters.ts            ArtifactStorage / ManifestManager / Builder interfaces
   bootstrap.ts           wire default adapters + register built-in plugins
   types.ts               ImportMap, PackageVersion, PackageEntry, PlatformConfig, BuildOptions, BuildResult
-  helpers.ts             ROOT, readPackageMeta, readFeDeps, readFeDepKeys, parseSpecVersion, slugFromSpecifier, generateRouteImportMap
+  helpers.ts             ROOT, CONFIGS_DIR, PLATFORM_CONFIG_PATH, UPLOADS_DIR · readPackageMeta, readFeDeps, readFeDepKeys, parseSpecVersion, slugFromSpecifier
 adapters/
   local-artifact-storage.ts   cpSync to uploads/ · createLocalArtifactStorage(root)→ArtifactStorage
   json-manifest-manager.ts    platform.json R/W · createJsonManifestManager(root)→ManifestManager
@@ -46,7 +46,7 @@ Hooks            = { hook(name,fn,priority?), callHook(name,...args), waterfall(
 ```
 build:before          (target, options)           — pre-build
 build:after           (target, result)            — post-build
-build:shell:before    (config)                    — pre-shell-build (config modifiable)
+build:shell:before    ()                          — pre-shell-build
 build:shell:after     ()                          — post-shell-build
 build:options         waterfall<BuildOptions>      — modify build options before bundling
 serve:start           (port)                      — server started
