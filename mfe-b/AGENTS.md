@@ -1,4 +1,4 @@
-# ⬡ mfe-b/ · agent-ref
+# ⚯ mfe-b/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
 ## identity

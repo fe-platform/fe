@@ -1,4 +1,4 @@
-# ⬡ cli/ · agent-ref
+# ⚯ cli/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
 pkg=cli@1.0.0 · entry: src/index.ts · run: `bun cli/src/index.ts <cmd>` from repo-root

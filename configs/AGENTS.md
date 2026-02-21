@@ -1,4 +1,4 @@
-# ⬡ configs/ · agent-ref
+# ⚯ configs/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
 ## platform.json

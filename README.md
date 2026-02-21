@@ -139,7 +139,7 @@ build signal — no extra config file needed.
 ```
 
 At build time, `fe(@acme/mfe-a)` is left as an external import. At runtime, the browser
-resolves it via the import map in `configs/import-map.json`.
+resolves it via the import map injected into `shell/dist/index.html` (generated from `configs/platform.json`).
 
 ## Hot reload design
 
