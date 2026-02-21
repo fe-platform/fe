@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "bunx @fe/cli build host-app"
+    "build": "bunx @fe/cli build host-app",
+    "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
     "@fe/runtime": "workspace:*"
