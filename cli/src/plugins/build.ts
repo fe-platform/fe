@@ -2,8 +2,8 @@ import { join } from "path";
 import type { Plugin } from "../core/plugin";
 import type { CliContext } from "../core/context";
 import type { Hooks } from "../core/hooks";
-import type { BuildOptions, BuildResult, PlatformConfig } from "../core/types";
-import { readFeDepKeys, generateRouteImportMap } from "../core/helpers";
+import type { BuildOptions, BuildResult } from "../core/types";
+import { readFeDepKeys } from "../core/helpers";
 
 // --- Hook declarations ---
 
@@ -11,7 +11,7 @@ declare module "../core/hooks" {
   interface HookMap {
     "build:before": [target: string, options: BuildOptions];
     "build:after": [target: string, result: BuildResult];
-    "build:shell:before": [config: PlatformConfig];
+    "build:shell:before": [];
     "build:shell:after": [];
   }
 }
@@ -49,9 +49,8 @@ export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string)
 async function buildShell(ctx: CliContext, hooks: Hooks): Promise<void> {
   const dir = join(ctx.root, "shell");
   const config = await ctx.adapters.manifest.read();
-  const importMap = generateRouteImportMap(config);
 
-  await hooks.callHook("build:shell:before", config);
+  await hooks.callHook("build:shell:before");
 
   let options: BuildOptions = {
     entrypoints: [join(dir, "src", "index.ts")],
@@ -71,13 +70,11 @@ async function buildShell(ctx: CliContext, hooks: Hooks): Promise<void> {
     process.exit(1);
   }
 
-  // Inject route import map + platform config into the HTML template.
+  // Inject platform config into the HTML template.
+  // Import maps are no longer static — platform.ts injects them all at runtime.
   const template = await Bun.file(join(dir, "index.html")).text();
-  const importMapTag = `<script type="importmap">\n  ${JSON.stringify(importMap, null, 2)}\n  </script>`;
   const configTag = `<script id="__platform__" type="application/json">\n  ${JSON.stringify(config, null, 2)}\n  </script>`;
-  const html = template
-    .replace("<!-- __IMPORT_MAP__ -->", importMapTag)
-    .replace("<!-- __PLATFORM_CONFIG__ -->", configTag);
+  const html = template.replace("<!-- __PLATFORM_CONFIG__ -->", configTag);
   await Bun.write(join(dir, "dist", "index.html"), html);
 
   await hooks.callHook("build:shell:after");

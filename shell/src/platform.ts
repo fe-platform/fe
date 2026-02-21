@@ -1,5 +1,6 @@
 // Platform runtime: reads the embedded config, resolves fe() dependency graphs,
 // injects multiple import maps, and dynamically loads route MFEs.
+// Supports per-tab local overrides via sessionStorage for developer workflows.
 
 // --- Types (mirrors cli/src/config.ts for browser use) ---
 
@@ -15,6 +16,7 @@ interface PackageEntry {
 interface PlatformConfig {
   routes: Record<string, string>;
   packages: Record<string, PackageEntry>;
+  devtools?: string;
 }
 
 type RenderFn = (
@@ -57,7 +59,46 @@ function resolveVersion(versions: string[], range: string): string | null {
   return matching[0];
 }
 
+// --- Overrides ---
+
+const OVERRIDES_KEY = "platform:overrides";
+
+function processUrlParams(): void {
+  const params = new URLSearchParams(location.search);
+
+  if (params.has("platform:clear-overrides")) {
+    sessionStorage.removeItem(OVERRIDES_KEY);
+    params.delete("platform:clear-overrides");
+    const qs = params.toString();
+    history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
+    return;
+  }
+
+  const raw = params.get("platform:overrides");
+  if (!raw) return;
+  try {
+    const incoming = JSON.parse(raw) as Record<string, string>;
+    const merged = { ...readOverrides(), ...incoming };
+    sessionStorage.setItem(OVERRIDES_KEY, JSON.stringify(merged));
+  } catch {
+    // ignore malformed param
+  }
+  params.delete("platform:overrides");
+  const qs = params.toString();
+  history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
+}
+
+export function readOverrides(): Record<string, string> {
+  try {
+    return JSON.parse(sessionStorage.getItem(OVERRIDES_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
 // --- Config ---
+
+processUrlParams();
 
 function readConfig(): PlatformConfig {
   const el = document.getElementById("__platform__");
@@ -149,6 +190,20 @@ function injectImportMap(imports: Record<string, string>): void {
   document.head.appendChild(script);
 }
 
+// Apply any active overrides to the resolved dep map, then inject import maps.
+function applyOverridesAndInject(allDeps: Map<string, string>): void {
+  const overrides = readOverrides();
+  for (const [spec, url] of Object.entries(overrides)) {
+    if (allDeps.has(spec)) {
+      console.info(`[platform] override active: ${spec} → ${url}`);
+      allDeps.set(spec, url);
+    }
+  }
+  const imports: Record<string, string> = {};
+  for (const [spec, url] of allDeps) imports[spec] = url;
+  injectImportMap(imports);
+}
+
 // --- Public API ---
 
 export async function load(
@@ -159,18 +214,27 @@ export async function load(
 
   const { specifier, version } = parseSpecVersion(routeEntry);
 
-  // Resolve the full transitive dep graph.
+  // Resolve the full transitive dep graph (including the route MFE itself).
   const allDeps = resolveDeps(specifier, version);
 
-  // Inject import maps for deps (the top-level MFE is already in the default map).
-  const depImports: Record<string, string> = {};
-  for (const [spec, url] of allDeps) {
-    if (spec !== specifier) {
-      depImports[spec] = url;
-    }
-  }
-  injectImportMap(depImports);
+  // Apply overrides and inject all import maps — route MFE included.
+  applyOverridesAndInject(allDeps);
 
-  // Dynamic import — browser resolves via initial map + injected dep maps.
+  // Dynamic import — browser resolves via injected maps.
   return import(specifier);
+}
+
+export async function loadDevtools(): Promise<void> {
+  if (!config.devtools) return;
+
+  const { specifier, version } = parseSpecVersion(config.devtools);
+  const allDeps = resolveDeps(specifier, version);
+  applyOverridesAndInject(allDeps);
+
+  const container = document.createElement("div");
+  container.id = "__devtools__";
+  document.body.appendChild(container);
+
+  const mod = await import(specifier) as { render: RenderFn };
+  mod.render(container, {});
 }

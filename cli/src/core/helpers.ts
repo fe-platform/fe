@@ -1,6 +1,6 @@
 import { join } from "path";
 import { readFileSync } from "fs";
-import type { ImportMap, PlatformConfig } from "./types";
+import type { PlatformConfig } from "./types";
 
 // --- Paths ---
 
@@ -46,16 +46,3 @@ export function slugFromSpecifier(specifier: string): string {
   return specifier.replace(/^fe\(/, "").replace(/\)$/, "").replace(/^@[^/]+\//, "");
 }
 
-// Generate the browser import map for top-level route MFEs from platform config.
-export function generateRouteImportMap(config: PlatformConfig): ImportMap {
-  const imports: Record<string, string> = {};
-  for (const entry of Object.values(config.routes)) {
-    const { specifier, version } = parseSpecVersion(entry);
-    const pkg = config.packages[specifier];
-    if (!pkg) throw new Error(`Route references unknown package: ${specifier}`);
-    const ver = pkg.versions[version];
-    if (!ver) throw new Error(`Route references unknown version ${version} of ${specifier}`);
-    imports[specifier] = ver.url;
-  }
-  return { imports };
-}

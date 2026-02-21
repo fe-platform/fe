@@ -28,15 +28,18 @@ jobs:
         run: |
           (cd mfe-b && bun install)
           (cd shell && bun install)
+          (cd devtools && bun install)
 
       - name: Type-check
         run: |
           bunx tsc --noEmit --project mfe-a/tsconfig.json
           bunx tsc --noEmit --project mfe-b/tsconfig.json
           bunx tsc --noEmit --project shell/tsconfig.json
+          bunx tsc --noEmit --project devtools/tsconfig.json
 
       - name: Build
         run: |
           (cd mfe-a && bun run build)
           (cd mfe-b && bun run build)
+          (cd devtools && bun run build)
           (cd shell && bun run build)

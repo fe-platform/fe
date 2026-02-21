@@ -16,6 +16,7 @@ declare module "../core/hooks" {
 // --- SSE infrastructure ---
 
 const SSE_PATH = "/__dev";
+const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
 const sseClients = new Set<ReadableStreamDefaultController>();
 let pendingTs: number | null = null;
 
@@ -103,17 +104,17 @@ export const devPlugin: Plugin = {
                 cancel() { sseClients.delete(ctrl); },
               });
               return new Response(stream, {
-                headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+                headers: { ...CORS_HEADERS, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
               });
             }
 
             if (url.pathname === "/" || url.pathname === "/index.html") {
-              return new Response(sandboxHtml(name), { headers: { "Content-Type": "text/html" } });
+              return new Response(sandboxHtml(name), { headers: { ...CORS_HEADERS, "Content-Type": "text/html" } });
             }
 
             const file = Bun.file(join(distDir, url.pathname));
-            if (await file.exists()) return new Response(file);
-            return new Response("Not found", { status: 404 });
+            if (await file.exists()) return new Response(file, { headers: CORS_HEADERS });
+            return new Response("Not found", { status: 404, headers: CORS_HEADERS });
           },
         });
 
