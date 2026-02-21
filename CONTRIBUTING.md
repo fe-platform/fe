@@ -16,21 +16,21 @@ cd devtools && bun install && cd ..
 ## Building and serving the full stack
 
 ```bash
-bun cli/src/index.ts build mfe-a
-bun cli/src/index.ts build mfe-b
-bun cli/src/index.ts build devtools
-bun cli/src/index.ts admin upload mfe-a
-bun cli/src/index.ts admin upload mfe-b
-bun cli/src/index.ts admin upload devtools
-# edit configs/platform.json "routes" if needed
-bun cli/src/index.ts build shell
-bun cli/src/index.ts serve
+fe build mfe-a
+fe build mfe-b
+fe build devtools
+fe admin upload mfe-a
+fe admin upload mfe-b
+fe admin upload devtools
+# edit sandbox/configs/platform.json "routes" if needed
+fe build shell
+fe serve
 ```
 
 ## Developing an MFE in isolation
 
 ```bash
-bun cli/src/index.ts dev mfe-a     # sandbox at http://localhost:3000
+fe dev mfe-a     # sandbox at http://localhost:3000
 ```
 
 Edit `src/` — Bun rebuilds, SSE notifies the browser, module swaps in-place. No page reload.
@@ -41,17 +41,17 @@ Edit `src/` — Bun rebuilds, SSE notifies the browser, module swaps in-place. N
 
 ```bash
 # 1. Build
-bun cli/src/index.ts build mfe-a
+fe build mfe-a
 
-# 2. Upload — registers the artifact in configs/platform.json "packages"
-bun cli/src/index.ts admin upload mfe-a
+# 2. Upload — registers the artifact in sandbox/configs/platform.json "packages"
+fe admin upload mfe-a
 # → Uploaded fe(@acme/mfe-a)@1.0.0 → ./uploads/mfe-a/1.0.0/index.js
 
-# 3. Activate — edit configs/platform.json "routes" to point to the new version
+# 3. Activate — edit sandbox/configs/platform.json "routes" to point to the new version
 #    "routes": { "/": "fe(@acme/mfe-a)@1.0.0" }
 
 # 4. Rebuild shell to embed the updated config
-bun cli/src/index.ts build shell && bun cli/src/index.ts serve
+fe build shell && fe serve
 ```
 
 `admin upload` writes to `packages` only — it never touches `routes`. Artifact publishing and version activation are distinct steps with different access requirements.
@@ -61,7 +61,7 @@ bun cli/src/index.ts build shell && bun cli/src/index.ts serve
 The `link` command adds the dep as a `devDependency` with a `file:` URI and runs `bun install`, so TypeScript resolves the import directly via `node_modules` without any `tsconfig` path config:
 
 ```bash
-bun cli/src/index.ts link mfe-b mfe-a
+fe link mfe-b mfe-a
 ```
 
 For packages in separate repositories, replace `file:../mfe-a` with a git URI manually — nothing else changes:

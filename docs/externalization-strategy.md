@@ -6,7 +6,7 @@
 
 ## Problem
 
-The current system uses a single static `configs/import-map.json` that maps every `fe()` specifier to a URL. This map is manually maintained, baked into `shell/dist/index.html` at build time, and must contain the full flat list of every MFE in the ecosystem. Changing any mapping requires rebuilding the shell.
+The current system uses a single static `configs/import-map.json` that maps every `fe()` specifier to a URL. This map is manually maintained, baked into `host-app/dist/index.html` at build time, and must contain the full flat list of every MFE in the ecosystem. Changing any mapping requires rebuilding the shell.
 
 This does not scale:
 - Adding an MFE means editing the global map + rebuilding the shell
@@ -26,7 +26,7 @@ Replace the single static import map with **multiple browser import maps** (ship
 4. **Versioned dedup.** If two MFEs depend on the same package with compatible semver ranges, they resolve to the same version and URL. The browser's merge semantics deduplicate (first entry wins, same URL = no-op).
 5. **Cross-ecosystem sharing.** A package URL can be local (`./uploads/...`) or remote (`https://cdn.other-org.com/...`). The resolution mechanism is identical.
 
-## New Configuration: `configs/platform.json`
+## New Configuration: `sandbox/configs/platform.json`
 
 Replaces `configs/import-map.json`.
 
@@ -134,7 +134,7 @@ The shell runtime resolves it identically to a local package. The `fe()` specifi
 build <mfe>
   -> admin upload <mfe>
      -> copies dist/ to uploads/slug/ver/
-     -> writes package entry to configs/platform.json (URL + deps)
+     -> writes package entry to sandbox/configs/platform.json (URL + deps)
   -> build shell (re-injects route map + config into HTML)
   -> serve
 ```
@@ -144,15 +144,15 @@ The separation is preserved: `admin upload` writes to the `packages` registry (a
 ## Implementation Changes
 
 ### New files
-- `configs/platform.json` — new config format
-- `shell/src/platform.ts` — browser runtime (config reader, semver resolver, import map injector, `load()` function)
+- `sandbox/configs/platform.json` — new config format
+- `packages/runtime/src/platform.ts` — browser runtime (config reader, semver resolver, import map injector, `load()` function)
 
 ### Modified files
 - `cli/src/config.ts` — new types (`PlatformConfig`, `PackageEntry`, `PackageVersion`), `readPlatformConfig()` / `writePlatformConfig()`, `PLATFORM_CONFIG_PATH`
 - `cli/src/admin.ts` — after copying dist, read MFE devDeps, resolve dep versions, write package entry to `platform.json`
 - `cli/src/build.ts` — `buildShell()` reads `platform.json`, generates route-only import map, embeds platform config in HTML
-- `shell/index.html` — add `<!-- __PLATFORM_CONFIG__ -->` placeholder
-- `shell/src/index.ts` — replace static `import { render } from "fe(@acme/mfe-b)"` with `platform.load("/")`
+- `sandbox/host-app/index.html` — add `<!-- __PLATFORM_CONFIG__ -->` placeholder
+- `sandbox/host-app/src/index.ts` — replace static `import { render } from "fe(@acme/mfe-b)"` with `platform.load("/")`
 
 ### Removed files
 - `configs/import-map.json` — replaced by `platform.json`
@@ -164,7 +164,7 @@ The separation is preserved: `admin upload` writes to the `packages` registry (a
 - `routes` updated manually or by CD pipeline
 - No framework deps, DOM only (unchanged)
 - Uploads dir not git-tracked (unchanged)
-- Shell build output: `shell/dist/{index.html(importmap+config injected), app.js}`
+- Shell build output: `host-app/dist/{index.html(importmap+config injected), app.js}`
 - Browser support: Chrome 133+, Safari 18.4+ (native), Firefox via es-module-shims polyfill
 
 ## Browser Support

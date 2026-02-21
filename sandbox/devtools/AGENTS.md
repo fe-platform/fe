@@ -47,29 +47,29 @@ DevTools:
 sessionStorage key: "platform:overrides"
 format: Record<specifier, url>
 
-overrides are applied by shell/src/platform.ts:applyOverridesAndInject()
+overrides are applied by packages/runtime/src/platform.ts:applyOverridesAndInject()
   → replaces resolved URL for a specifier before import map injection
   → active on next page load (reload triggered by devtools after write)
 
 share URL: ?platform:overrides=<JSON>
-  → processed by shell/src/overrides.ts:processUrlParams() on load
+  → processed by packages/runtime/src/overrides.ts:processUrlParams() on load
   → merged into sessionStorage overrides · URL param stripped
 ```
 
 ## build (from repo root)
 ```
-bun cli/src/index.ts build devtools
+fe build devtools
   → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=[])
   solid-js is bundled (not external)
 
-# direct (from devtools/):
+# direct (from sandbox/devtools/):
 bun run build
   → bun build src/index.tsx --outdir dist --format esm --target browser
 ```
 
 ## upload + activation
 ```
-bun cli/src/index.ts admin upload devtools
+fe admin upload devtools
   copies dist/ → uploads/devtools/1.0.0/
   registers in platform.json packages section
 
@@ -81,5 +81,5 @@ bun cli/src/index.ts admin upload devtools
 }
 
 # then rebuild shell to embed updated config:
-bun cli/src/index.ts build shell
+fe build shell
 ```

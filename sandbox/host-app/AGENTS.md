@@ -69,33 +69,33 @@ platform.ts
 
 ## build (from repo root)
 ```
-bun cli/src/index.ts build shell
+fe build shell
   1. Bun.build(src/index.ts → dist/app.js, esm, browser)
      platform.ts + semver.ts + overrides.ts bundled into app.js
-  2. read configs/platform.json
+  2. read sandbox/configs/platform.json
   3. replace <!-- __PLATFORM_CONFIG__ --> with <script id="__platform__" type="application/json">
   4. write dist/index.html
   note: no import map in HTML · all import maps injected at runtime by platform.ts
 
 prereq: bun install must have run in shell/ (CI does this)
-output: shell/dist/{index.html, app.js}
+output: host-app/dist/{index.html, app.js}
 ```
 
 ## serve (from repo root)
 ```
-bun cli/src/index.ts serve [port=3000]
-  serves shell/dist/ · /uploads/→ROOT/uploads/
+fe serve [port=3000]
+  serves host-app/dist/ · /uploads/→ROOT/uploads/
   !must build shell first
   !mfe artifacts must be in uploads/ (run admin upload for each mfe)
 ```
 
 ## full run sequence (from repo root)
 ```
-bun cli/src/index.ts build mfe-a
-bun cli/src/index.ts build mfe-b
-bun cli/src/index.ts admin upload mfe-a
-bun cli/src/index.ts admin upload mfe-b
-# edit configs/platform.json "routes" if needed
-bun cli/src/index.ts build shell
-bun cli/src/index.ts serve
+fe build mfe-a
+fe build mfe-b
+fe admin upload mfe-a
+fe admin upload mfe-b
+# edit sandbox/configs/platform.json "routes" if needed
+fe build shell
+fe serve
 ```

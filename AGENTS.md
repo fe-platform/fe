@@ -32,7 +32,7 @@ tests=∅  CI=typecheck+build (packages job → sandbox job)
 fe(@scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
 pkg.json  "name":"fe(@acme/mfe-a)"
 src       import {x} from "fe(@acme/mfe-a)"
-platform  sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
+platform  sandbox/sandbox/sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
 ```
 build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]  
 ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths  
@@ -45,7 +45,7 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
 ```
 !framework · DOM-only · return removes own DOM nodes (devtools/ exception: uses Solid.js)
 
-## CLI (`@fe/cli` · `bunx @fe/cli <cmd>` from workspace root)
+## CLI (`@fe/cli` · `fe <cmd>` from workspace root)
 ```
 build  <target>|shell  →dist/
 serve  [port=3000]     host-app/dist/ · /uploads/→ROOT/uploads/
@@ -76,7 +76,7 @@ Plugins run after builtins so they can freely swap `ctx.adapters.*`.
 ```json
 {
   "plugins":      [],                      // npm packages to load as CLI plugins
-  "manifestPath": "configs/platform.json", // path to routes+packages registry
+  "manifestPath": "sandbox/sandbox/configs/platform.json", // path to routes+packages registry
   "uploadsDir":   "uploads",               // artifact storage dir (local adapter)
   "shellDir":     "host-app"              // host application directory
 }
@@ -97,8 +97,8 @@ All fields optional; defaults apply when file is absent.
 ## deploy flow (sandbox example)
 ```
 fe build <mfe> → fe admin upload <mfe>
-  ↓ registers package in configs/platform.json
-edit configs/platform.json "routes"
+  ↓ registers package in sandbox/sandbox/configs/platform.json
+edit sandbox/sandbox/configs/platform.json "routes"
   ↓
 fe build shell → fe serve
 ```

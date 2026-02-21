@@ -37,7 +37,7 @@ The return value unmounts and cleans up. No framework required — pure DOM.
 | `shell/` | Host app — resolves routes, injects import maps, mounts MFEs |
 | `devtools/` | Developer overlay for per-tab import map overrides (`fe(@acme/devtools)`) |
 | `cli/` | Build, serve, dev, link, and upload tooling |
-| `configs/platform.json` | Routes + package version registry |
+| `sandbox/configs/platform.json` | Routes + package version registry |
 
 ## CLI
 
@@ -45,17 +45,17 @@ All commands run from the repo root:
 
 | Command | What it does |
 |---|---|
-| `bun cli/src/index.ts build <target>` | Bundle an MFE or the shell |
-| `bun cli/src/index.ts serve` | Serve the built shell |
-| `bun cli/src/index.ts dev <target>` | Isolated sandbox with hot module replacement |
-| `bun cli/src/index.ts link <consumer> <dep>` | Wire a `fe()` devDependency between packages |
-| `bun cli/src/index.ts admin upload <target>` | Publish a built artifact to the local registry |
+| `fe build <target>` | Bundle an MFE or the shell |
+| `fe serve` | Serve the built shell |
+| `fe dev <target>` | Isolated sandbox with hot module replacement |
+| `fe link <consumer> <dep>` | Wire a `fe()` devDependency between packages |
+| `fe admin upload <target>` | Publish a built artifact to the local registry |
 
 ## Developer experience
 
 **Isolated development.** `dev` mode runs a standalone sandbox per MFE. Edit `src/` — Bun rebuilds, an SSE message triggers the browser to unmount the old render, import the new module under a cache-busting URL, and call `render()` again in the same container. No page reload. MFE authors have zero awareness of the HMR mechanism.
 
-**Independent deployment.** `admin upload` publishes an artifact and registers it in the package registry. Activating it on a route is a separate step — anyone can upload a candidate build; only a privileged actor (CD pipeline or repo access) promotes it by editing `routes` in `configs/platform.json`.
+**Independent deployment.** `admin upload` publishes an artifact and registers it in the package registry. Activating it on a route is a separate step — anyone can upload a candidate build; only a privileged actor (CD pipeline or repo access) promotes it by editing `routes` in `sandbox/configs/platform.json`.
 
 **Cross-ecosystem composition.** The package registry accepts full URLs alongside `fe(...)` specifiers, so MFEs hosted on external CDNs compose the same way as local packages.
 

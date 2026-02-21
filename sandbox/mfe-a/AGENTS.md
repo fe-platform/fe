@@ -25,27 +25,27 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
 ## build
 ```
 # via CLI (preferred, from repo root):
-bun cli/src/index.ts build mfe-a
+fe build mfe-a
   → Bun.build(src/index.ts → dist/index.js, esm, browser, external=[])
 
-# direct (from mfe-a/):
+# direct (from sandbox/mfe-a/):
 bun run build
   → bun build src/index.ts --outdir dist --format esm --target browser
 
-output: mfe-a/dist/index.js
+output: sandbox/mfe-a/dist/index.js
 ```
 
 ## upload (from repo root)
 ```
-bun cli/src/index.ts admin upload mfe-a
+fe admin upload mfe-a
   prereq: dist/index.js must exist
   copies dist/ → uploads/mfe-a/1.0.0/
-  registers package version in configs/platform.json (URL + deps)
+  registers package version in sandbox/configs/platform.json (URL + deps)
 ```
 
 ## dev (from repo root)
 ```
-bun cli/src/index.ts dev mfe-a
+fe dev mfe-a
   sandbox at http://localhost:3000
   importmap: {"imports":{"fe(@acme/mfe-a)":"/index.js"}}
   initial render: render(#sandbox,{})

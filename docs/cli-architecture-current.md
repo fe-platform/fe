@@ -25,7 +25,7 @@ graph TB
     subgraph "External I/O"
         FS_DIST["dist/ directories"]
         FS_UPLOADS["uploads/ local registry"]
-        PLATFORM_JSON["configs/platform.json"]
+        PLATFORM_JSON["sandbox/configs/platform.json"]
         PKG_JSON["*/package.json"]
         BUN_BUILD["Bun.build()"]
         BUN_SERVE["Bun.serve()"]

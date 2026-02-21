@@ -34,33 +34,33 @@ composition: mfe-b renders own chrome + delegates content to mfe-a · both unmou
 ## build
 ```
 # via CLI (preferred, from repo root):
-bun cli/src/index.ts build mfe-b
+fe build mfe-b
   → Bun.build(src/index.ts → dist/index.js, esm, browser, external=["fe(@acme/mfe-a)"])
 
-# direct (from mfe-b/):
+# direct (from sandbox/mfe-b/):
 bun run build
   → bun build src/index.ts --outdir dist --format esm --target browser
   NOTE: direct build does NOT auto-externalize fe() deps (build.ts does that)
 
 prereq: bun install must have run in mfe-b/ (CI does this; link cmd does it too)
-output: mfe-b/dist/index.js
+output: sandbox/mfe-b/dist/index.js
 ```
 
 ## link new dep (if adding more fe() deps)
 ```
-bun cli/src/index.ts link mfe-b <new-dep>  (from repo root)
+fe link mfe-b <new-dep>  (from repo root)
 ```
 
 ## upload (from repo root)
 ```
-bun cli/src/index.ts admin upload mfe-b
+fe admin upload mfe-b
   copies dist/ → uploads/mfe-b/1.0.0/
-  registers package version in configs/platform.json (URL + deps)
+  registers package version in sandbox/configs/platform.json (URL + deps)
 ```
 
 ## dev (from repo root)
 ```
-bun cli/src/index.ts dev mfe-b
+fe dev mfe-b
   sandbox at http://localhost:3000
   importmap: {"imports":{"fe(@acme/mfe-b)":"/index.js"}}
   initial render: render(#sandbox,{})
