@@ -157,9 +157,6 @@ The separation is preserved: `admin upload` writes to the `packages` registry (a
 ### Removed files
 - `configs/import-map.json` — replaced by `platform.json`
 
-### Updated docs
-- `CLAUDE.md` / `AGENTS.md` — updated references to new config format and deploy flow
-
 ## Invariants (updated)
 
 - `fe()` specifiers must stay external at build time (unchanged)
@@ -178,8 +175,3 @@ The separation is preserved: `admin upload` writes to the `packages` registry (a
 | Safari 18.4+ | Native | Shipped Mar 2025 |
 | Firefox | Polyfill needed | es-module-shims v2.4+ |
 
-## References
-
-- [Shopify: Resilient Import Maps](https://shopify.engineering/resilient-import-maps)
-- [HTML Standard: Import Maps](https://html.spec.whatwg.org/dev/webappapis.html)
-- [es-module-shims](https://github.com/guybedford/es-module-shims)

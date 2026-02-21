@@ -95,7 +95,7 @@ Each plugin registers commands via `ctx.commands.set()` and hooks via `hooks.hoo
 |------|--------|-----------|---------|
 | `build:before` | build | `(target, options)` | Observe/log before build |
 | `build:after` | build | `(target, result)` | Post-build actions |
-| `build:shell:before` | build | `(config)` | Modify config before shell injection |
+| `build:shell:before` | build | `()` | Pre-shell-build |
 | `build:shell:after` | build | `()` | Post-shell-build |
 | `serve:start` | serve | `(port)` | Server startup |
 | `serve:request` | serve | `(req)` | Request middleware |

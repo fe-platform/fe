@@ -1,16 +1,12 @@
 import { join } from "path";
 import type { Plugin } from "../core/plugin";
 
-// --- Hook declarations ---
-
 declare module "../core/hooks" {
   interface HookMap {
     "serve:start": [port: number];
     "serve:request": [req: Request];
   }
 }
-
-// --- Plugin ---
 
 export const servePlugin: Plugin = {
   name: "serve",

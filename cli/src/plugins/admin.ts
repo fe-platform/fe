@@ -3,8 +3,6 @@ import type { Plugin } from "../core/plugin";
 import type { PackageVersion } from "../core/types";
 import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../core/helpers";
 
-// --- Hook declarations ---
-
 declare module "../core/hooks" {
   interface HookMap {
     "admin:upload:before": [target: string, meta: { name: string; version: string }];
@@ -13,8 +11,6 @@ declare module "../core/hooks" {
     "admin:register:after": [];
   }
 }
-
-// --- Plugin ---
 
 export const adminPlugin: Plugin = {
   name: "admin",
@@ -59,10 +55,8 @@ async function adminUpload(
 
   await hooks.callHook("admin:upload:before", target, { name, version });
 
-  // Use ArtifactStorage adapter instead of hardcoded cpSync.
   const url = await ctx.adapters.artifactStorage.upload(slug, version, distDir);
 
-  // Resolve fe() deps -> semver ranges for the platform config.
   const rawFeDeps = readFeDeps(dir);
   const deps: Record<string, string> = {};
   for (const depSpecifier of Object.keys(rawFeDeps)) {
@@ -79,7 +73,6 @@ async function adminUpload(
   const entry: PackageVersion = { url, deps };
   await hooks.callHook("admin:register:before", name, version, entry);
 
-  // Use ManifestManager adapter instead of direct JSON read/write.
   await ctx.adapters.manifest.registerPackage(name, version, entry);
 
   await hooks.callHook("admin:register:after");

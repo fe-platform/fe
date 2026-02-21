@@ -1,12 +1,13 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { render as solidRender } from "solid-js/web";
-
-// --- Storage keys ---
+import {
+  panelStyle, headerStyle, sectionStyle, labelStyle,
+  rowStyle, specStyle, specNameStyle, urlTextStyle,
+  iconBtnStyle, inputStyle, addBtnStyle, actionsStyle, actionBtnStyle,
+} from "./styles";
 
 const OVERRIDES_KEY = "platform:overrides";
 const PANEL_OPEN_KEY = "platform:devtools:open";
-
-// --- Storage helpers ---
 
 function readOverrides(): Record<string, string> {
   try {
@@ -19,8 +20,6 @@ function readOverrides(): Record<string, string> {
 function writeOverrides(overrides: Record<string, string>): void {
   sessionStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
 }
-
-// --- App component ---
 
 function DevTools() {
   const [overrides, setOverrides] = createSignal(readOverrides());
@@ -66,8 +65,6 @@ function DevTools() {
     });
   }
 
-  // --- Styles ---
-
   const btnStyle = createMemo(() => ({
     position: "fixed" as const,
     bottom: "16px",
@@ -87,149 +84,19 @@ function DevTools() {
     transition: "background .15s",
   }));
 
-  const panelStyle: Record<string, string> = {
-    position: "fixed",
-    bottom: "58px",
-    right: "16px",
-    "z-index": "2147483647",
-    width: "420px",
-    "max-height": "80vh",
-    "overflow-y": "auto",
-    background: "#1e1e2e",
-    color: "#cdd6f4",
-    "border-radius": "12px",
-    "box-shadow": "0 8px 32px rgba(0,0,0,.5)",
-    "font-family": "monospace",
-    "font-size": "13px",
-    padding: "0",
-  };
-
-  const headerStyle: Record<string, string> = {
-    display: "flex",
-    "align-items": "center",
-    "justify-content": "space-between",
-    padding: "12px 16px",
-    "border-bottom": "1px solid #313244",
-    "font-weight": "bold",
-    "font-size": "13px",
-    color: "#cba6f7",
-  };
-
-  const sectionStyle: Record<string, string> = {
-    padding: "12px 16px",
-    "border-bottom": "1px solid #313244",
-  };
-
-  const labelStyle: Record<string, string> = {
-    "font-size": "11px",
-    color: "#6c7086",
-    "text-transform": "uppercase",
-    "letter-spacing": "0.06em",
-    "margin-bottom": "8px",
-  };
-
-  const rowStyle: Record<string, string> = {
-    display: "flex",
-    "align-items": "flex-start",
-    gap: "8px",
-    "margin-bottom": "6px",
-    background: "#181825",
-    "border-radius": "6px",
-    padding: "8px 10px",
-  };
-
-  const specStyle: Record<string, string> = {
-    flex: "1",
-    "min-width": "0",
-    "overflow-wrap": "break-word" as const,
-  };
-
-  const specNameStyle: Record<string, string> = {
-    color: "#89b4fa",
-    "font-weight": "bold",
-    "font-size": "12px",
-    "margin-bottom": "2px",
-  };
-
-  const urlTextStyle: Record<string, string> = {
-    color: "#a6e3a1",
-    "font-size": "11px",
-    "word-break": "break-all" as const,
-  };
-
-  const iconBtnStyle: Record<string, string> = {
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    color: "#6c7086",
-    "font-size": "14px",
-    padding: "0",
-    "line-height": "1",
-    "flex-shrink": "0",
-    "margin-top": "1px",
-  };
-
-  const inputStyle: Record<string, string> = {
-    width: "100%",
-    background: "#181825",
-    border: "1px solid #313244",
-    "border-radius": "6px",
-    color: "#cdd6f4",
-    "font-family": "monospace",
-    "font-size": "12px",
-    padding: "6px 8px",
-    "box-sizing": "border-box" as const,
-    "margin-bottom": "6px",
-  };
-
-  const addBtnStyle: Record<string, string> = {
-    background: "#4f46e5",
-    border: "none",
-    "border-radius": "6px",
-    color: "#fff",
-    "font-family": "monospace",
-    "font-size": "12px",
-    "font-weight": "bold",
-    padding: "6px 12px",
-    cursor: "pointer",
-    width: "100%",
-  };
-
-  const actionsStyle: Record<string, string> = {
-    display: "flex",
-    gap: "8px",
-    padding: "12px 16px",
-  };
-
-  const actionBtnStyle: Record<string, string> = {
-    flex: "1",
-    background: "#313244",
-    border: "none",
-    "border-radius": "6px",
-    color: "#cdd6f4",
-    "font-family": "monospace",
-    "font-size": "12px",
-    padding: "7px 10px",
-    cursor: "pointer",
-  };
-
   return (
     <>
-      {/* Toggle button */}
       <button style={btnStyle()} onClick={togglePanel}>
         {count() > 0 ? `⚡ ${count()}` : "⚙"}
       </button>
 
-      {/* Panel */}
       <Show when={open()}>
         <div style={panelStyle}>
-          {/* Header */}
           <div style={headerStyle}>
             <span>⚙ Platform DevTools</span>
             <button style={iconBtnStyle} onClick={togglePanel}>✕</button>
           </div>
 
-          {/* Active overrides */}
           <div style={sectionStyle}>
             <div style={labelStyle}>
               {count() > 0 ? `${count()} active override${count() !== 1 ? "s" : ""}` : "No active overrides"}
@@ -247,7 +114,6 @@ function DevTools() {
             </For>
           </div>
 
-          {/* Add override */}
           <div style={sectionStyle}>
             <div style={labelStyle}>Add override</div>
             <input
@@ -265,7 +131,6 @@ function DevTools() {
             <button style={addBtnStyle} onClick={addOverride}>＋ Apply &amp; reload</button>
           </div>
 
-          {/* Actions */}
           <div style={actionsStyle}>
             <Show when={count() > 0}>
               <button style={actionBtnStyle} onClick={clearAll}>🗑 Clear all</button>
@@ -279,8 +144,6 @@ function DevTools() {
     </>
   );
 }
-
-// --- MFE interface ---
 
 export function render(container: HTMLElement, _props: Record<string, unknown>): () => void {
   return solidRender(() => <DevTools />, container);

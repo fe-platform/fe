@@ -35,7 +35,7 @@
 ### routes
 key   = URL path (e.g. "/", "/dashboard")
 value = "specifier@version" — the top-level MFE for that route
-  goes into the default import map served with the HTML
+  resolved by platform.ts at runtime; no static import map in HTML
 
 ### packages
 key   = fe() bare-specifier (exact string in `import … from "fe(@acme/…)"`)
@@ -47,18 +47,16 @@ value = { versions: { "X.Y.Z": { url, deps } } }
 
 ## consumers
 ```
-cli/src/build.ts:buildShell()
-  ← readPlatformConfig() + generateRouteImportMap()
-  → inject <script type="importmap"> (routes only) into shell/dist/index.html
-  → inject <script id="__platform__" type="application/json"> (full config)
+cli/src/plugins/build.ts:buildShell()
+  ← manifest.read() (ManifestManager adapter)
+  → inject <script id="__platform__" type="application/json"> (full config) into shell/dist/index.html
 
-cli/src/admin.ts:adminUpload()
-  ← readPlatformConfig()
-  → writePlatformConfig() (adds package version entry with URL + deps)
+cli/src/plugins/admin.ts:adminUpload()
+  → manifest.registerPackage(name, version, entry) (adds package version entry with URL + deps)
 
 shell/src/platform.ts (browser runtime)
   ← reads <script id="__platform__"> from DOM
-  → resolves fe() dep graph · injects additional import maps · dynamic import()
+  → resolves fe() dep graph · injects import maps at runtime · dynamic import()
 ```
 
 ## update procedure
@@ -66,7 +64,7 @@ shell/src/platform.ts (browser runtime)
 1. bun cli/src/index.ts admin upload <mfe>
      registers package version in platform.json (URL + deps)
 2. edit platform.json "routes": update specifier@version for the route
-3. bun cli/src/index.ts build shell   (re-injects updated map + config)
+3. bun cli/src/index.ts build shell   (re-injects updated config into HTML)
 ```
 
 ## invariants
