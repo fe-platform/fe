@@ -1,169 +1,74 @@
 <div align="center">
 
-# ⚯ <br /> fe
+# ⚯ fe
 **Ship independently. Compose natively.**
 </div>
 
-## Structure
-
-```
-/                          # Not a npm package — plain directory
-├── mfe-a/                 # Standalone microfrontend
-├── mfe-b/                 # Microfrontend that composes mfe-a
-├── shell/                 # Host app that renders mfe-b
-├── cli/                   # Build, serve, dev, link, and admin commands
-├── configs/
-│   └── platform.json      # Routes + package registry (the deployment config)
-└── uploads/               # Local filesystem "registry" (swap for CDN in production)
-```
+A microfrontend platform built on native browser primitives — ES modules, import maps, and dynamic `import()`. MFEs deploy independently and compose at runtime. Nothing bundles across MFE boundaries.
 
 ## The `fe()` specifier scheme
 
-MFEs import each other using the `fe(@scope/package)` package naming convention:
+Cross-MFE imports use the `fe(@scope/name)` package name convention:
 
 ```ts
 import { render } from "fe(@acme/mfe-a)";
 ```
 
-- **Package names** follow the `fe(@scope/name)` pattern — this is the package `name` field in `package.json`.
-- **At build time**: Bun externalizes all packages whose names start with `fe(` (read from `devDependencies`) — they are not bundled.
-- **At runtime**: The browser resolves `fe(@acme/mfe-a)` to a URL via the injected `<script type="importmap">`.
-- This convention makes federated dependencies universally identifiable: any `fe(...)` import is a cross-MFE boundary.
+`fe(...)` is a plain package name — not a URL scheme. It is the `name` in `package.json`, a bare specifier in `import` statements, and the key in the platform's package registry. Any `fe(...)` import is immediately recognizable as a cross-MFE boundary.
 
-The `fe()` wrapper is a plain package name string, not a URL scheme. Import maps match it as a bare specifier.
+At build time, `fe(...)` imports are externalized — never bundled. At runtime, the browser resolves them via injected import maps.
 
 ## MFE interface
 
-Every MFE exports a single `render` function:
+Every MFE exports one function:
 
 ```ts
 export function render(container: HTMLElement, props: Record<string, unknown>): () => void
 ```
 
-The return value is an **unmount** function for cleanup. No framework coupling.
+The return value unmounts and cleans up. No framework required — pure DOM.
 
-## CLI usage (run from repo root)
+## Packages
 
-```bash
-# Build an MFE or the shell
-bun cli/src/index.ts build mfe-a
-bun cli/src/index.ts build mfe-b
-bun cli/src/index.ts build shell   # also injects import map into HTML
+| | |
+|---|---|
+| `mfe-a/` | Standalone microfrontend (`fe(@acme/mfe-a)`) |
+| `mfe-b/` | Microfrontend that composes `mfe-a` (`fe(@acme/mfe-b)`) |
+| `shell/` | Host app — resolves routes, injects import maps, mounts MFEs |
+| `devtools/` | Developer overlay for per-tab import map overrides (`fe(@acme/devtools)`) |
+| `cli/` | Build, serve, dev, link, and upload tooling |
+| `configs/platform.json` | Routes + package version registry |
 
-# Serve the built shell
-bun cli/src/index.ts serve         # http://localhost:3000
+## CLI
 
-# Dev mode: sandbox + hot reload for a single MFE
-bun cli/src/index.ts dev mfe-a     # http://localhost:3000
+All commands run from the repo root:
 
-# Wire up a fe() dependency between packages (TypeScript + runtime)
-bun cli/src/index.ts link mfe-b mfe-a
+| Command | What it does |
+|---|---|
+| `bun cli/src/index.ts build <target>` | Bundle an MFE or the shell |
+| `bun cli/src/index.ts serve` | Serve the built shell |
+| `bun cli/src/index.ts dev <target>` | Isolated sandbox with hot module replacement |
+| `bun cli/src/index.ts link <consumer> <dep>` | Wire a `fe()` devDependency between packages |
+| `bun cli/src/index.ts admin upload <target>` | Publish a built artifact to the local registry |
 
-# Upload a built MFE to the local registry
-bun cli/src/index.ts admin upload mfe-a
-```
+## Developer experience
 
-## Workflow
+**Isolated development.** `dev` mode runs a standalone sandbox per MFE. Edit `src/` — Bun rebuilds, an SSE message triggers the browser to unmount the old render, import the new module under a cache-busting URL, and call `render()` again in the same container. No page reload. MFE authors have zero awareness of the HMR mechanism.
 
-### Building and running the full stack
+**Independent deployment.** `admin upload` publishes an artifact and registers it in the package registry. Activating it on a route is a separate step — anyone can upload a candidate build; only a privileged actor (CD pipeline or repo access) promotes it by editing `routes` in `configs/platform.json`.
 
-```bash
-bun cli/src/index.ts build mfe-a
-bun cli/src/index.ts build mfe-b
-bun cli/src/index.ts build shell
-bun cli/src/index.ts serve
-```
+**Cross-ecosystem composition.** The package registry accepts full URLs alongside `fe(...)` specifiers, so MFEs hosted on external CDNs compose the same way as local packages.
 
-### Publishing a new version of an MFE
+## Runtime model
 
-```bash
-# 1. Build
-bun cli/src/index.ts build mfe-a
+1. Shell HTML loads with the full platform config embedded as JSON — no static import map
+2. `platform.js` reads the config and resolves the current route to a `specifier@version`
+3. Transitive `fe()` deps are resolved via semver from the packages registry
+4. A `<script type="importmap">` is injected covering all resolved deps
+5. `import(specifier)` — the browser resolves via the injected map and mounts the MFE
 
-# 2. Upload — automatically registers the package version in configs/platform.json
-bun cli/src/index.ts admin upload mfe-a
-# Uploaded fe(@acme/mfe-a)@1.0.0 → ./uploads/mfe-a/1.0.0/index.js
-# (written to platform.json "packages" section; "routes" is not touched)
+Multiple import maps are injected lazily and deduped across navigations.
 
-# 3. Edit configs/platform.json "routes" to activate the new version (or let CD do it):
-#    "routes": { "/": "fe(@acme/mfe-a)@1.0.0" }
+---
 
-# 4. Rebuild shell to inject the updated import map + config, then serve
-bun cli/src/index.ts build shell && bun cli/src/index.ts serve
-```
-
-### Linking a new MFE dependency
-
-The `link` command adds a `devDependency` with a `file:` URI and runs `bun install`,
-so TypeScript resolves the `fe()` import directly from `node_modules` without any
-`tsconfig` paths config:
-
-```bash
-# Make mfe-b depend on mfe-a
-bun cli/src/index.ts link mfe-b mfe-a
-```
-
-For packages in separate repos, swap `file:../mfe-a` for a git URI — nothing else changes:
-
-```json
-"fe(@acme/mfe-a)": "git+https://github.com/org/mfe-a#v1.0.0"
-```
-
-### Developing an MFE in isolation
-
-```bash
-bun cli/src/index.ts dev mfe-a
-# Opens a sandbox at http://localhost:3000 that renders mfe-a standalone.
-# Edit src/ → Bun rebuilds → SSE notifies browser → module swapped in-place.
-# unmount() called on old render, new module imported via ?t= cache-buster, render() called again.
-# No page reload. Reconnecting tabs receive the latest pending rebuild immediately.
-```
-
-## How `fe()` deps are externalized at build time
-
-`build.ts` reads `devDependencies` from each package's `package.json` and externalizes
-any entry whose key starts with `fe(`. This means the package name convention _is_ the
-build signal — no extra config file needed.
-
-```json
-// mfe-b/package.json
-{
-  "devDependencies": {
-    "fe(@acme/mfe-a)": "file:../mfe-a"
-  }
-}
-```
-
-At build time, `fe(@acme/mfe-a)` is left as an external import. At runtime, the browser
-resolves it via the import map injected into `shell/dist/index.html` (generated from `configs/platform.json`).
-
-## Hot reload design
-
-No runtime, no WebSocket, no module graph:
-1. Bun file watcher detects changes in `src/`
-2. Bun rebuilds (typically <100ms)
-3. Server-Sent Events (`/__dev`) push `{ t: timestamp }`
-4. Browser: `unmount()` tears down the current render; `import("/index.js?t=<timestamp>")` loads
-   the fresh module under a new URL (bypassing the native module registry cache);
-   `render()` mounts the new version in the same container. No page reload.
-
-Reconnect safety: the server keeps `pendingTs` — the timestamp of the latest completed rebuild.
-When a tab reconnects after the SSE auto-reconnect gap (~3s), `drainPending()` fires immediately
-on connection so no rebuild is ever missed.
-
-The sandbox HTML (including the `EventSource` wiring) is generated at request time by the CLI's
-dev server and is never written to disk. MFE authors have zero awareness of the HMR mechanism.
-
-## Upload / config separation (intentional design)
-
-The `admin upload` command only **publishes an artifact** and prints its URL.
-It does **not** update `configs/import-map.json`.
-
-This separation is deliberate:
-- **Anyone can upload** a candidate build (no auth needed for artifact storage).
-- **Only a privileged actor** (a CD pipeline, or a human with repo write access)
-  decides which version is active, by editing the `routes` section of `configs/platform.json`.
-- When moving to blob storage (S3, Azure Blob, etc.), TTL policies handle cleanup
-  of unreferenced uploads — no custom cleanup code needed.
-- Auth for uploads can be added later via a `FE_UPLOAD_KEY` env var check in
-  `cli/src/plugins/admin.ts` without changing any other interface.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, development workflows, and contribution guidelines.
