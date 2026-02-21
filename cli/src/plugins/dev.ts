@@ -17,15 +17,26 @@ declare module "../core/hooks" {
 
 const SSE_PATH = "/__dev";
 const sseClients = new Set<ReadableStreamDefaultController>();
+let pendingTs: number | null = null;
 
 function notifyReload(): void {
-  const payload = `data: ${JSON.stringify({ t: Date.now() })}\n\n`;
+  pendingTs = Date.now();
+  const payload = `data: ${JSON.stringify({ t: pendingTs })}\n\n`;
   for (const ctrl of sseClients) {
     try {
       ctrl.enqueue(payload);
     } catch {
       sseClients.delete(ctrl);
     }
+  }
+}
+
+function drainPending(ctrl: ReadableStreamDefaultController): void {
+  if (pendingTs === null) return;
+  try {
+    ctrl.enqueue(`data: ${JSON.stringify({ t: pendingTs })}\n\n`);
+  } catch {
+    // client already gone
   }
 }
 
@@ -88,7 +99,7 @@ export const devPlugin: Plugin = {
             if (url.pathname === SSE_PATH) {
               let ctrl!: ReadableStreamDefaultController;
               const stream = new ReadableStream({
-                start(c) { ctrl = c; sseClients.add(c); },
+                start(c) { ctrl = c; sseClients.add(c); drainPending(c); },
                 cancel() { sseClients.delete(ctrl); },
               });
               return new Response(stream, {
