@@ -96,7 +96,11 @@ when a PR merges that implements a plan:
   invariant: no unarchived plan doc exists after its implementing PR lands
   !delete archived docs — they explain why the system is the way it is
   example: externalization-strategy.md, cli-architecture-proposed.md
-pre-PR: update all affected AGENTS.md files, docs/, and README.md to reflect current state before opening any PR
+pre-PR: before opening any PR, update all of the following to reflect current state:
+  - all affected AGENTS.md files
+  - all affected README.md files (root + any subpackage whose interface/purpose changed)
+  - CONTRIBUTING.md — if any workflow, setup step, or development pattern changed
+  - docs/ — archive any plan doc whose implementing PR is landing (add COMPLETED/ARCHIVED header)
 
 ## coding rules
 - source files: max 180 lines · split immediately when exceeded
