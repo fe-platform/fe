@@ -1,6 +1,12 @@
-# fe-platform MVP
+<div align="center">
 
-Minimal microfrontend platform using **import maps** and **Bun** as the only build tool.
+# ⚯ fe
+
+**Ship independently. Compose natively.**
+
+</div>
+
+---
 
 ## Structure
 
