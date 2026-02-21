@@ -12,6 +12,7 @@ export interface PackageEntry {
 export interface PlatformConfig {
   routes: Record<string, string>; // path -> "specifier@version"
   packages: Record<string, PackageEntry>;
+  devtools?: string; // "specifier@version" — optional, opt-in per environment
 }
 
 export interface BuildOptions {
