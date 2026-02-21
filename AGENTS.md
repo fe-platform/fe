@@ -1,34 +1,41 @@
 # ⚯ fe-platform · root · agent-ref
 CLAUDE.md→symlink→here
 
+> Heavily influenced by and borrows concepts from the MFE architecture described at [1fe.com](https://1fe.com/).
+
 ## topology
 ```
-/ (!npm-workspace !monorepo-config plain-dir)
-├─ mfe-a/      name=fe(@acme/mfe-a) v1.0.0  standalone-MFE  fe()-deps=∅
-├─ mfe-b/      name=fe(@acme/mfe-b) v1.0.0  composes-mfe-a  devDep→fe(@acme/mfe-a)
-├─ shell/      name=shell           v1.0.0  host-app        dynamic MFE loading via platform runtime
-├─ cli/        name=cli             v1.0.0  tooling · entry=src/index.ts
-├─ devtools/   name=fe(@acme/devtools) v1.0.0  developer overlay MFE · uses Solid.js · loaded via loadDevtools()
-├─ configs/platform.json            routes+packages registry · consumed by buildShell+browser runtime
-├─ docs/                            architecture docs
-└─ uploads/    gitignored · local-registry · path: slug/version/index.js
+/ (nx monorepo · workspaces: packages/* sandbox/*)
+├─ packages/
+│  ├─ core/       @fe/core     v0.1.0  shared types + interfaces (published)
+│  ├─ cli/        @fe/cli      v0.1.0  build/serve/dev/admin CLI (published · bin: fe)
+│  └─ runtime/    @fe/runtime  v0.1.0  browser platform loader (published)
+├─ sandbox/                            example workspace (not published)
+│  ├─ host-app/   name=host-app        shell using @fe/runtime · builds to host-app/dist/
+│  ├─ mfe-a/      name=fe(@acme/mfe-a) standalone MFE · fe()-deps=∅
+│  ├─ mfe-b/      name=fe(@acme/mfe-b) composes mfe-a · devDep→fe(@acme/mfe-a)
+│  ├─ devtools/   name=fe(@acme/devtools) overlay · uses Solid.js
+│  ├─ configs/    platform.json · routes+packages registry
+│  └─ fe.config.json · sandbox CLI config (shellDir=host-app, etc.)
+├─ nx.json        minimal Nx config (target ordering only · no nx cloud)
+└─ package.json   workspace root
 ```
-each subdir has own AGENTS.md with full local detail
+each package/subdir has own AGENTS.md with full local detail
 
 ## toolchain
-bun@latest ONLY · !node !npm !webpack !vite !rollup
-lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler
-tests=∅  CI=typecheck+build
+bun@latest ONLY · !node !npm !webpack !vite !rollup  
+lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler  
+tests=∅  CI=typecheck+build (packages job → sandbox job)
 
 ## ⟿ fe() convention
 ```
 fe(@scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
 pkg.json  "name":"fe(@acme/mfe-a)"
 src       import {x} from "fe(@acme/mfe-a)"
-platform  configs/platform.json packages section: specifier → versions → {url, deps}
+platform  sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
 ```
-build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]
-ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths
+build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]  
+ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths  
 runtime: browser import maps resolve bare-specifier → JS url (multiple maps, injected lazily)
 
 ## MFE interface (∀ MFE must export)
@@ -38,14 +45,43 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
 ```
 !framework · DOM-only · return removes own DOM nodes (devtools/ exception: uses Solid.js)
 
-## CLI (cwd=root · `bun cli/src/index.ts <cmd>`)
+## CLI (`@fe/cli` · `bunx @fe/cli <cmd>` from workspace root)
 ```
-build  mfe-a|mfe-b|shell   →dist/ · shell: +inject config→HTML (import maps injected at runtime)
-serve  [port=3000]          shell/dist/ · /uploads/→ROOT/uploads/
-dev    <tgt> [port=3000]    sandbox+SSE · watch src/→rebuild→HMR module-swap (no page reload)
-link   <consumer> <dep>     write devDep file:URI + bun-install in consumer
-admin upload <tgt>          cp dist/→uploads/slug/ver/ · register in platform.json
+build  <target>|shell  →dist/
+serve  [port=3000]     host-app/dist/ · /uploads/→ROOT/uploads/
+dev    <tgt> [port]    sandbox+SSE · watch src/→rebuild→HMR
+link   <consumer> <dep> write devDep file:URI + bun-install
+admin  upload <tgt>    cp dist/→uploads/slug/ver/ · register in platform.json
 ```
+CLI reads `fe.config.json` at CWD for: plugins[], manifestPath, uploadsDir, shellDir
+
+## @fe/cli Plugin API
+Organizations extend the CLI by adding plugins in their `fe.config.json`:
+```json
+{ "plugins": ["@acme/fe-plugin-s3"] }
+```
+Each plugin is an npm package that exports a `Plugin` object (default or named `plugin`):
+```ts
+import type { Plugin, CliContext } from "@fe/core";
+export default {
+  name: "acme-s3",
+  setup(ctx: CliContext) {
+    ctx.adapters.artifactStorage = new S3Storage("my-bucket");
+  }
+} satisfies Plugin;
+```
+Plugins run after builtins so they can freely swap `ctx.adapters.*`.
+
+## fe.config.json schema (`@fe/core` FeConfig)
+```json
+{
+  "plugins":      [],                      // npm packages to load as CLI plugins
+  "manifestPath": "configs/platform.json", // path to routes+packages registry
+  "uploadsDir":   "uploads",               // artifact storage dir (local adapter)
+  "shellDir":     "host-app"              // host application directory
+}
+```
+All fields optional; defaults apply when file is absent.
 
 ## platform.json config
 ```json
@@ -57,67 +93,47 @@ admin upload <tgt>          cp dist/→uploads/slug/ver/ · register in platform
   }
 }
 ```
-routes: path → specifier@version (top-level MFEs, go in default import map)
-packages: specifier → versions → {url, deps} (registry of all published MFE versions)
 
-## deploy flow
+## deploy flow (sandbox example)
 ```
-build <mfe> → admin upload <mfe>
-  ↓ registers package in platform.json (URL + deps)
-edit configs/platform.json "routes" (manual|CD)
+fe build <mfe> → fe admin upload <mfe>
+  ↓ registers package in configs/platform.json
+edit configs/platform.json "routes"
   ↓
-build shell  (injects config → shell/dist/index.html · import maps injected at runtime)
-  ↓
-serve
+fe build shell → fe serve
 ```
 
-## runtime flow (browser)
+## runtime flow (browser · @fe/runtime)
 ```
 1. HTML loads with embedded platform config · no static import map
-2. shell app.js calls loadDevtools() then platform.load(path)
+2. host-app app.js calls loadDevtools() then load(path)
 3. load() reads config, resolves route → specifier@version
-4. resolves transitive fe() deps via semver (from packages registry in config)
-5. injects <script type="importmap"> for all resolved deps (including route MFE)
+4. resolves transitive fe() deps via semver (from packages registry)
+5. injects <script type="importmap"> for all resolved deps
 6. import(specifier) → browser resolves via injected maps
 ```
 
 ## CI · .github/workflows/ci.yml
-trigger: push→main | PR→main
-ubuntu-latest · setup-bun@latest · cache ~/.bun/install/cache
-install: (cd mfe-b && bun install) (cd shell && bun install) (cd devtools && bun install)
-typecheck: bunx tsc --noEmit -p {mfe-a,mfe-b,shell,devtools}/tsconfig.json
-build: mfe-a(bun run build) mfe-b(bun run build) devtools(bun run build) shell(bun run build)
+trigger: push→main | PR→main  
+`packages` job: typecheck @fe/core @fe/cli @fe/runtime  
+`sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app
 
 ## docs/ workflow
-plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED
-when a PR merges that implements a plan:
-  1. add `> **Status:** COMPLETED / ARCHIVED` header to the plan doc
-  2. update any "proposed" label in the doc title to reflect it is now historical
-  invariant: no unarchived plan doc exists after its implementing PR lands
-  !delete archived docs — they explain why the system is the way it is
-  example: externalization-strategy.md, cli-architecture-proposed.md
-pre-PR: before opening any PR, update all of the following to reflect current state:
-  - all affected AGENTS.md files
-  - all affected README.md files (root + any subpackage whose interface/purpose changed)
-  - CONTRIBUTING.md — if any workflow, setup step, or development pattern changed
-  - docs/ — archive any plan doc whose implementing PR is landing (add COMPLETED/ARCHIVED header)
+plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED  
+pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md, docs/
 
 ## coding rules
 - source files: max 180 lines · split immediately when exceeded
-- comments: none unless logic is genuinely non-obvious · no section headers · no doc comments
-- functions over classes: default to functional patterns · classes only with explicit high-impact justification
-- no stubs or mocks: production-ready code only · no temp workarounds unless explicitly asked
+- comments: none unless logic is genuinely non-obvious · no section headers
+- functions over classes: default to functional patterns
+- no stubs or mocks: production-ready code only
 - debugging: halt at 2 failed attempts · report state + request guidance
-- communication: concise · no verbose post-edit summaries · don't restate edits already visible in IDE
 
 ## ✗ invariants
 - !bundle fe(*) · must stay external · importmap resolves runtime
-- admin-upload writes to packages only, never routes (separation preserved)
+- admin-upload writes to packages only, never routes
 - routes updated manually or by CD pipeline
 - !framework-deps · DOM only (exception: devtools/ bundles Solid.js internally)
-- !workspace-config (not a monorepo workspace)
-- fe() devDeps → devDependencies only (build.ts reads devDeps, not deps)
-- shell-build output: shell/dist/{index.html(config injected) app.js} · import maps runtime-only
-- uploads/ !git-tracked
+- fe() devDeps → devDependencies only
+- sandbox/ is !published · packages/* are published
 - multiple import maps: deps injected lazily, deduped via versioned resolution
-- cross-ecosystem: packages can use remote URLs (https://cdn.other-org.com/...)

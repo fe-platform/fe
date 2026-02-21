@@ -1,0 +1,14 @@
+{
+  "name": "host-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "bunx @fe/cli build host-app"
+  },
+  "dependencies": {
+    "@fe/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "fe(@acme/mfe-b)": "file:../mfe-b"
+  }
+}
