@@ -1,4 +1,8 @@
-# CLI Architecture (pre-plugin refactor)
+# CLI Architecture — Pre-Plugin Refactor (ARCHIVED)
+
+> **Status:** ARCHIVED — this describes the flat command structure that existed before the plugin refactor.
+> See `cli-architecture-proposed.md` for the current architecture.
+
 
 ```mermaid
 graph TB

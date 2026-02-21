@@ -1,4 +1,4 @@
-# ⬡ mfe-a/ · agent-ref
+# ⚯ mfe-a/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
 ## identity
@@ -48,5 +48,7 @@ bun cli/src/index.ts admin upload mfe-a
 bun cli/src/index.ts dev mfe-a
   sandbox at http://localhost:3000
   importmap: {"imports":{"fe(@acme/mfe-a)":"/index.js"}}
-  renders render(#sandbox,{}) · SSE hotreload on src/ changes
+  initial render: render(#sandbox,{})
+  on src/ change: rebuild → SSE {t:timestamp} → unmount + import("/index.js?t="+t) + re-render
+  no page reload · module-swap HMR · reconnecting tabs receive latest pending rebuild
 ```

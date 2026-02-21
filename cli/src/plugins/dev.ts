@@ -17,14 +17,26 @@ declare module "../core/hooks" {
 
 const SSE_PATH = "/__dev";
 const sseClients = new Set<ReadableStreamDefaultController>();
+let pendingTs: number | null = null;
 
 function notifyReload(): void {
+  pendingTs = Date.now();
+  const payload = `data: ${JSON.stringify({ t: pendingTs })}\n\n`;
   for (const ctrl of sseClients) {
     try {
-      ctrl.enqueue("data: reload\n\n");
+      ctrl.enqueue(payload);
     } catch {
       sseClients.delete(ctrl);
     }
+  }
+}
+
+function drainPending(ctrl: ReadableStreamDefaultController): void {
+  if (pendingTs === null) return;
+  try {
+    ctrl.enqueue(`data: ${JSON.stringify({ t: pendingTs })}\n\n`);
+  } catch {
+    // client already gone
   }
 }
 
@@ -42,10 +54,15 @@ function sandboxHtml(name: string): string {
   <div id="sandbox" style="padding:16px"></div>
   <script type="module">
     import { render } from "${name}";
-    render(document.getElementById("sandbox"), {});
+    let unmount = render(document.getElementById("sandbox"), {});
+    // HMR: on rebuild, swap the module in-place without a full page reload.
+    new EventSource("${SSE_PATH}").onmessage = async (e) => {
+      const { t } = JSON.parse(e.data);
+      const mod = await import("/index.js?t=" + t);
+      unmount?.();
+      unmount = mod.render(document.getElementById("sandbox"), {});
+    };
   </script>
-  <!-- SSE-based hot reload: no runtime, just a full page reload on rebuild. -->
-  <script>new EventSource("${SSE_PATH}").onmessage = () => location.reload();</script>
 </body>
 </html>`;
 }
@@ -82,7 +99,7 @@ export const devPlugin: Plugin = {
             if (url.pathname === SSE_PATH) {
               let ctrl!: ReadableStreamDefaultController;
               const stream = new ReadableStream({
-                start(c) { ctrl = c; sseClients.add(c); },
+                start(c) { ctrl = c; sseClients.add(c); drainPending(c); },
                 cancel() { sseClients.delete(ctrl); },
               });
               return new Response(stream, {

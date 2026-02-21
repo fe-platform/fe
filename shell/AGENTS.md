@@ -1,4 +1,4 @@
-# ⬡ shell/ · agent-ref
+# ⚯ shell/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
 ## identity

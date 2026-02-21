@@ -1,4 +1,4 @@
-# ⬡ fe-platform · root · agent-ref
+# ⚯ fe-platform · root · agent-ref
 CLAUDE.md→symlink→here
 
 ## topology
@@ -41,7 +41,7 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
 ```
 build  mfe-a|mfe-b|shell   →dist/ · shell: +inject importmap+config→HTML
 serve  [port=3000]          shell/dist/ · /uploads/→ROOT/uploads/
-dev    <tgt> [port=3000]    sandbox+SSE · watch src/→rebuild→reload
+dev    <tgt> [port=3000]    sandbox+SSE · watch src/→rebuild→HMR module-swap (no page reload)
 link   <consumer> <dep>     write devDep file:URI + bun-install in consumer
 admin upload <tgt>          cp dist/→uploads/slug/ver/ · register in platform.json
 ```
@@ -86,6 +86,15 @@ ubuntu-latest · setup-bun@latest · cache ~/.bun/install/cache
 install: (cd mfe-b && bun install) (cd shell && bun install)
 typecheck: bunx tsc --noEmit -p {mfe-a,mfe-b,shell}/tsconfig.json
 build: mfe-a(bun run build) mfe-b(bun run build) shell(bun run build)
+
+## docs/ workflow
+plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED
+when a PR merges that implements a plan:
+  1. add `> **Status:** COMPLETED / ARCHIVED` header to the plan doc
+  2. update any "proposed" label in the doc title to reflect it is now historical
+  invariant: no unarchived plan doc exists after its implementing PR lands
+  !delete archived docs — they explain why the system is the way it is
+  example: externalization-strategy.md, cli-architecture-proposed.md
 
 ## ✗ invariants
 - !bundle fe(*) · must stay external · importmap resolves runtime
