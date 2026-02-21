@@ -1,4 +1,8 @@
-# CLI Plugin Architecture
+# CLI Plugin Architecture (CURRENT)
+
+> **Status:** IMPLEMENTED — this is the current architecture as of the plugin refactor.
+> See `cli-architecture-current.md` for the pre-refactor flat structure (archived).
+
 
 ```mermaid
 graph TB

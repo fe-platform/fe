@@ -63,6 +63,11 @@ bun cli/src/index.ts admin upload mfe-b
 bun cli/src/index.ts dev mfe-b
   sandbox at http://localhost:3000
   importmap: {"imports":{"fe(@acme/mfe-b)":"/index.js"}}
-  NOTE: mfe-a must also be in importmap for mfe-b to compose it
-        dev sandbox only maps the target itself; add mfe-a entry manually if needed
+  initial render: render(#sandbox,{})
+  on src/ change: rebuild → SSE {t:timestamp} → unmount + import("/index.js?t="+t) + re-render
+  no page reload · module-swap HMR · reconnecting tabs receive latest pending rebuild
+
+  NOTE: dev sandbox only maps the target MFE itself ("fe(@acme/mfe-b)" → "/index.js")
+        mfe-a is NOT in this import map → composing mfe-a will fail at runtime in dev mode
+        workaround: build+upload mfe-a first, then run full shell serve instead of dev
 ```

@@ -17,7 +17,7 @@
 ├── shell/                 # Host app that renders mfe-b
 ├── cli/                   # Build, serve, dev, link, and admin commands
 ├── configs/
-│   └── import-map.json    # Maps fe() specifiers → URLs (the deployment config)
+│   └── platform.json      # Routes + package registry (the deployment config)
 └── uploads/               # Local filesystem "registry" (swap for CDN in production)
 ```
 
@@ -84,18 +84,15 @@ bun cli/src/index.ts serve
 # 1. Build
 bun cli/src/index.ts build mfe-a
 
-# 2. Upload (prints the URL, no auth for filesystem backend)
+# 2. Upload — automatically registers the package version in configs/platform.json
 bun cli/src/index.ts admin upload mfe-a
-# Uploaded fe(@acme/mfe-a)@1.0.0
-# URL: ./uploads/mfe-a/1.0.0/index.js
-#
-# Update configs/import-map.json manually:
-#   "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js"
+# Uploaded fe(@acme/mfe-a)@1.0.0 → ./uploads/mfe-a/1.0.0/index.js
+# (written to platform.json "packages" section; "routes" is not touched)
 
-# 3. Edit configs/import-map.json (or let a CD pipeline do it):
-#    "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js"
+# 3. Edit configs/platform.json "routes" to activate the new version (or let CD do it):
+#    "routes": { "/": "fe(@acme/mfe-a)@1.0.0" }
 
-# 4. Rebuild shell to inject the new import map, then serve
+# 4. Rebuild shell to inject the updated import map + config, then serve
 bun cli/src/index.ts build shell && bun cli/src/index.ts serve
 ```
 
@@ -121,8 +118,9 @@ For packages in separate repos, swap `file:../mfe-a` for a git URI — nothing e
 ```bash
 bun cli/src/index.ts dev mfe-a
 # Opens a sandbox at http://localhost:3000 that renders mfe-a standalone.
-# Edit src/ → Bun rebuilds → SSE notifies browser → location.reload().
-# No HMR runtime. Full reload is fast enough with Bun.
+# Edit src/ → Bun rebuilds → SSE notifies browser → module swapped in-place.
+# unmount() called on old render, new module imported via ?t= cache-buster, render() called again.
+# No page reload. Reconnecting tabs receive the latest pending rebuild immediately.
 ```
 
 ## How `fe()` deps are externalized at build time
@@ -148,11 +146,17 @@ resolves it via the import map in `configs/import-map.json`.
 No runtime, no WebSocket, no module graph:
 1. Bun file watcher detects changes in `src/`
 2. Bun rebuilds (typically <100ms)
-3. Server-Sent Events (`/__dev`) push a `reload` event
-4. Browser: `new EventSource("/__dev").onmessage = () => location.reload()`
+3. Server-Sent Events (`/__dev`) push `{ t: timestamp }`
+4. Browser: `unmount()` tears down the current render; `import("/index.js?t=<timestamp>")` loads
+   the fresh module under a new URL (bypassing the native module registry cache);
+   `render()` mounts the new version in the same container. No page reload.
 
-Import maps are immutable once parsed — full reload is the only clean option and
-with Bun's build speed it's effectively instant.
+Reconnect safety: the server keeps `pendingTs` — the timestamp of the latest completed rebuild.
+When a tab reconnects after the SSE auto-reconnect gap (~3s), `drainPending()` fires immediately
+on connection so no rebuild is ever missed.
+
+The sandbox HTML (including the `EventSource` wiring) is generated at request time by the CLI's
+dev server and is never written to disk. MFE authors have zero awareness of the HMR mechanism.
 
 ## Upload / config separation (intentional design)
 
@@ -162,8 +166,8 @@ It does **not** update `configs/import-map.json`.
 This separation is deliberate:
 - **Anyone can upload** a candidate build (no auth needed for artifact storage).
 - **Only a privileged actor** (a CD pipeline, or a human with repo write access)
-  decides which version is active, by editing `import-map.json`.
+  decides which version is active, by editing the `routes` section of `configs/platform.json`.
 - When moving to blob storage (S3, Azure Blob, etc.), TTL policies handle cleanup
   of unreferenced uploads — no custom cleanup code needed.
 - Auth for uploads can be added later via a `FE_UPLOAD_KEY` env var check in
-  `cli/src/admin.ts` without changing any other interface.
+  `cli/src/plugins/admin.ts` without changing any other interface.
