@@ -1,12 +1,8 @@
 <div align="center">
 
-# ⚯ fe
-
+# ⚯ <br /> fe
 **Ship independently. Compose natively.**
-
 </div>
-
----
 
 ## Structure
 
