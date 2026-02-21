@@ -52,8 +52,13 @@ export const checkPlugin: Plugin = {
         console.log(`- Simulating Build`);
         const externals = readFeDepKeys(dir);
 
+        let entrypoint = join(dir, "src", "index.ts");
+        if (!(await Bun.file(entrypoint).exists())) {
+          entrypoint = join(dir, "src", "index.tsx");
+        }
+
         let options: BuildOptions = {
-          entrypoints: [join(dir, "src", "index.ts")],
+          entrypoints: [entrypoint],
           outdir: join(dir, "dist"),
           format: "esm",
           target: "browser",

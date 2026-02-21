@@ -12,7 +12,8 @@
     "jsxImportSource": "solid-js",
     "paths": {
       "fe(@acme/*)": [
-        "../*/src/index.ts"
+        "../*/src/index.ts",
+        "../*/src/index.tsx"
       ]
     }
   },
