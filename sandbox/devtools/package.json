@@ -4,7 +4,7 @@
   "module": "src/index.tsx",
   "types": "src/index.tsx",
   "scripts": {
-    "build": "bun build src/index.tsx --outdir dist --format esm --target browser",
+    "build": "bun build src/index.tsx --outdir dist --format esm --target browser --external 'fe(*)'",
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
