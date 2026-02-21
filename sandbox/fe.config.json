@@ -1,0 +1,6 @@
+{
+  "plugins": [],
+  "manifestPath": "configs/platform.json",
+  "uploadsDir": "uploads",
+  "shellDir": "host-app"
+}

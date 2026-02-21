@@ -41,3 +41,6 @@ temp/
 
 # Upload registry (local filesystem backend — not committed)
 uploads/
+
+# Nx
+.nx/

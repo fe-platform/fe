@@ -1,0 +1,17 @@
+{
+  "name": "host-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "cd .. && fe build shell",
+    "check": "cd .. && fe check shell",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "fe(@acme/mfe-b)": "file:../mfe-b",
+    "@fe/cli": "workspace:*"
+  }
+}

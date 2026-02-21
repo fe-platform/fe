@@ -7,39 +7,54 @@ on:
     branches: [main]
 
 jobs:
-  ci:
+  packages:
     runs-on: ubuntu-latest
-
+    name: Packages (typecheck)
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-
       - name: Cache Bun
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
           key: bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: bun-
-
       - name: Install
+        run: bun install
+      - name: Typecheck packages
         run: |
-          (cd mfe-b && bun install)
-          (cd shell && bun install)
-          (cd devtools && bun install)
+          bunx tsc --noEmit --project packages/core/tsconfig.json
+          bunx tsc --noEmit --project packages/cli/tsconfig.json
+          bunx tsc --noEmit --project packages/runtime/tsconfig.json
 
-      - name: Type-check
+  sandbox:
+    runs-on: ubuntu-latest
+    name: Sandbox (typecheck + build)
+    needs: packages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: bun-
+      - name: Install
+        run: bun install
+      - name: Typecheck sandbox
         run: |
-          bunx tsc --noEmit --project mfe-a/tsconfig.json
-          bunx tsc --noEmit --project mfe-b/tsconfig.json
-          bunx tsc --noEmit --project shell/tsconfig.json
-          bunx tsc --noEmit --project devtools/tsconfig.json
-
-      - name: Build
+          bunx tsc --noEmit --project sandbox/mfe-a/tsconfig.json
+          bunx tsc --noEmit --project sandbox/mfe-b/tsconfig.json
+          bunx tsc --noEmit --project sandbox/host-app/tsconfig.json
+          bunx tsc --noEmit --project sandbox/devtools/tsconfig.json
+      - name: Build sandbox
         run: |
-          (cd mfe-a && bun run build)
-          (cd mfe-b && bun run build)
-          (cd devtools && bun run build)
-          (cd shell && bun run build)
+          (cd sandbox/mfe-a && bun run check)
+          (cd sandbox/mfe-b && bun run check)
+          (cd sandbox/devtools && bun run check)
+          (cd sandbox/host-app && bun run check)

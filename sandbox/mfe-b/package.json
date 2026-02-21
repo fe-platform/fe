@@ -1,0 +1,15 @@
+{
+  "name": "fe(@acme/mfe-b)",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --format esm --target browser --external 'fe(*)'",
+    "typecheck": "bunx tsc --noEmit",
+    "check": "cd ../.. && fe check sandbox/mfe-b"
+  },
+  "devDependencies": {
+    "fe(@acme/mfe-a)": "file:../mfe-a",
+    "@fe/cli": "workspace:*"
+  }
+}
