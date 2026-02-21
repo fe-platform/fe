@@ -84,9 +84,9 @@ serve
 ## CI · .github/workflows/ci.yml
 trigger: push→main | PR→main
 ubuntu-latest · setup-bun@latest · cache ~/.bun/install/cache
-install: (cd mfe-b && bun install) (cd shell && bun install)
-typecheck: bunx tsc --noEmit -p {mfe-a,mfe-b,shell}/tsconfig.json
-build: mfe-a(bun run build) mfe-b(bun run build) shell(bun run build)
+install: (cd mfe-b && bun install) (cd shell && bun install) (cd devtools && bun install)
+typecheck: bunx tsc --noEmit -p {mfe-a,mfe-b,shell,devtools}/tsconfig.json
+build: mfe-a(bun run build) mfe-b(bun run build) devtools(bun run build) shell(bun run build)
 
 ## docs/ workflow
 plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED
@@ -96,6 +96,15 @@ when a PR merges that implements a plan:
   invariant: no unarchived plan doc exists after its implementing PR lands
   !delete archived docs — they explain why the system is the way it is
   example: externalization-strategy.md, cli-architecture-proposed.md
+pre-PR: update all affected AGENTS.md files and docs/ to reflect current state before opening any PR
+
+## coding rules
+- source files: max 180 lines · split immediately when exceeded
+- comments: none unless logic is genuinely non-obvious · no section headers · no doc comments
+- functions over classes: default to functional patterns · classes only with explicit high-impact justification
+- no stubs or mocks: production-ready code only · no temp workarounds unless explicitly asked
+- debugging: halt at 2 failed attempts · report state + request guidance
+- communication: concise · no verbose post-edit summaries · don't restate edits already visible in IDE
 
 ## ✗ invariants
 - !bundle fe(*) · must stay external · importmap resolves runtime
