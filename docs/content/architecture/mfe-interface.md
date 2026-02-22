@@ -74,8 +74,7 @@ export function render(
 
 Solid's `render` returns a dispose function that is already the correct unmount implementation. Assigning it directly to the return value of the MFE's `render` keeps things honest.
 
-## What the Host Never Knows
-
-The shell calls `render(container, props)` and stores the returned unmount function. It has no knowledge of which framework runs inside. It does not import React, does not configure Solid's context, does not know whether the container holds a shadow DOM. Two MFEs using entirely different frameworks can be mounted in the same shell application and compose in the same page, as `sandbox/mfe-b` demonstrates when it mounts `sandbox/mfe-a` (SolidJS mounting React).
+The shell calls `render(container, props)` and stores the returned unmount function. It has no knowledge of which framework runs inside. It does not import React, does not configure Solid's context, does not know whether the container holds a shadow DOM. Two MFEs using entirely different frameworks can be mounted in the same shell application and compose in the same page.
 
 The contract is deliberately minimal. Anything beyond `render` and its return value is outside the platform's scope — intentionally.
+

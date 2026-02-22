@@ -49,15 +49,15 @@ export function render(
 
 ## Preview with the Dev Server
 
-`bunx fe dev` builds the MFE and serves it in an isolated sandbox page:
+`bunx fe dev` starts a local server that serves your MFE via JIT compilation in an isolated sandbox page:
 
 ```bash
 bunx fe dev mfe-hello
 ```
 
-Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local build, then calls your `render` function on a container element. There is no host application, no shell, no shared workspace. This is the MFE running entirely on its own.
+Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local JIT endpoint, then calls your `render` function on a container element. There is no host application, no shell, no shared workspace. This is the MFE running entirely on its own.
 
-Edit `src/index.ts` and save: the server rebuilds, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance, and calls `render` again with the updated module.
+Edit `src/index.ts` and save: the server detects the change, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance, and imports the updated module from the JIT compiler.
 
 To use a different port:
 
@@ -75,6 +75,6 @@ bunx fe publish mfe-hello
 
 `fe publish` pre-flight type-checks the source, uploads it to the local `sources/` directory, and writes the package entry into `configs/platform.json`. The registered URL points to the JIT bundler (`/bundle/mfe-hello/1.0.0/index.ts`), which compiles the source on the first request and caches the result.
 
-After this step, `mfe-hello` exists in the registry as an independent, versioned artifact. How and where it appears is a separate concern — covered in the next article.
+After this step, `mfe-hello` exists in the platform configuration as an independent, versioned artifact. How and where it appears is a separate concern — covered in the next article.
 
 **Next:** [Composing MFEs](./composing-mfes)

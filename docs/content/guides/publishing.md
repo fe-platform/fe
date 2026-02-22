@@ -9,10 +9,12 @@ How `fe publish` uploads MFE source code for JIT compilation, registers entries 
 ## Running `fe publish`
 
 ```bash
-fe publish sandbox/mfe-a
+fe publish <mfe-directory>
 ```
 
-Provide the path to the MFE's directory, relative to the workspace root.
+Provide the path to the MFE's directory, relative to the project root.
+
+*Note: In this repository, `fe publish <mfe-directory>` is used to test the local publishing flow.*
 
 ## What Happens
 
@@ -26,11 +28,11 @@ Provide the path to the MFE's directory, relative to the workspace root.
 fe(@acme/mfe-a) → mfe-a
 ```
 
-**3. Upload source.** Copies the entire `src/` directory to `SourceStorage` at `sources/<slug>/<version>/`. The default storage writes to the local filesystem. A plugin can swap this to S3 or any other backend.
+**3. Upload source.** Copies the entire `src/` directory to the configured `SourceStorage` adapter (at `sources/<slug>/<version>/` by default). The default local storage adapter writes to the filesystem; in production, this is swapped for cloud storage via a plugin.
 
 **4. Resolve deps.** Reads `fe()` keys from `devDependencies`, then looks up each dep's `version` field in its local `package.json`. Records the resolved versions as semver ranges (`^X.Y.Z`) in the `deps` object.
 
-**5. Register.** Calls `manifest.registerPackage(name, version, { url, deps })`. The URL is `/bundle/<slug>/<version>/index.ts`. This writes the entry to `platform.json`'s `packages` section.
+**5. Register.** Calls the `manifest` adapter's `registerPackage` method. This writes the entry to the `packages` section of the platform configuration (e.g., `platform.json`).
 
 ## What `fe publish` Does Not Do
 
@@ -59,6 +61,6 @@ fe serve
 
 ## Re-Publishing
 
-`fe publish` writes `platform.json` with the new entry. If you increment the version in `package.json` and publish again, both versions coexist in the registry. The shell serves whichever version `routes` points to.
+`fe publish` writes `platform.json` with the new entry. If you increment the version in `package.json` and publish again, both versions coexist in the platform configuration. The shell serves whichever version `routes` points to.
 
-Publishing the same version a second time will overwrite the existing `sources/<slug>/<version>/` directory and the registry entry. Treat version strings as immutable once they are referenced by a live route.
+Publishing the same version a second time will overwrite the existing source storage and configuration entry. Treat version strings as immutable once they are referenced by a live route.

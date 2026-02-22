@@ -4,11 +4,11 @@ sidebar_position: 5
 
 # Cross-Ecosystem Sharing
 
-How to share MFEs across organizations and teams using remote URLs in the packages registry.
+How to share MFEs across organizations and teams using remote URLs in the packages configuration.
 
 ## How URL Resolution Works
 
-`platform.json` stores a URL for every registered package version. The runtime's `resolveDeps` function resolves specifiers to those URLs without any knowledge of where the URL points. A local path, a relative URL, a CDN URL, or a staging server all work identically from the runtime's perspective.
+`platform.json` stores a URL for every registered package version. The runtime's `resolveDeps` function resolves specifiers to those URLs without any knowledge of where the URL points. A local path, a relative URL, Source Storage URL, or a staging server all work identically from the runtime's perspective.
 
 ```json
 {
@@ -16,7 +16,7 @@ How to share MFEs across organizations and teams using remote URLs in the packag
     "fe(@acme/mfe-a)": {
       "versions": {
         "1.0.0": {
-          "url": "https://cdn.acme.com/mfe-a/1.0.0/index.js",
+          "url": "https://jit.acme.com/mfe-a/1.0.0/index.js",
           "deps": {}
         }
       }
@@ -25,7 +25,7 @@ How to share MFEs across organizations and teams using remote URLs in the packag
 }
 ```
 
-When `resolveDeps` encounters `fe(@acme/mfe-a)@1.0.0`, it sets the resolved URL to `https://cdn.acme.com/mfe-a/1.0.0/index.js`. The runtime injects that URL directly into the import map. No proxying, no wrapper, no re-bundling.
+When `resolveDeps` encounters `fe(@acme/mfe-a)@1.0.0`, it sets the resolved URL to `https://jit.acme.com/mfe-a/1.0.0/index.js`. The runtime injects that URL directly into the import map. No proxying, no wrapper, no re-bundling.
 
 ## Consuming an External MFE
 
@@ -66,7 +66,7 @@ Then add a route:
 }
 ```
 
-The transitive dependency `fe(@partner/ui-kit)` is resolved and injected automatically. Your shell never sees the partner's source code; it only sees the import map entries the runtime builds from the registry.
+The transitive dependency `fe(@partner/ui-kit)` is resolved and injected automatically. Your shell never sees the partner's source code; it only sees the import map entries the runtime builds from the platform configuration.
 
 ## CORS Requirements
 
@@ -76,7 +76,7 @@ The `Bun.serve`-based `fe serve` does not add CORS headers to cross-origin MFE r
 Access-Control-Allow-Origin: *
 ```
 
-Most CDN providers allow this to be configured per-bucket or per-distribution.
+Most Source Storage providers allow this to be configured per-bucket or per-distribution.
 
 ## Version Negotiation Across Teams
 

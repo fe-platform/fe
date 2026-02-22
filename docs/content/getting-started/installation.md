@@ -40,7 +40,7 @@ Install the CLI locally:
 bun add -d @fe/cli
 ```
 
-Create the registry file the CLI writes to:
+Create the configuration file the CLI writes to:
 
 ```bash
 mkdir configs
@@ -65,6 +65,6 @@ You should see the list of available commands. All examples in this documentatio
 
 ## What You Have Now
 
-A working directory that has the CLI and an empty registry. Nothing else connects the things you are about to build. MFEs you create are independent packages — each installs its own dependencies, each can live anywhere, each is deployable on its own. The only thing that will join them at runtime is `platform.json` and the import maps the runtime injects from it.
+A working directory that has the CLI and an empty configuration. Nothing else connects the things you are about to build. MFEs you create are independent packages — each installs its own dependencies, each can live anywhere, each is deployable on its own. The only thing that will join them at runtime is `platform.json` and the import maps the runtime injects from it.
 
 **Next:** [Your First MFE](./your-first-mfe)

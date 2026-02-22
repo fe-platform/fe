@@ -6,7 +6,7 @@ sidebar_position: 3
 
 Build a host application that resolves routes, injects import maps, and mounts MFEs. By the end of this tutorial you will have a working shell that loads any registered MFE for the current route.
 
-The working reference for everything in this tutorial is `sandbox/host-app` in the repository.
+The working reference for everything in this tutorial is `<shell-directory>` in the repository.
 
 ## Prerequisites
 

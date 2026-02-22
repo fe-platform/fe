@@ -28,8 +28,8 @@ bun install
 ## Building and Serving the Full Stack
 
 ```bash
-fe publish sandbox/mfe-a
-fe publish sandbox/mfe-b
+fe publish <mfe-directory>
+fe publish <mfe-directory>
 fe publish toolkit/devtools
 # edit sandbox/configs/platform.json "routes" if needed
 fe build shell
@@ -41,18 +41,18 @@ Open `http://localhost:3000`.
 ## Developing an MFE in Isolation
 
 ```bash
-fe dev sandbox/mfe-a
+fe dev <mfe-directory>
 ```
 
-A sandbox page opens at `http://localhost:3000`. Edit any file in `sandbox/mfe-a/src/`. Bun rebuilds, the SSE stream notifies the browser, and the module swaps in-place without a page reload.
+A sandbox page opens at `http://localhost:3000`. Edit any file in `<mfe-directory>/src/`. Bun rebuilds, the SSE stream notifies the browser, and the module swaps in-place without a page reload.
 
 `dev` mode maps only the target MFE in its import map. If the MFE imports other `fe()` packages (as `mfe-b` imports `mfe-a`), those specifiers will not resolve in the dev sandbox. Publish the dependencies and use `fe serve` instead.
 
 ## Publishing a New Version
 
 ```bash
-fe build sandbox/mfe-a
-fe publish sandbox/mfe-a
+fe build <mfe-directory>
+fe publish <mfe-directory>
 ```
 
 `fe publish` pre-flight type-checks, uploads source, and registers the package entry in `sandbox/configs/platform.json`. To make the new version live, update `routes` in `platform.json` and rebuild the shell.
@@ -60,10 +60,10 @@ fe publish sandbox/mfe-a
 ## Linking a New `fe()` Dependency
 
 ```bash
-fe link sandbox/mfe-b sandbox/mfe-a
+fe link <mfe-directory> <mfe-directory>
 ```
 
-This writes `"fe(@acme/mfe-a)": "file:../mfe-a"` to `sandbox/mfe-b/package.json`'s `devDependencies` and runs `bun install`. For cross-repo dependencies, set the git URI manually and run `bun install`.
+This writes `"fe(@acme/mfe-a)": "file:../mfe-a"` to `<mfe-directory>/package.json`'s `devDependencies` and runs `bun install`. For cross-repo dependencies, set the git URI manually and run `bun install`.
 
 ## CLI Config
 
@@ -75,7 +75,7 @@ The CLI reads `configs/fe.config.json` through the `ConfigProvider` adapter. All
   "manifestPath": "configs/platform.json",
   "uploadsDir":   "uploads",
   "sourcesDir":   "sources",
-  "shellDir":     "host-app"
+  "shellDir": "shell"
 }
 ```
 

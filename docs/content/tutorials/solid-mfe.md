@@ -4,9 +4,9 @@ sidebar_position: 2
 
 # Tutorial: SolidJS MFE
 
-Build a SolidJS microfrontend from scratch and deploy it to the fe platform. By the end of this tutorial you will have a reactive SolidJS component running in the sandbox dev server and registered in the platform registry.
+Build a SolidJS microfrontend from scratch and deploy it to the fe platform. By the end of this tutorial you will have a reactive SolidJS component running in the sandbox dev server and registered in the platform configuration.
 
-The working reference for everything in this tutorial is `sandbox/mfe-b` in the repository.
+The working reference for everything in this tutorial is `<mfe-directory>` in the repository.
 
 ## Prerequisites
 

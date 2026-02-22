@@ -14,9 +14,11 @@ The reference CI workflow uses two jobs with a dependency between them:
 packages ──→ sandbox
 ```
 
-**`packages` job** typechecks `@fe/core`, `@fe/cli`, and `@fe/runtime`. These are the published packages; they must compile cleanly before anything else runs.
+**`packages` job** typechecks `@fe/core`, `@fe/cli`, and `@fe/runtime`. These are the core platform adapters and libraries; they must compile cleanly before anything else runs.
 
-**`sandbox` job** (requires `packages` to succeed) typechecks and builds the sandbox MFEs and the host application. It depends on the packages job because the sandbox imports from `@fe/cli` and `@fe/runtime`.
+**`sandbox` job** (requires `packages` to succeed) typechecks and builds the example MFEs and the shell application. It depends on the packages job because these components import from `@fe/cli` and `@fe/runtime`.
+
+*Note: The `sandbox/` directory in this project serves as the local testbed for these architectural patterns.*
 
 ## Reference Workflow
 
@@ -57,32 +59,27 @@ jobs:
           restore-keys: bun-
       - run: bun install
       - run: |
-          bunx tsc --noEmit --project sandbox/mfe-a/tsconfig.json
-          bunx tsc --noEmit --project sandbox/mfe-b/tsconfig.json
-          bunx tsc --noEmit --project sandbox/host-app/tsconfig.json
+          bunx tsc --noEmit --project <mfe-directory>/tsconfig.json
+          bunx tsc --noEmit --project <mfe-directory>/tsconfig.json
+          bunx tsc --noEmit --project <shell-directory>/tsconfig.json
           bunx tsc --noEmit --project toolkit/devtools/tsconfig.json
       - run: |
-          (cd sandbox/mfe-a && bun run check)
-          (cd sandbox/mfe-b && bun run check)
+          (cd <mfe-directory> && bun run check)
+          (cd <mfe-directory> && bun run check)
           (cd toolkit/devtools && bun run check)
-          (cd sandbox/host-app && bun run check)
+          (cd <shell-directory> && bun run check)
 ```
 
-## Adding a New MFE to CI
-
-When you add a new MFE to the project, add two lines to the sandbox job, one typecheck step and one build step:
+When you add a new MFE to your project, add its typecheck and build simulator steps to the CI:
 
 ```yaml
 - run: |
-    bunx tsc --noEmit --project sandbox/mfe-a/tsconfig.json
-    bunx tsc --noEmit --project sandbox/mfe-b/tsconfig.json
-    bunx tsc --noEmit --project sandbox/mfe-new/tsconfig.json   # add here
+    bunx tsc --noEmit --project path/to/mfe-a/tsconfig.json
+    bunx tsc --noEmit --project path/to/mfe-new/tsconfig.json   # add here
     ...
 - run: |
-    (cd sandbox/mfe-a && bun run check)
-    (cd sandbox/mfe-b && bun run check)
-    (cd sandbox/mfe-new && bun run check)                       # add here
-    ...
+    (cd path/to/mfe-a && bun run check)
+    (cd path/to/mfe-new && bun run check)                       # add here
 ```
 
 `bun run check` maps to `fe check <dir>` via the package's `package.json` scripts. `fe check` runs both `tsc --noEmit` and a Bun build simulation, so the CI typecheck step is technically redundant with `fe check`'s typecheck. Keeping both is useful for cleaner error output when the failure is a type error rather than a build error.
@@ -104,8 +101,8 @@ The `~/.bun/install/cache` directory stores downloaded packages. Caching it with
 
 Publishing MFEs and activating routes in `platform.json` are separate steps that the CI pipeline can drive. A deployment workflow might:
 
-1. Run `fe publish sandbox/mfe-a` (uploads source, registers in `platform.json`).
-2. Commit and push the updated `platform.json`.
-3. Run `fe build shell` and deploy `shellDir/dist/` to a hosting service.
+1. Run `fe publish <path-to-mfe>` (uploads source, registers in `platform.json` via the `manifest` adapter).
+2. Commit and push the updated `platform.json` to your platform configuration.
+3. Run `fe build shell` and deploy the output of the configured `shellDir` to a hosting service.
 
 Route activation (updating the `routes` section of `platform.json`) can be a separate, gated step in the deployment pipeline, distinct from publishing the package.

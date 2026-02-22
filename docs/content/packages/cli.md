@@ -14,13 +14,13 @@ bun add -d @fe/cli
 
 ### `fe build <target>`
 
-Bundle an MFE:
+Verify the MFE build:
 
 ```bash
-fe build sandbox/mfe-a
+fe build <mfe-directory>
 ```
 
-Reads `devDependencies` from `target/package.json`, collects all `fe(...)` keys as externals, and runs `Bun.build` on `target/src/index.ts`. Output: `target/dist/index.js`.
+Reads `devDependencies` from `target/package.json`, collects all `fe(...)` keys as externals, and runs a `Bun.build` simulation on `target/src/index.ts`. While it writes to `target/dist/index.js`, this artifact is not used by the JIT platform; it serves only to verify the MFE compiles correctly before publishing.
 
 Build the shell:
 
@@ -42,8 +42,8 @@ Serves the built shell from `shellDir/dist/`. Mounts the JIT bundler at `/bundle
 ### `fe dev <target> [port]`
 
 ```bash
-fe dev sandbox/mfe-a
-fe dev sandbox/mfe-a 4000
+fe dev <mfe-directory>
+fe dev <mfe-directory> 4000
 ```
 
 Builds the target, serves a sandbox page with an inline import map, and watches `src/` for changes. On each change: rebuilds, stores the timestamp as `pendingTs`, and notifies connected browsers over SSE at `/__dev`. The browser unmounts the old instance, imports the new bundle at a cache-busting URL, and re-mounts.
@@ -51,7 +51,7 @@ Builds the target, serves a sandbox page with an inline import map, and watches 
 ### `fe link <consumer> <dep>`
 
 ```bash
-fe link sandbox/mfe-b sandbox/mfe-a
+fe link <mfe-directory> <mfe-directory>
 ```
 
 Reads `dep/package.json` for the specifier name. Writes `{ "fe(@scope/name)": "file:../dep" }` into `consumer/package.json`'s `devDependencies`. Runs `bun install` inside `consumer/`.
@@ -59,7 +59,7 @@ Reads `dep/package.json` for the specifier name. Writes `{ "fe(@scope/name)": "f
 ### `fe publish <target>`
 
 ```bash
-fe publish sandbox/mfe-a
+fe publish <mfe-directory>
 ```
 
 Five-step flow: pre-flight typecheck → source upload to `SourceStorage` → dep version resolution → manifest registration. Writes to `packages` in `platform.json` only; never touches `routes`. See [Publishing](../guides/publishing) for the full walkthrough.
@@ -67,7 +67,7 @@ Five-step flow: pre-flight typecheck → source upload to `SourceStorage` → de
 ### `fe check <target|shell>`
 
 ```bash
-fe check sandbox/mfe-a
+fe check <mfe-directory>
 fe check shell
 ```
 
@@ -76,7 +76,7 @@ Typechecks the target with `tsc --noEmit` and runs a Bun build simulation. Exits
 ### `fe admin upload <target>`
 
 ```bash
-fe admin upload sandbox/mfe-a
+fe admin upload <mfe-directory>
 ```
 
 Legacy command. Copies `dist/` to `ArtifactStorage`. Registers the artifact URL in `platform.json`. Use `fe publish` for new MFEs that use JIT compilation.

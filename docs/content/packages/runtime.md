@@ -25,7 +25,7 @@ const { render } = await load(window.location.pathname);
 render(container, props);
 ```
 
-Throws if `path` has no matching route, or if a dependency specifier or version is not found in the packages registry.
+Throws if `path` has no matching route, or if a dependency specifier or version is not found in the packages configuration.
 
 ### `loadDevtools()`
 

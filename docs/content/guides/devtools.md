@@ -56,7 +56,7 @@ function applyOverridesAndInject(allDeps: Map<string, string>): void {
 }
 ```
 
-The override URL can point anywhere: a local `fe dev` server, a staging CDN, a specific branch build. The browser fetches the MFE from the override URL; all other MFEs load from their registered URLs.
+The override URL can point anywhere: a local `fe dev` server, a staging JIT Server, a specific branch build. The browser fetches the MFE from the override URL; all other MFEs load from their registered URLs.
 
 ## Sharing Overrides via URL
 
@@ -78,4 +78,4 @@ This removes `sessionStorage["platform:overrides"]` entirely and strips the para
 
 ## Security Considerations
 
-Import map overrides allow arbitrary URLs to be loaded as trusted MFE code. Use devtools only in development and staging environments. Remove the `"devtools"` field from `platform.json` before building the production shell.
+Import map overrides allow arbitrary URLs to be loaded as trusted MFE code. Use devtools only in development and staging environments. Remove the `"devtools"` field from `platform.json` for production deployments.

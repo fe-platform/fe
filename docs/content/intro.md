@@ -17,8 +17,8 @@ Three browser features make this possible:
 
 The system runs in two stages:
 
-- **Publish:** MFE source code is uploaded to the platform and registered in the config with its dependency declarations. No build step happens here.
-- **Run:** When the browser first requests a module, the **JIT bundler** compiles it on-the-fly, caches the result, and serves it. The browser resolves cross-MFE imports using injected import maps.
+- **Publish:** MFE source code is uploaded to the platform and registered in the config with its dependency declarations. No build step happens at or before publishing. Only raw source is uploaded.
+- **Run:** When the browser first requests a module, the **JIT bundler** compiles it on-the-fly, caches the result, and serves it. This applies to both development and production.
 
 Modules stay independent through development, testing, and production.
 
@@ -28,7 +28,7 @@ Modules stay independent through development, testing, and production.
 import { render } from "fe(@acme/mfe-a)";
 ```
 
-`fe(@acme/mfe-a)` serves as the `name` in `package.json`, the `import` specifier in source code, and the lookup key in the platform registry. The `fe(` prefix is what tells the build system to keep this import external rather than bundle it.
+`fe(@acme/mfe-a)` serves as the `name` in `package.json`, the `import` specifier in source code, and the lookup key in the platform configuration. The `fe(` prefix is what tells the build system to keep this import external rather than bundle it.
 
 ## The Render Contract
 

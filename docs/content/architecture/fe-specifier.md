@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # The `fe()` Specifier
 
-How `fe(@scope/name)` works as a plain package name, not a URL scheme. It is the `name` in `package.json`, a bare specifier in `import` statements, and the key in the platform's lookup service.
+How `fe(@scope/name)` works as a plain package name, not a URL scheme. It is the `name` in `package.json`, a bare specifier in `import` statements, and the key in the platform configuration.
 
 ## What It Is
 
@@ -54,7 +54,7 @@ The specifier appears in exactly three places, always as the same literal string
 import { render } from "fe(@acme/mfe-a)";
 ```
 
-**`platform.json` packages**: the key under which the platform registry stores all versions of this package.
+**`platform.json` packages**: the key under which the platform configuration stores all versions of this package.
 
 ```json
 {
@@ -90,7 +90,7 @@ At runtime, `@fe/runtime` injects an import map that maps the specifier to a URL
 <script type="importmap">
 {
   "imports": {
-    "fe(@acme/mfe-a)": "https://cdn.example.com/mfe-a/1.0.0/index.js"
+    "fe(@acme/mfe-a)": "/bundle/mfe-a/1.0.0/index.js"
   }
 }
 </script>

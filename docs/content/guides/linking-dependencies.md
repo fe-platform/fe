@@ -9,7 +9,7 @@ How `fe link` wires `fe()` devDependencies between packages using `file:` URIs a
 ## What `fe link` Does
 
 ```bash
-fe link sandbox/mfe-b sandbox/mfe-a
+fe link <mfe-directory> <mfe-directory>
 ```
 
 `fe link <consumer> <dep>` does three things:
@@ -44,4 +44,4 @@ The `file:` URI that `fe link` writes makes `bun install` create a symlink at ex
 
 Then run `bun install` in the consumer directory. Bun clones the repo, and TypeScript resolves the package the same way it does with a `file:` URI. The build externalization logic is unchanged: `fe(` prefix, `devDependencies`, external in the bundle.
 
-At runtime, the import map URL for `fe(@acme/mfe-a)` can point to a CDN, a local server, or any URL, completely independent of where the source lives during development.
+At runtime, the import map URL for `fe(@acme/mfe-a)` can point to Source Storage, a local server, or any URL, completely independent of where the source lives during development.

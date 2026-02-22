@@ -4,9 +4,9 @@ sidebar_position: 1
 
 # Tutorial: React MFE
 
-Build a React microfrontend from scratch and deploy it to the fe platform. By the end of this tutorial you will have a React component running in the sandbox dev server and registered in the platform registry.
+Build a React microfrontend from scratch and deploy it to the fe platform. By the end of this tutorial you will have a React component running in the sandbox dev server and registered in the platform configuration.
 
-The working reference for everything in this tutorial is `sandbox/mfe-a` in the repository.
+The working reference for everything in this tutorial is `<mfe-directory>` in the repository.
 
 ## Prerequisites
 

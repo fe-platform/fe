@@ -22,11 +22,11 @@ flowchart LR
 
 **Author.** A developer creates a TypeScript package whose `package.json` name follows the `fe(@scope/name)` convention. They export one function, `render`, and develop it in complete isolation from every other team.
 
-**Build.** `fe build` (via `@fe/compiler`) bundles the MFE's source into a single ESM file. Any `fe(...)` specifiers found in `devDependencies` are declared external. No other MFE's code ends up in the output.
+**Build.** `fe build` (via `@fe/compiler`) is a verification step. It simulates a bundle of the MFE's source to ensure dependencies are resolvable and the code is valid. These artifacts are useful for local testing but are never published; the platform relies entirely on JIT compilation of the raw source.
 
 **Publish.** `fe publish` runs a pre-flight type check, copies the source tree to `sources/<slug>/<version>/`, and writes a package entry to `platform.json`. The registered URL points to the JIT bundler endpoint (`/bundle/slug/version/index.ts`). Compilation happens on first browser request, not at publish time.
 
-**Resolve.** When the browser loads a page, `@fe/runtime` reads the embedded `platform.json`, looks up the current route's specifier and version, and walks the transitive dependency graph using semver matching against the versions in the registry.
+**Resolve.** When the browser loads a page, `@fe/runtime` reads the embedded `platform.json`, looks up the current route's specifier and version, and walks the transitive dependency graph using semver matching against the versions in the platform configuration.
 
 **Inject.** The resolved specifier-to-URL mapping is injected as a `<script type="importmap">` into the document head. The runtime tracks what has already been injected and adds only new entries, so multiple navigations accumulate maps without duplication.
 
@@ -47,6 +47,6 @@ The packages are peers, not a hierarchy. `@fe/core` defines interfaces that `@fe
 
 ## What Makes This Unusual
 
-Most microfrontend frameworks introduce a shared runtime object (an event bus, a global registry, a framework-specific store) that every MFE must import. This platform introduces none of those. MFEs share a URL convention, a `render` contract, and a registry file. The browser's import map mechanism handles everything else.
+Most microfrontend frameworks introduce a shared runtime object (an event bus, a global configuration, a framework-specific store) that every MFE must import. This platform introduces none of those. MFEs share a URL convention, a `render` contract, and a configuration file. The browser's import map mechanism handles everything else.
 
-Two MFEs from different teams, built with different frameworks, deployed on different CDNs, compose in the same browser tab without ever having seen each other's source code. That is the proposition this architecture is built to keep.
+Two MFEs from different teams, built with different frameworks, deployed on different JIT Servers, compose in the same browser tab without ever having seen each other's source code. That is the proposition this architecture is built to keep.

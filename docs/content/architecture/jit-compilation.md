@@ -8,7 +8,7 @@ How the Just-In-Time bundler compiles MFE source code on-the-fly when the browse
 
 ## Motivation
 
-Traditional microfrontend setups require a build step before deployment. An MFE must be compiled, the artifact uploaded to a CDN, and the registry updated with the artifact's URL. The JIT approach inverts this: publish the raw TypeScript source, and let the server compile it on first request. Deployment is faster and the registry URL is stable across source changes.
+Traditional microfrontend setups require a build step before deployment. An MFE must be compiled, the artifact uploaded to a storage bucket or Source Storage, and the platform configuration updated with the artifact's URL. The JIT approach inverts this: publish the raw TypeScript source, and let the JIT server compile it on first request. Deployment is faster and the Platform Configuration URL is stable across source changes.
 
 ## The Flow
 
@@ -96,4 +96,4 @@ A SolidJS MFE automatically gets the Babel-based JSX transform. React MFEs requi
 
 The in-memory cache uses `slug@version/filePath` as the key. Since a published version is immutable (`fe publish` does not overwrite an existing version), the cache does not need invalidation. The browser response includes `immutable` in `Cache-Control`, so both the server and the browser cache are effectively permanent for a given version.
 
-To deploy a new version of an MFE, publish a new version number. The old version remains cached and available. Routes are updated separately from publishing, so old and new versions can coexist in the registry simultaneously.
+To deploy a new version of an MFE, publish a new version number. The old version remains cached and available. Routes are updated separately from publishing, so old and new versions can coexist in the platform configuration simultaneously.

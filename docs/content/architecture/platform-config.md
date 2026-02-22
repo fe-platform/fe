@@ -4,7 +4,7 @@ sidebar_position: 8
 
 # Platform Config
 
-`platform.json` is the registry that connects everything: routes map URL paths to versioned MFEs, and the packages section records every published version with its URL and dependency declarations.
+`platform.json` is the configuration that connects everything: routes map URL paths to versioned MFEs, and the packages section records every published version with its URL and dependency declarations.
 
 ## Full Schema
 
@@ -67,7 +67,7 @@ Records every published MFE version. The key is the specifier; inside, each vers
 }
 ```
 
-**`url`** is the runtime-reachable address of the compiled module. For JIT-compiled MFEs, this is the `/bundle/` path that `fe serve`'s JIT handler responds to. For pre-built artifacts or CDN-hosted MFEs, this is any absolute or root-relative URL.
+**`url`** is the runtime-reachable address of the compiled module, served by the JIT handler. For JIT-compiled MFEs, this is the `/bundle/` path that `fe serve` responds to.
 
 **`deps`** is a map of `fe()` specifier to semver range. The runtime uses this to resolve transitive dependencies before injecting import maps. The semver range format is the caret range (`^X.Y.Z`) supported by `@fe/runtime/src/semver.ts`.
 
@@ -99,7 +99,7 @@ await manifest.registerPackage(name, version, { url, deps });
   "manifestPath": "configs/platform.json",
   "uploadsDir":   "uploads",
   "sourcesDir":   "sources",
-  "shellDir":     "host-app"
+  "shellDir":     "shell"
 }
 ```
 

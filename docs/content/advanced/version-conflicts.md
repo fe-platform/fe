@@ -55,4 +55,4 @@ Scoped import map support is a future improvement to `@fe/runtime`. In the meant
 
 The most reliable mitigation is coordinating version ranges across teams. If `mfe-a` and `mfe-b` both declare `^1.0.0` or both declare `^2.0.0`, `resolveVersion` picks a single satisfying version and the conflict does not arise.
 
-When a breaking upgrade is necessary, use a staged rollout: upgrade `mfe-a` to `ui-kit@2`, publish a new `mfe-a@2.0.0`, update routes to point to the new version, and then upgrade `mfe-b`. The old and new versions coexist in the registry throughout the transition.
+When a breaking upgrade is necessary, use a staged rollout: upgrade `mfe-a` to `ui-kit@2`, publish a new `mfe-a@2.0.0`, update routes to point to the new version, and then upgrade `mfe-b`. The old and new versions coexist in the platform configuration throughout the transition.
