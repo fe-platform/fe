@@ -127,6 +127,13 @@ trigger: push→main | PR→main
 plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md, docs/
 
+## ✗ agent conduct — cardinal rules
+- oversight and caution are paramount · code velocity is not
+- never infer a task from branch names, stale todo lists, TODO placeholders, or prior session context alone
+- before starting any multi-file or substantial change: state what you believe the task is and wait for explicit confirmation
+- "try again" or similar resumption prompts are not task authorisation · ask what the user wants done
+- when scope is unclear: ask one focused question · do not proceed on assumptions
+
 ## coding rules
 - source files: max 180 lines · split immediately when exceeded
 - comments: none unless logic is genuinely non-obvious · no section headers
