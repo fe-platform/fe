@@ -1,4 +1,9 @@
 import type { PlatformConfig, PackageVersion, BuildOptions, BuildResult } from "./types";
+import type { FeConfig } from "./fe-config";
+
+export interface ConfigProvider {
+  get(): Promise<Required<FeConfig>>;
+}
 
 export interface ArtifactStorage {
   upload(slug: string, version: string, distDir: string): Promise<string>;

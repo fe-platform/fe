@@ -1,6 +1,7 @@
 /**
- * Schema for fe.config.json — the declarative configuration file that
- * organizations place at their workspace root to extend @fe/cli behavior.
+ * Schema for configs/fe.config.json — CLI configuration supplied by the
+ * ConfigProvider adapter (default: JsonConfigProvider reads configs/fe.config.json).
+ * Plugins may swap ctx.adapters.config to source these values elsewhere.
  */
 export interface FeConfig {
   /**

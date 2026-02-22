@@ -10,8 +10,7 @@ export const servePlugin: Plugin = {
       usage: "serve [port=3000]",
       async run(args) {
         const port = args[0] ? parseInt(args[0]) : 3000;
-        const { readFeConfig } = await import("../config");
-        const feConfig = readFeConfig(ctx.root);
+        const feConfig = await ctx.adapters.config.get();
         const distDir = join(ctx.root, feConfig.shellDir, "dist");
         const uploadsDir = join(ctx.root, feConfig.uploadsDir);
 

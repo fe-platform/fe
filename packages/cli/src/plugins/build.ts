@@ -77,8 +77,7 @@ export const buildPlugin: Plugin = {
           console.error("Usage: build <target>");
           process.exit(1);
         }
-        const { readFeConfig } = await import("../config");
-        const feConfig = readFeConfig(ctx.root);
+        const feConfig = await ctx.adapters.config.get();
         await buildTarget(ctx, hooks, target, feConfig.shellDir);
       },
     });
