@@ -1,0 +1,6 @@
+{
+  "name": "fe(@acme/mfe-b)",
+  "targets": {
+    "typecheck": {}
+  }
+}

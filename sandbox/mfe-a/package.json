@@ -1,14 +1,18 @@
 {
   "name": "fe(@acme/mfe-a)",
   "version": "1.0.0",
-  "module": "src/index.ts",
-  "types": "src/index.ts",
+  "module": "src/index.tsx",
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --format esm --target browser --external 'fe(*)'",
-    "typecheck": "bunx tsc --noEmit",
+    "build": "cd ../.. && fe build sandbox/mfe-a",
     "check": "cd ../.. && fe check sandbox/mfe-a"
   },
   "devDependencies": {
     "@fe/cli": "workspace:*"
+  },
+  "dependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }

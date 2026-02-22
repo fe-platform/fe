@@ -4,15 +4,13 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "lib": [
       "ES2022",
       "DOM"
-    ],
-    "paths": {
-      "fe(@acme/*)": [
-        "../*/src/index.ts"
-      ]
-    }
+    ]
   },
   "include": [
     "src"
