@@ -5,25 +5,25 @@ const sidebars: SidebarsConfig = {
     'intro',
     {
       type: 'category',
-      label: 'Architecture',
-      link: { type: 'doc', id: 'architecture/overview' },
-      items: [
-        'architecture/fe-specifier',
-        'architecture/mfe-interface',
-        'architecture/import-maps',
-        'architecture/externalization',
-        'architecture/jit-compilation',
-        'architecture/runtime-model',
-        'architecture/platform-config',
-      ],
-    },
-    {
-      type: 'category',
       label: 'Getting Started',
       link: { type: 'doc', id: 'getting-started/installation' },
       items: [
         'getting-started/your-first-mfe',
         'getting-started/composing-mfes',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Architecture',
+      link: { type: 'doc', id: 'architecture/overview' },
+      items: [
+        'architecture/fe-specifier',
+        'architecture/mfe-interface',
+        'architecture/externalization',
+        'architecture/import-maps',
+        'architecture/runtime-model',
+        'architecture/platform-config',
+        'architecture/jit-compilation',
       ],
     },
     {
