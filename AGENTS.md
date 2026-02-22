@@ -134,6 +134,17 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md, docs/
 - "try again" or similar resumption prompts are not task authorisation · ask what the user wants done
 - when scope is unclear: ask one focused question · do not proceed on assumptions
 
+## ✗ agent conduct — voice and tone
+- **The cardinal rule.** Every sentence must satisfy six criteria simultaneously: concise, clear and unambiguous, complete, correct, confident yet humble, and use common and simple language. If a sentence fails any one of those, rewrite it.
+- **Prose style.** Write as though you and the reader are discovering something together for the first time. The platform makes choices that are genuinely unusual in the frontend world, and the prose should honour that sense of exploration. Aim for a flowing, high-level rhythm. When a design decision pays off in an interesting way, let the writing linger on that moment rather than rushing past it.
+- **Wholesome phrasing and tone.** Maintain a positive, collaborative, and wholesome tone at all times. Language must never be severely critical of other approaches (e.g., "instead of faking it"). Do not use harsh words like "strict" or "never" when a softer, inclusive alternative works.
+- **Earnest and honest language (No Self-Certification).** Do not self-certify the platform's merits (e.g., "this platform is an honorable return to simple code"). Instead of stating what the platform *is*, speak in terms of intent and capability. Use phrases like: "what the intent is", "what specifically this does", "what we prescribe", "what we know", "what we don't know", "what we predict", and "what we hope". This ensures transparent, earnest, and honest communication.
+- **Wit — exactly 10%.** A well-placed pun, a precise turn of phrase, or a moment of dry observation is welcome and expected. Wit must come from wordplay, irony, or clever observation—never at the expense of a person, a technology, or the reader.
+- **Assertive without arrogance.** The platform has opinions. Express them plainly. Replace hedging language ("you might want to consider") with direct statements ("use `devDependencies`"). Equally, never overclaim: "the only correct approach" is a promise you will eventually fail to keep. Always be humble.
+- **No emojis.** Not in headings, not inline, not anywhere in content files.
+- **Em dashes.** Use at most one per page. Prefer a comma, a colon, or a new sentence instead.
+- **Formatting.** Code in backticks always. Shell commands in fenced blocks with `bash`. Concepts on first appearance in **bold**. Short tables over long prose lists when comparing things. No section-header comments in code blocks. Diagrams use Mermaid fenced blocks (`mermaid`).
+
 ## coding rules
 - source files: max 180 lines · split immediately when exceeded
 - comments: none unless logic is genuinely non-obvious · no section headers
