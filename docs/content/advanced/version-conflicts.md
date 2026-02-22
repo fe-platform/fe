@@ -45,7 +45,7 @@ The two `ui-kit` versions are loaded as separate modules in separate module scop
 
 ## Current Implementation Note
 
-`@fe/runtime`'s current `injectImportMap` implementation uses the flat `imports` object only — it does not yet generate scoped entries automatically. The first specifier write wins, which means the current runtime selects one version and serves it to all consumers on the page.
+`@fe/runtime`'s current `injectImportMap` implementation uses the flat `imports` object only. It does not yet generate scoped entries automatically. The first specifier write wins, which means the current runtime selects one version and serves it to all consumers on the page.
 
 For teams whose MFEs have compatible (caret-range) version requirements, this is rarely a problem: `resolveVersion` picks the highest satisfying version, and all consumers work with it. For genuinely incompatible major version splits, the current approach produces a warning in the console and serves the first-resolved URL to all consumers.
 

@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # MFE Interface
 
-Every MFE exports a single `render()` function. The return value unmounts and cleans up. Any framework is supported — the contract is framework-agnostic.
+Every MFE exports a single `render()` function. The return value unmounts and cleans up. Any framework is supported; the contract is framework-agnostic.
 
 ```ts
 export function render(container: HTMLElement, props: Record<string, unknown>): () => void
@@ -16,7 +16,7 @@ export function render(container: HTMLElement, props: Record<string, unknown>): 
 
 **`container`** is the `HTMLElement` the MFE should render into. The MFE owns this element for as long as it is mounted. Typically the MFE appends its own root element to the container rather than writing directly to it, which makes cleanup straightforward.
 
-**`props`** is a plain `Record<string, unknown>`. The shell passes whatever the current context requires — user data, routing information, feature flags. The contract does not prescribe what props contain; that is a per-application agreement between the shell and its MFEs.
+**`props`** is a plain `Record<string, unknown>`. The shell passes whatever the current context requires: user data, routing information, feature flags. The contract does not prescribe what props contain; that is a per-application agreement between the shell and its MFEs.
 
 **The return value** is the unmount function. Calling it must remove every DOM node the MFE created and release every resource it holds (event listeners, timers, subscriptions). The platform calls this function before every hot reload and before navigating away. A leaky unmount eventually shows up as ghost event listeners or zombie DOM nodes.
 

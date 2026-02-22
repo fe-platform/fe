@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Browser runtime for the fe platform — config reading, semver resolution, import map injection, and the `load()` function that orchestrates MFE mounting.
 
-`@fe/runtime` ships inside the compiled shell. It is not a script tag you add to HTML — `fe build shell` bundles it into `app.js` as part of the shell's source.
+`@fe/runtime` ships inside the compiled shell. It is not a script tag you add to HTML. `fe build shell` bundles it into `app.js` as part of the shell's source.
 
 ## Public API
 
@@ -33,7 +33,7 @@ Throws if `path` has no matching route, or if a dependency specifier or version 
 export async function loadDevtools(): Promise<void>
 ```
 
-Reads `config.devtools`. If set, resolves and injects the devtools MFE's dependencies, creates a `<div id="__devtools__">` container, and calls the devtools `render` function. Safe to call unconditionally — returns immediately if `config.devtools` is absent.
+Reads `config.devtools`. If set, resolves and injects the devtools MFE's dependencies, creates a `<div id="__devtools__">` container, and calls the devtools `render` function. Safe to call unconditionally; returns immediately if `config.devtools` is absent.
 
 ### `resolveVersion(versions, range)`
 
@@ -65,7 +65,7 @@ Returns the current specifier-to-URL overrides from `sessionStorage["platform:ov
 export function processUrlParams(): void
 ```
 
-Runs at module evaluation time (immediately on load). Processes `?platform:overrides=` and `?platform:clear-overrides` query parameters — merging or clearing `sessionStorage` overrides and stripping the parameters from the URL via `history.replaceState`.
+Runs at module evaluation time (immediately on load). Processes `?platform:overrides=` and `?platform:clear-overrides` query parameters, merging or clearing `sessionStorage` overrides and stripping the parameters from the URL via `history.replaceState`.
 
 ## Resolution Algorithm
 

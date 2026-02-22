@@ -29,7 +29,7 @@ Compiles an MFE's source with framework detection. Reads `rootDir/package.json` 
 | `solid-js` in `dependencies` or `devDependencies` | `bun-plugin-solid` (Babel + babel-preset-solid) |
 | Neither | Bun native (React's `react-jsx` works without a plugin) |
 
-**Default `external`:** `["fe(*)", "fe(@*)"]` — covers all `fe()` specifiers. Override by passing `external` explicitly.
+**Default `external`:** `["fe(*)", "fe(@*)"]`, covering all `fe()` specifiers. Override by passing `external` explicitly.
 
 ## `createJITBundler(options)`
 
@@ -82,4 +82,4 @@ The JIT bundler takes priority over all other request handlers. If the URL does 
 
 ## Caching
 
-The cache is an in-memory `Map` keyed by `slug@version/filePath`. It lives for the lifetime of the `fe serve` process. There is no disk cache and no cache invalidation — published versions are treated as immutable. Restarting `fe serve` clears the cache; subsequent requests recompile from source.
+The cache is an in-memory `Map` keyed by `slug@version/filePath`. It lives for the lifetime of the `fe serve` process. There is no disk cache and no cache invalidation, because published versions are treated as immutable. Restarting `fe serve` clears the cache; subsequent requests recompile from source.

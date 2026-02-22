@@ -4,7 +4,7 @@ sidebar_position: 100
 
 # Contributing
 
-How to contribute to the fe platform — setup, development workflows, coding standards, and PR guidelines.
+How to contribute to the fe platform: setup, development workflows, coding standards, and PR guidelines.
 
 ## Toolchain
 
@@ -44,7 +44,7 @@ Open `http://localhost:3000`.
 fe dev sandbox/mfe-a
 ```
 
-A sandbox page opens at `http://localhost:3000`. Edit any file in `sandbox/mfe-a/src/` — Bun rebuilds, the SSE stream notifies the browser, and the module swaps in-place without a page reload.
+A sandbox page opens at `http://localhost:3000`. Edit any file in `sandbox/mfe-a/src/`. Bun rebuilds, the SSE stream notifies the browser, and the module swaps in-place without a page reload.
 
 `dev` mode maps only the target MFE in its import map. If the MFE imports other `fe()` packages (as `mfe-b` imports `mfe-a`), those specifiers will not resolve in the dev sandbox. Publish the dependencies and use `fe serve` instead.
 
@@ -79,11 +79,11 @@ The CLI reads `configs/fe.config.json` through the `ConfigProvider` adapter. All
 }
 ```
 
-Plugins access config via `ctx.adapters.config.get()` — never by importing from CLI source files.
+Plugins access config via `ctx.adapters.config.get()`, not by importing from CLI source files.
 
 ## How Externalization Works
 
-`helpers.ts:readFeDepKeys` reads `devDependencies` from the target's `package.json` and returns every key starting with `fe(`. Those keys become the `external` list for `Bun.build`. The naming convention is the complete mechanism — no separate config needed.
+`helpers.ts:readFeDepKeys` reads `devDependencies` from the target's `package.json` and returns every key starting with `fe(`. Those keys become the `external` list for `Bun.build`. The naming convention is the complete mechanism. No separate config is needed.
 
 ## HMR Internals
 
@@ -97,12 +97,12 @@ New SSE connections receive `pendingTs` immediately, so reconnecting tabs never 
 
 ## Code Guidelines
 
-- Source files: max 180 lines — split when exceeded.
+- Source files: max 180 lines. Split when exceeded.
 - No comments unless the logic is genuinely non-obvious. No section header comments.
 - Functions over classes.
-- No stubs, mocks, or temporary workarounds — production-ready code only.
+- No stubs, mocks, or temporary workarounds. Production-ready code only.
 - `fe(...)` packages go in `devDependencies`, never `dependencies`.
-- Plugins read config via `ctx.adapters.config.get()` — never import from CLI internals.
+- Plugins read config via `ctx.adapters.config.get()`, not from CLI internals.
 
 ## Pre-PR Checklist
 
@@ -110,6 +110,6 @@ Before opening a pull request, update all of the following to reflect the curren
 
 - [ ] All affected `AGENTS.md` files
 - [ ] All affected `README.md` files (root and any relevant subpackage)
-- [ ] `CONTRIBUTING.md` — if any workflow, setup step, or development pattern changed
-- [ ] `docs/` — archive any plan docs whose implementing PR is landing; add `> **Status:** IMPLEMENTED` header and update the title
+- [ ] `CONTRIBUTING.md` (if any workflow, setup step, or development pattern changed)
+- [ ] `docs/` (archive any plan docs whose implementing PR is landing; add `> **Status:** IMPLEMENTED` header and update the title)
 - [ ] No `<!-- TODO -->` comments remain in any content file you touched

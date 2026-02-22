@@ -122,7 +122,7 @@ When the MFE is ready:
 fe publish mfe-counter
 ```
 
-Check `configs/platform.json` — a new entry appears under `packages`:
+Check `configs/platform.json`. A new entry appears under `packages`:
 
 ```json
 "fe(@myorg/counter)": {
@@ -158,4 +158,4 @@ Open `http://localhost:3000`. The shell resolves `/` to `fe(@myorg/counter)@1.0.
 
 ## What `@fe/compiler` Does for React
 
-`@fe/compiler` checks whether `react-dom` appears in the MFE's `package.json`. For React MFEs, Bun's native `react-jsx` handling applies automatically — no Babel transform needed. The compiler sets `format: "esm"`, `target: "browser"`, and passes the `fe()` dep keys as `external`. The output is a single ESM file with React bundled in and cross-MFE imports left as bare specifiers.
+`@fe/compiler` checks whether `react-dom` appears in the MFE's `package.json`. For React MFEs, Bun's native `react-jsx` handling applies automatically, with no Babel transform needed. The compiler sets `format: "esm"`, `target: "browser"`, and passes the `fe()` dep keys as `external`. The output is a single ESM file with React bundled in and cross-MFE imports left as bare specifiers.

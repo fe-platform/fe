@@ -5,7 +5,7 @@ authors: []
 tags: [update]
 ---
 
-This is the first post on the fe blog. We'll be sharing weekly updates here — architectural decisions, implementation challenges, and progress toward a stable release.
+This is the first post on the fe blog. I'll be sharing weekly updates here — architectural decisions, implementation challenges, and progress toward a stable release.
 
 <!-- truncate -->
 

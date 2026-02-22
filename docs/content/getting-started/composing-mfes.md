@@ -79,7 +79,7 @@ mkdir -p shell/src
 cd shell && bun add @fe/runtime && cd ..
 ```
 
-Create `shell/index.html`. The `<!-- __PLATFORM_CONFIG__ -->` comment is replaced by `fe build shell` with the embedded platform config — leave it exactly as written:
+Create `shell/index.html`. The `<!-- __PLATFORM_CONFIG__ -->` comment is replaced by `fe build shell` with the embedded platform config. Leave it exactly as written:
 
 ```html
 <!DOCTYPE html>

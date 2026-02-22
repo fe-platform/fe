@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Installation
 
-The fe platform has one runtime prerequisite: Bun. Not Node, not npm, not a bundler with seventeen config files. Just Bun.
+The fe platform has one runtime prerequisite: [Bun](https://bun.sh).
 
 ## Prerequisites
 

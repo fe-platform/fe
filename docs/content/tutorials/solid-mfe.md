@@ -109,7 +109,7 @@ export declare function render(
 fe dev mfe-greeting
 ```
 
-Open `http://localhost:3000`. Edit `src/index.tsx` and save — the dev server rebuilds and the browser applies the module swap. Solid's fine-grained reactivity and the platform's unmount/remount cycle coexist without conflict.
+Open `http://localhost:3000`. Edit `src/index.tsx` and save. The dev server rebuilds and the browser applies the module swap. Solid's fine-grained reactivity and the platform's unmount/remount cycle coexist without conflict.
 
 ## 5. Publish
 

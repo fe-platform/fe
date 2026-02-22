@@ -97,7 +97,7 @@ Always use `ctx.adapters.config.get()` — never import from CLI internals:
 // correct
 const feConfig = await ctx.adapters.config.get();
 
-// wrong — this file does not exist
+// wrong: this file does not exist
 import { readFeConfig } from "@fe/cli/src/config";
 ```
 

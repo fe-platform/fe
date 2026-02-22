@@ -45,7 +45,7 @@ export function render(
 }
 ```
 
-`render` receives the container element and a props object. It returns the **unmount function**, which removes everything the MFE added to the DOM. The platform calls unmount before every hot reload and before navigating away. What you render inside is your decision — any framework, any DOM approach, any styling strategy all satisfy the contract as long as the cleanup function is thorough.
+`render` receives the container element and a props object. It returns the **unmount function**, which removes everything the MFE added to the DOM. The platform calls unmount before every hot reload and before navigating away. What you render inside is your decision: any framework, any DOM approach, any styling strategy all satisfy the contract as long as the cleanup function is thorough.
 
 ## Preview with the Dev Server
 

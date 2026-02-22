@@ -12,7 +12,7 @@ Isolated MFE development with `fe dev`, hot module replacement via SSE, and the 
 fe dev sandbox/mfe-a
 ```
 
-`fe dev` builds the target MFE, starts a local HTTP server, and watches `src/` for changes. Open the URL it prints — typically `http://localhost:3000` — and you see a minimal sandbox page with your MFE rendered into it.
+`fe dev` builds the target MFE, starts a local HTTP server, and watches `src/` for changes. Open the URL it prints (typically `http://localhost:3000`) and you see a minimal sandbox page with your MFE rendered into it.
 
 To use a different port:
 
@@ -48,15 +48,15 @@ When you save a file in `src/`, the server:
 
 The browser handles the notification by:
 
-1. Calling the current unmount function — the return value of the last `render` call.
-2. Importing `/index.js?t=<timestamp>` — the cache-busting query parameter forces the browser to treat this as a new module URL, bypassing the native module registry.
+1. Calling the current unmount function (the return value of the last `render` call).
+2. Importing `/index.js?t=<timestamp>`. The cache-busting query parameter forces the browser to treat this as a new module URL, bypassing the native module registry.
 3. Calling `render` with the fresh module.
 
 No page reload. No framework-specific hot reload plugin. The `render`/unmount contract is the HMR protocol.
 
 ## Reconnecting Tabs
 
-If a tab loses the SSE connection and reconnects — say, after a network hiccup or after sleeping the laptop — the server immediately sends the current `pendingTs` value. The tab applies the latest rebuild without missing anything that happened while it was disconnected.
+If a tab loses the SSE connection and reconnects (after a network hiccup or sleeping the laptop, for example), the server immediately sends the current `pendingTs` value. The tab applies the latest rebuild without missing anything that happened while it was disconnected.
 
 ## Limitations of Dev Mode
 

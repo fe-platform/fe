@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Externalization
 
-How `fe()` imports stay external at build time. The naming convention itself is the build signal — no extra config needed.
+How `fe()` imports stay external at build time. The naming convention itself is the build signal, with no extra config needed.
 
 ## The Problem It Solves
 

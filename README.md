@@ -11,7 +11,7 @@ A microfrontend platform built on native browser primitives — ES modules, impo
 
 ## Mental Model
 
-At its core, `fe` embraces the browser rather than fighting it. We reject the complexity of distributed bundling in favor of native ES modules and import maps.
+At its core, `fe` embraces the browser rather than fighting it. The platform rejects the complexity of distributed bundling in favor of native ES modules and import maps.
 
 1. **Convention over Configuration**: The `fe(@scope/name)` specifier is the universal contract. It's a package name, a bare import specifier, and a registry key.
 2. **Build-Time Externalization**: Any `fe()` import is automatically externalized by the bundler. MFEs are built in true isolation.

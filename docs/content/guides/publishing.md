@@ -20,7 +20,7 @@ Provide the path to the MFE's directory, relative to the workspace root.
 
 **1. Pre-flight check.** Runs `fe check` on the target: type-checks with `tsc --noEmit` and performs a Bun build simulation. If either fails, publish stops. You never upload code that does not compile.
 
-**2. Read identity.** Reads `name` and `version` from the target's `package.json`. Derives the slug — the filesystem-safe identifier — from the specifier by stripping the `fe(` prefix and scope:
+**2. Read identity.** Reads `name` and `version` from the target's `package.json`. Derives the slug (the filesystem-safe identifier) from the specifier by stripping the `fe(` prefix and scope:
 
 ```
 fe(@acme/mfe-a) → mfe-a

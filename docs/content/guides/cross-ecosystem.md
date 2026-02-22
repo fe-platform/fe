@@ -80,7 +80,7 @@ Most CDN providers allow this to be configured per-bucket or per-distribution.
 
 ## Version Negotiation Across Teams
 
-If your MFE and a partner MFE both depend on `fe(@shared/ui)`, semver resolution selects the highest version that satisfies all declared ranges. If the ranges are compatible — both declare `^2.0.0` — a single version is selected and a single import map entry is injected. If the ranges conflict — one declares `^1.x` and the other `^2.x` — see [Version Conflicts](../advanced/version-conflicts).
+If your MFE and a partner MFE both depend on `fe(@shared/ui)`, semver resolution selects the highest version that satisfies all declared ranges. If the ranges are compatible (both declare `^2.0.0`), a single version is selected and a single import map entry is injected. If the ranges conflict (one declares `^1.x` and the other `^2.x`), see [Version Conflicts](../advanced/version-conflicts).
 
 ## Source and Types
 

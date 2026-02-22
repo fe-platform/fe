@@ -88,7 +88,7 @@ The CLI bootstraps in `bootstrap.ts`:
 1. Creates `ConfigProvider` from `configs/fe.config.json`.
 2. Creates default adapter instances using the config values.
 3. Loads external plugins listed in `feConfig.plugins`.
-4. Calls `setup(ctx, hooks)` on all plugins — builtins first, then external.
+4. Calls `setup(ctx, hooks)` on all plugins: builtins first, then external.
 
 Plugins swap `ctx.adapters.*` to customise any subsystem. See [CLI Plugins](../guides/cli-plugins) for the full plugin authoring guide.
 
@@ -106,4 +106,4 @@ The CLI reads its own configuration through `ctx.adapters.config.get()`. The def
 }
 ```
 
-All fields are optional. The file itself is optional — defaults apply when absent.
+All fields are optional. The file itself is optional; defaults apply when absent.

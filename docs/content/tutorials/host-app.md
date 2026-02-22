@@ -10,7 +10,7 @@ The working reference for everything in this tutorial is `sandbox/host-app` in t
 
 ## Prerequisites
 
-- At least one published MFE in `configs/platform.json` — follow the [React MFE tutorial](./react-mfe) first if you need one
+- At least one published MFE in `configs/platform.json`. Follow the [React MFE tutorial](./react-mfe) first if you need one.
 - Bun installed
 - The `fe` CLI available on your PATH
 
@@ -83,7 +83,7 @@ const { render } = await load(window.location.pathname);
 render(app, {});
 ```
 
-`loadDevtools()` is a no-op if `config.devtools` is not set. Call it unconditionally — it is safe in production.
+`loadDevtools()` is a no-op if `config.devtools` is not set. Call it unconditionally; it is safe in production.
 
 `load(path)` reads the embedded config, resolves the route, injects import maps for all transitive dependencies, and returns the MFE module. Call `render` with your container element and any props the MFE should receive.
 
@@ -111,7 +111,7 @@ This command:
 2. Reads `configs/platform.json`.
 3. Inlines the full config as `<script id="__platform__" type="application/json">` in `shell/dist/index.html`.
 
-Inspect `shell/dist/index.html` — you will see the full platform config JSON embedded in the `<head>`.
+Inspect `shell/dist/index.html`. The full platform config JSON is embedded in the `<head>`.
 
 ## 6. Serve
 
@@ -141,7 +141,7 @@ fe build shell
 fe serve
 ```
 
-Navigate to `http://localhost:3000/greeting` and the greeting MFE loads. The counter MFE's import map entries from the previous navigation remain in the document head — they are deduped by the runtime on any subsequent visit to `/`.
+Navigate to `http://localhost:3000/greeting` and the greeting MFE loads. The counter MFE's import map entries from the previous navigation remain in the document head. They are deduped by the runtime on any subsequent visit to `/`.
 
 ## Multi-Page Routing
 

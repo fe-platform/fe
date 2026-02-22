@@ -25,8 +25,8 @@ Multiple import map support is the binding constraint. Every other feature preda
 | Chrome | Native | 133 (Feb 2025) |
 | Edge | Native | 133 (Feb 2025) |
 | Safari | Native | 18.4 (Mar 2025) |
-| Firefox | Polyfill required | — |
-| Samsung Internet | Unknown | — |
+| Firefox | Polyfill required | n/a |
+| Samsung Internet | Unknown | n/a |
 
 Firefox has not shipped multiple import map support as of early 2026. Track progress at [caniuse.com/import-maps](https://caniuse.com/import-maps).
 
@@ -53,4 +53,4 @@ The platform does not include built-in feature detection. Applications targeting
 
 ## Dynamic Import
 
-The `import()` expression used by `load()` and `loadDevtools()` is supported in all modern browsers. The platform does not use static `import` declarations in the shell's entry point — the shell is bundled by `fe build shell`, so Bun handles any static imports at build time.
+The `import()` expression used by `load()` and `loadDevtools()` is supported in all modern browsers. The platform does not use static `import` declarations in the shell's entry point. The shell is bundled by `fe build shell`, so Bun handles any static imports at build time.

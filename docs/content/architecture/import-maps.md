@@ -40,7 +40,7 @@ function injectImportMap(imports: Record<string, string>): void {
 }
 ```
 
-Two things are worth noting. First, the function only injects specifiers that have not been seen before. Once a specifier is mapped, its URL is fixed for the lifetime of the page — the first write wins. Second, if a specifier arrives with a conflicting URL, it logs a warning and skips rather than silently overwriting. This mirrors the browser's own behaviour: multiple maps merge, but a specifier already resolved in a prior map cannot be overridden.
+Two things are worth noting. First, the function only injects specifiers that have not been seen before. Once a specifier is mapped, its URL is fixed for the lifetime of the page: the first write wins. Second, if a specifier arrives with a conflicting URL, it logs a warning and skips rather than silently overwriting. This mirrors the browser's own behaviour: multiple maps merge, but a specifier already resolved in a prior map cannot be overridden.
 
 ## Lazy Injection
 
@@ -59,7 +59,7 @@ This means the browser only receives URLs for packages that are actually needed 
 
 ## Deduplication Across Navigations
 
-When the user navigates from one route to another, `load` is called again for the new route. If the new MFE shares dependencies with the previous one — a common scenario when a shared utility MFE is used by several routes — `injectImportMap` detects that those specifiers are already in `injectedSpecifiers` and skips them. No duplicate `<script type="importmap">` elements accumulate in the document head for shared dependencies.
+When the user navigates from one route to another, `load` is called again for the new route. If the new MFE shares dependencies with the previous one (a common scenario when a shared utility MFE is used by several routes), `injectImportMap` detects that those specifiers are already in `injectedSpecifiers` and skips them. No duplicate `<script type="importmap">` elements accumulate in the document head for shared dependencies.
 
 ## Browser Support
 
@@ -68,6 +68,6 @@ When the user navigates from one route to another, `load` is called again for th
 | Chrome | Native | 133 (Feb 2025) |
 | Edge | Native | 133 (Feb 2025) |
 | Safari | Native | 18.4 (Mar 2025) |
-| Firefox | Polyfill needed | — |
+| Firefox | Polyfill needed | n/a |
 
 For Firefox, [es-module-shims](https://github.com/guybedford/es-module-shims) v2.4+ provides the multiple-map behaviour. See [Browser Support](../advanced/browser-support) for polyfill setup details.

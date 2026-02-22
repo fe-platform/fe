@@ -20,7 +20,7 @@ The full browser lifecycle from initial page load to MFE rendering.
 </script>
 ```
 
-There is no static import map in the HTML. The browser receives no resolution information at load time — only the raw config. Import maps are added later, just before they are needed.
+There is no static import map in the HTML. The browser receives no resolution information at load time, only the raw config. Import maps are added later, just before they are needed.
 
 `processUrlParams()` runs immediately when `app.js` loads, before any async code. It reads `?platform:overrides` or `?platform:clear-overrides` query parameters and updates `sessionStorage` accordingly, then strips those parameters from the URL.
 
@@ -52,7 +52,7 @@ const routeEntry = config.routes[path];
 const { specifier, version } = parseSpecVersion(routeEntry);
 ```
 
-`parseSpecVersion` splits on `)@` — the unique delimiter in `fe(@scope/name)@version`.
+`parseSpecVersion` splits on `)@`, the unique delimiter in `fe(@scope/name)@version`.
 
 ## Step 4: Transitive Dependencies Resolved via Semver
 
@@ -106,4 +106,4 @@ mod.render(app, { name: "Shell User" });
 
 ## Devtools Overrides
 
-The devtools overlay allows swapping individual MFE versions without redeploying. It writes to `sessionStorage` under `platform:overrides`. On the next `load` call, `applyOverridesAndInject` reads those overrides and replaces the resolved URL for any matching specifier before injection. The browser loads the overridden version from the URL stored in sessionStorage — typically a local dev server or a staging URL.
+The devtools overlay allows swapping individual MFE versions without redeploying. It writes to `sessionStorage` under `platform:overrides`. On the next `load` call, `applyOverridesAndInject` reads those overrides and replaces the resolved URL for any matching specifier before injection. The browser loads the overridden version from the URL stored in sessionStorage, typically a local dev server or a staging URL.

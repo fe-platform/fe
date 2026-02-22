@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # CI Integration
 
-Setting up continuous integration for fe projects — typechecking, building, and deploying MFEs.
+Setting up continuous integration for fe projects: typechecking, building, and deploying MFEs.
 
 ## Pipeline Structure
 
@@ -70,7 +70,7 @@ jobs:
 
 ## Adding a New MFE to CI
 
-When you add a new MFE to the project, add two lines to the sandbox job — one typecheck step and one build step:
+When you add a new MFE to the project, add two lines to the sandbox job, one typecheck step and one build step:
 
 ```yaml
 - run: |
@@ -85,7 +85,7 @@ When you add a new MFE to the project, add two lines to the sandbox job — one 
     ...
 ```
 
-`bun run check` maps to `fe check <dir>` via the package's `package.json` scripts. `fe check` runs both `tsc --noEmit` and a Bun build simulation, so the CI typecheck step is technically redundant with `fe check`'s typecheck — keeping both is useful for cleaner error output when the failure is a type error rather than a build error.
+`bun run check` maps to `fe check <dir>` via the package's `package.json` scripts. `fe check` runs both `tsc --noEmit` and a Bun build simulation, so the CI typecheck step is technically redundant with `fe check`'s typecheck. Keeping both is useful for cleaner error output when the failure is a type error rather than a build error.
 
 ## `fe check` vs `bun run check`
 
@@ -108,4 +108,4 @@ Publishing MFEs and activating routes in `platform.json` are separate steps that
 2. Commit and push the updated `platform.json`.
 3. Run `fe build shell` and deploy `shellDir/dist/` to a hosting service.
 
-Route activation — updating the `routes` section of `platform.json` — can be a separate, gated step in the deployment pipeline, distinct from publishing the package.
+Route activation (updating the `routes` section of `platform.json`) can be a separate, gated step in the deployment pipeline, distinct from publishing the package.

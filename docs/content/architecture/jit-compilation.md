@@ -94,6 +94,6 @@ A SolidJS MFE automatically gets the Babel-based JSX transform. React MFEs requi
 
 ## Caching Strategy
 
-The in-memory cache uses `slug@version/filePath` as the key. Since a published version is immutable — `fe publish` never overwrites an existing version — the cache never needs invalidation. The browser response includes `immutable` in `Cache-Control`, so both the server and the browser cache are effectively permanent for a given version.
+The in-memory cache uses `slug@version/filePath` as the key. Since a published version is immutable (`fe publish` does not overwrite an existing version), the cache does not need invalidation. The browser response includes `immutable` in `Cache-Control`, so both the server and the browser cache are effectively permanent for a given version.
 
 To deploy a new version of an MFE, publish a new version number. The old version remains cached and available. Routes are updated separately from publishing, so old and new versions can coexist in the registry simultaneously.
