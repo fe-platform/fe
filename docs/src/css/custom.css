@@ -114,14 +114,27 @@ h1, h2, h3, h4, h5, h6 {
   border-right: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
 }
 
-.menu__link--active {
+.menu__link, .menu__list-item-collapsible {
+  font-weight: 600;
+  color: var(--ifm-menu-color);
+}
+
+.menu__link--active, 
+.menu__list-item-collapsible--active > .menu__link {
   background: var(--brand-gradient) !important;
   background-blend-mode: var(--brand-blend-mode) !important;
   background-size: var(--brand-background-size) !important;
   color: white !important;
-  border: 2px solid var(--brutalist-border-color);
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
   margin-bottom: 4px;
+  font-weight: 700;
 }
+
+.menu__link--active:hover {
+  color: white !important;
+  opacity: 0.9;
+}
+
 
 /* Cards & Containers */
 .card {
