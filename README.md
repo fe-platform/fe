@@ -14,7 +14,7 @@ Cross-MFE imports use the `fe(@scope/name)` package name convention:
 import { render } from "fe(@acme/mfe-a)";
 ```
 
-`fe(...)` is a plain package name — not a URL scheme. It is the `name` in `package.json`, a bare specifier in `import` statements, and the key in the platform's package registry. Any `fe(...)` import is immediately recognizable as a cross-MFE boundary.
+`fe(...)` is a plain package name — not a URL scheme. It is the `name` in `package.json`, a bare specifier in `import` statements, and the key in the platform's lookup service. Any `fe(...)` import is immediately recognizable as a cross-MFE boundary.
 
 At build time, `fe(...)` imports are externalized — never bundled. At runtime, the browser resolves them via injected import maps.
 
@@ -50,15 +50,15 @@ All commands run from the repo root:
 | `fe serve` | Serve the built shell |
 | `fe dev <target>` | Isolated sandbox with hot module replacement |
 | `fe link <consumer> <dep>` | Wire a `fe()` devDependency between packages |
-| `fe admin upload <target>` | Publish a built artifact to the local registry |
+| `fe publish <target>` | Publish MFE source code for JIT compilation |
 
 ## Developer experience
 
 **Isolated development.** `dev` mode runs a standalone sandbox per MFE. Edit `src/` — Bun rebuilds, an SSE message triggers the browser to unmount the old render, import the new module under a cache-busting URL, and call `render()` again in the same container. No page reload. MFE authors have zero awareness of the HMR mechanism.
 
-**Independent deployment.** `admin upload` publishes an artifact and registers it in the package registry. Activating it on a route is a separate step — anyone can upload a candidate build; only a privileged actor (CD pipeline or repo access) promotes it by editing `routes` in `sandbox/configs/platform.json`.
+**Independent deployment (JIT compilation).** `publish` runs a pre-flight typecheck, uploads the raw source code of an MFE, and registers its bundle URL in the CDN configuration. The system uses a **Just-In-Time (JIT) bundler** that compiles the source code on-the-fly when the browser first requests it, caching the result.
 
-**Cross-ecosystem composition.** The package registry accepts full URLs alongside `fe(...)` specifiers, so MFEs hosted on external CDNs compose the same way as local packages.
+**Cross-ecosystem composition.** The CDN lookup process accepts full URLs alongside `fe(...)` specifiers, so MFEs hosted on external CDNs compose the same way as local packages. The JIT bundler can be pushed to edge CDNs for production scale.
 
 ## Runtime model
 

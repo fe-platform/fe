@@ -1,4 +1,4 @@
-import type { ArtifactStorage, ManifestManager, Builder, ConfigProvider } from "./adapters";
+import type { ArtifactStorage, ManifestManager, Builder, ConfigProvider, SourceStorage } from "./adapters";
 
 export interface CommandDef {
   name: string;
@@ -14,6 +14,7 @@ export interface CliContext {
     artifactStorage: ArtifactStorage;
     manifest: ManifestManager;
     builder: Builder;
+    sourceStorage: SourceStorage;
   };
   commands: Map<string, CommandDef>;
 }

@@ -16,14 +16,16 @@ src/
   adapters/
     json-config-provider.ts  ConfigProvider: reads configs/fe.config.json
     json-manifest-manager.ts ManifestManager: reads/writes configs/platform.json
+    local-source-storage.ts  SourceStorage: cp src/→sources/<slug>/<ver>/
     local-artifact-storage.ts ArtifactStorage: cp dist/→uploads/<slug>/<ver>/
     bun-builder.ts           Builder: thin Bun.build() wrapper
   plugins/
     build.ts                 `fe build <target|shell>`
-    serve.ts                 `fe serve [port]`
+    serve.ts                 `fe serve [port]` (has JIT bundler)
     dev.ts                   `fe dev <target> [port]`
     link.ts                  `fe link <consumer> <dep>`
-    admin.ts                 `fe admin upload <target>`
+    publish.ts               `fe publish <target>`
+    admin.ts                 `fe admin upload <target>` (legacy artifact upload)
     check.ts                 `fe check <target|shell>`
 ```
 
@@ -33,6 +35,7 @@ src/
 2. configProvider.get()                    → feConfig (plugins, manifestPath, uploadsDir, shellDir)
 3. build CliContext:
      adapters.config          = configProvider
+     adapters.sourceStorage   = createLocalSourceStorage(root, feConfig.sourcesDir)
      adapters.artifactStorage = createLocalArtifactStorage(root, feConfig.uploadsDir)
      adapters.manifest        = createJsonManifestManager(root, feConfig.manifestPath)
      adapters.builder         = createBunBuilder()
@@ -52,6 +55,7 @@ Reads `<root>/configs/fe.config.json`. Returns `Required<FeConfig>` with default
 plugins:      []
 manifestPath: "configs/platform.json"
 uploadsDir:   "uploads"
+sourcesDir:   "sources"
 shellDir:     "shell"
 ```
 If file is absent, returns defaults. Throws on malformed JSON.
@@ -82,6 +86,7 @@ fe build shell      Bun.build src/index.ts → dist/app.js
 ### serve (plugins/serve.ts)
 ```
 fe serve [port=3000]
+  mounts JIT bundler at /bundle/*
   serves <shellDir>/dist/  (index.html + app.js)
   /<uploadsDir>/* → <root>/<uploadsDir>/  (artifact passthrough)
   all other paths → distDir file or 404
@@ -107,17 +112,18 @@ fe link <consumer> <dep>
   runs bun install in consumer/
 ```
 
-### admin upload (plugins/admin.ts)
+### publish (plugins/publish.ts)
 ```
-fe admin upload <target>
-  reads target/dist/index.js (error if missing)
+fe publish <target>
+  runs pre-flight check (build simulation)
   reads name + version from target/package.json
   slug = slugFromSpecifier(name)  // strips "fe(" prefix/suffix chars
-  artifactStorage.upload(slug, version, distDir) → url
+  sourceStorage.upload(slug, version, srcDir)
   reads fe() devDeps → resolves dep versions from local package.json files
+  url = `/bundle/${slug}/${version}/index.ts`
   manifest.registerPackage(name, version, {url, deps})
 ```
-Never touches "routes" — only "packages" in platform.json.
+Never touches "routes" — only "packages" in platform.json. Legacy `admin.ts` provides artifact uploads but `publish` handles source code for JIT.
 
 ### check (plugins/check.ts)
 ```

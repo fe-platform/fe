@@ -29,4 +29,12 @@ export interface FeConfig {
    * @default "shell"
    */
   shellDir?: string;
+
+  /**
+   * Path to the sources directory, relative to workspace root.
+   * `fe publish` uploads raw MFE source code here.
+   * The `@fe/runtime` JIT bundler reads source files from here by default.
+   * @default "sources"
+   */
+  sourcesDir?: string;
 }

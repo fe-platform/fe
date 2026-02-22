@@ -51,11 +51,11 @@ output: sandbox/mfe-b/dist/index.js
 fe link mfe-b <new-dep>  (from repo root)
 ```
 
-## upload (from repo root)
+## publish (from repo root)
 ```
-fe admin upload mfe-b
-  copies dist/ → uploads/mfe-b/1.0.0/
-  registers package version in sandbox/configs/platform.json (URL + deps)
+fe publish mfe-b
+  copies src/ → sources/mfe-b/1.0.0/ (via SourceStorage)
+  registers package version in sandbox/configs/platform.json (URL points to JIT + deps)
 ```
 
 ## dev (from repo root)
@@ -69,5 +69,5 @@ fe dev mfe-b
 
   NOTE: dev sandbox only maps the target MFE itself ("fe(@acme/mfe-b)" → "/index.js")
         mfe-a is NOT in this import map → composing mfe-a will fail at runtime in dev mode
-        workaround: build+upload mfe-a first, then run full shell serve instead of dev
+        workaround: publish mfe-a first, then run full shell serve instead of dev
 ```

@@ -14,8 +14,9 @@ CLAUDE.md→symlink→here
 │  ├─ host-app/   name=host-app        shell using @fe/runtime · builds to host-app/dist/
 │  ├─ mfe-a/      name=fe(@acme/mfe-a) standalone MFE · fe()-deps=∅
 │  ├─ mfe-b/      name=fe(@acme/mfe-b) composes mfe-a · devDep→fe(@acme/mfe-a)
-│  ├─ devtools/   name=fe(@acme/devtools) overlay · uses Solid.js
 │  └─ configs/    fe.config.json · platform.json · routes+packages registry + CLI config
+├─ toolkit/                            reusable tools and low-dependency MFEs
+│  └─ devtools/   name=fe(@acme/devtools) overlay · uses Solid.js
 ├─ nx.json        minimal Nx config (target ordering only · no nx cloud)
 └─ package.json   workspace root
 ```

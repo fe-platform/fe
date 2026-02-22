@@ -35,12 +35,11 @@ bun run build
 output: sandbox/mfe-a/dist/index.js
 ```
 
-## upload (from repo root)
+## publish (from repo root)
 ```
-fe admin upload mfe-a
-  prereq: dist/index.js must exist
-  copies dist/ → uploads/mfe-a/1.0.0/
-  registers package version in sandbox/configs/platform.json (URL + deps)
+fe publish mfe-a
+  copies src/ → sources/mfe-a/1.0.0/ (via SourceStorage)
+  registers package version in sandbox/configs/platform.json (URL points to JIT bundler + deps)
 ```
 
 ## dev (from repo root)

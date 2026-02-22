@@ -16,7 +16,7 @@ This does not scale:
 
 ## Solution
 
-Replace the single static import map with **multiple browser import maps** (shipped in Chrome 133+, Safari 18.4+) driven by a **versioned package registry** in configuration.
+Replace the single static import map with **multiple browser import maps** (shipped in Chrome 133+, Safari 18.4+) driven by a **versioned import configuration on the CDN**.
 
 ### Key Principles
 
@@ -39,7 +39,7 @@ Replaces `configs/import-map.json`.
     "fe(@acme/mfe-a)": {
       "versions": {
         "1.0.0": {
-          "url": "./uploads/mfe-a/1.0.0/index.js",
+          "url": "/bundle/mfe-a/1.0.0/index.ts",
           "deps": {}
         }
       }
@@ -47,7 +47,7 @@ Replaces `configs/import-map.json`.
     "fe(@acme/mfe-b)": {
       "versions": {
         "1.0.0": {
-          "url": "./uploads/mfe-b/1.0.0/index.js",
+          "url": "/bundle/mfe-b/1.0.0/index.ts",
           "deps": {
             "fe(@acme/mfe-a)": "^1.0.0"
           }
@@ -67,7 +67,7 @@ Replaces `configs/import-map.json`.
 - Registry of all known packages (local + cross-ecosystem)
 - Each package has one or more published versions
 - Each version has a URL and its `fe()` deps with semver ranges
-- `admin upload` writes new version entries here automatically
+- `publish` writes new version entries here automatically
 
 ## Runtime Flow
 
@@ -84,7 +84,7 @@ Replaces `configs/import-map.json`.
 2. `load()` reads the embedded config, looks up route `/` -> `fe(@acme/mfe-b)@1.0.0`
 3. Resolves mfe-b's deps: `fe(@acme/mfe-a) ^1.0.0` -> resolves to `1.0.0` -> URL
 4. Recursively resolves mfe-a's deps (none)
-5. Injects `<script type="importmap">` with `{ "fe(@acme/mfe-a)": "./uploads/mfe-a/1.0.0/index.js" }`
+5. Injects `<script type="importmap">` with `{ "fe(@acme/mfe-a)": "/bundle/mfe-a/1.0.0/index.ts" }`
 6. Calls `import("fe(@acme/mfe-b)")` -> browser resolves via default map
 7. mfe-b internally does `import ... from "fe(@acme/mfe-a)"` -> resolved via injected map
 
@@ -128,18 +128,18 @@ The `packages` registry supports any URL. A remote MFE from another team/org:
 
 The shell runtime resolves it identically to a local package. The `fe()` specifier is the universal contract; the URL is an implementation detail in the config.
 
-## Deploy Flow (new)
+## Deploy Flow (new JIT)
 
 ```
-build <mfe>
-  -> admin upload <mfe>
-     -> copies dist/ to uploads/slug/ver/
-     -> writes package entry to sandbox/configs/platform.json (URL + deps)
-  -> build shell (re-injects route map + config into HTML)
-  -> serve
+publish <mfe>
+  -> copies src/ to sources/slug/ver/ (SourceStorage adapter)
+  -> writes package entry to sandbox/configs/platform.json (URL points to /bundle/...)
+build shell (re-injects route map + config into HTML)
+serve
+  -> JIT bundler intercepts /bundle/ requests, compiles the source, and caches it.
 ```
 
-The separation is preserved: `admin upload` writes to the `packages` registry (artifact metadata). The `routes` section (which version is active for a route) is updated separately (manual or CD).
+The separation is preserved: `publish` writes to the `packages` registry (metadata). The `routes` section (which version is active for a route) is updated separately (manual or CD).
 
 ## Implementation Changes
 
@@ -149,7 +149,7 @@ The separation is preserved: `admin upload` writes to the `packages` registry (a
 
 ### Modified files
 - `cli/src/config.ts` — new types (`PlatformConfig`, `PackageEntry`, `PackageVersion`), `readPlatformConfig()` / `writePlatformConfig()`, `PLATFORM_CONFIG_PATH`
-- `cli/src/admin.ts` — after copying dist, read MFE devDeps, resolve dep versions, write package entry to `platform.json`
+- `cli/src/publish.ts` — upload raw source files, read MFE devDeps, resolve dep versions, write package entry to `platform.json`
 - `cli/src/build.ts` — `buildShell()` reads `platform.json`, generates route-only import map, embeds platform config in HTML
 - `sandbox/host-app/index.html` — add `<!-- __PLATFORM_CONFIG__ -->` placeholder
 - `sandbox/host-app/src/index.ts` — replace static `import { render } from "fe(@acme/mfe-b)"` with `platform.load("/")`
@@ -160,7 +160,7 @@ The separation is preserved: `admin upload` writes to the `packages` registry (a
 ## Invariants (updated)
 
 - `fe()` specifiers must stay external at build time (unchanged)
-- `admin upload` writes to `packages` section only, never `routes` (separation preserved)
+- `publish` writes to `packages` section only, never `routes` (separation preserved)
 - `routes` updated manually or by CD pipeline
 - No framework deps, DOM only (unchanged)
 - Uploads dir not git-tracked (unchanged)

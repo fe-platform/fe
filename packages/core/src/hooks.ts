@@ -26,6 +26,12 @@ export interface HookMap {
   "admin:upload:after": [target: string, url: string, deps: Record<string, string>];
   "admin:register:before": [specifier: string, version: string, entry: PackageVersion];
   "admin:register:after": [];
+
+  // publish plugin
+  "publish:before": [target: string, meta: { name: string; version: string }];
+  "publish:after": [target: string, url: string, deps: Record<string, string>];
+  "publish:register:before": [specifier: string, version: string, entry: PackageVersion];
+  "publish:register:after": [];
 }
 
 type HookName = keyof HookMap & string;

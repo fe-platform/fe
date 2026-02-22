@@ -84,17 +84,16 @@ output: host-app/dist/{index.html, app.js}
 ## serve (from repo root)
 ```
 fe serve [port=3000]
-  serves host-app/dist/ · /uploads/→ROOT/uploads/
+  serves host-app/dist/ (index.html + app.js)
+  mounts JIT bundler at /bundle/* (compiles MFE source files from sources/ on demand)
+  /uploads/* → legacy artifact passthrough
   !must build shell first
-  !mfe artifacts must be in uploads/ (run admin upload for each mfe)
 ```
 
 ## full run sequence (from repo root)
 ```
-fe build mfe-a
-fe build mfe-b
-fe admin upload mfe-a
-fe admin upload mfe-b
+fe publish mfe-a
+fe publish mfe-b
 # edit sandbox/configs/platform.json "routes" if needed
 fe build shell
 fe serve
@@ -113,17 +112,17 @@ CI=true bun run test
 ### playwright.config.ts
 ```ts
 webServer.command = [
-  "fe build mfe-a", "fe admin upload mfe-a",
-  "fe build mfe-b", "fe admin upload mfe-b",
-  "bun run --cwd devtools build",   // uses devtools/package.json "build" script
-  "fe admin upload devtools",
+  "fe publish mfe-a",
+  "fe publish mfe-b",
+  "bun run --cwd ../toolkit/devtools build",
+  "fe admin upload ../toolkit/devtools", // legacy devtools uses admin upload
   "fe build shell",
   "fe serve",
 ].join(" && ")
 webServer.reuseExistingServer = !process.env.CI
 ```
 Note: `fe build devtools` is intentionally NOT used — the CLI `build` command hardcodes
-`src/index.ts` but devtools uses `src/index.tsx`; `bun run --cwd devtools build` invokes
+`src/index.ts` but devtools uses `src/index.tsx`; `bun run --cwd ../toolkit/devtools build` invokes
 the package's own script instead.
 
 ### test coverage (tests/host.spec.ts)

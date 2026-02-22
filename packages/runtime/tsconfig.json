@@ -8,10 +8,16 @@
       "DOM"
     ],
     "strict": true,
+    "types": [
+      "bun-types"
+    ],
     "outDir": "dist",
     "rootDir": "src"
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/jit.ts"
   ]
 }

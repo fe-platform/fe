@@ -14,7 +14,8 @@
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
-    "@fe/core": "workspace:*"
+    "@fe/core": "workspace:*",
+    "@fe/runtime": "workspace:*"
   },
   "devDependencies": {
     "@fe/core": "workspace:*",

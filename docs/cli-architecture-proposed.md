@@ -14,29 +14,29 @@ graph TB
         BOOTSTRAP["bootstrap.ts — creates context, registers plugins"]
         HOOKS["hooks.ts — Hooks class: hook / callHook / waterfall"]
         CONTEXT["context.ts — CliContext: root, adapters, commands"]
-        ADAPTERS_IF["adapters.ts — ConfigProvider / ArtifactStorage / ManifestManager / Builder"]
+        ADAPTERS_IF["adapters.ts — ConfigProvider / SourceStorage / ArtifactStorage / ManifestManager / Builder"]
         TYPES["types.ts — PlatformConfig, ImportMap, BuildOptions"]
         HELPERS["helpers.ts — readPackageMeta, readFeDepKeys, slugFromSpecifier"]
     end
 
     subgraph "Default Adapters"
         JSON_CFG["json-config-provider.ts — configs/fe.config.json R"]
-        LOCAL["local-artifact-storage.ts — cpSync to uploads/"]
+        LOCAL["local-source-storage.ts — cpSync to sources/ (also local-artifact-storage.ts)"]
         JSON_MAN["json-manifest-manager.ts — platform.json R/W"]
         BUN_B["bun-builder.ts — Bun.build() wrapper"]
     end
 
     subgraph "Built-in Plugins"
         P_BUILD["build plugin — build:before/after hooks"]
-        P_SERVE["serve plugin — serve:start/request hooks"]
+        P_SERVE["serve plugin — serve:start/request hooks, mounts JIT"]
         P_DEV["dev plugin — dev:rebuild/reload hooks"]
         P_LINK["link plugin — link:before/after hooks"]
-        P_ADMIN["admin plugin — upload:before/after hooks"]
+        P_PUBLISH["publish plugin — publish:before/after hooks"]
         P_CHECK["check plugin — tsc + build simulation"]
     end
 
     subgraph "Third-Party Plugins"
-        P_S3["s3-storage — swaps ArtifactStorage"]
+        P_S3["s3-storage — swaps SourceStorage / ArtifactStorage"]
         P_REMOTE["remote-manifest — swaps ManifestManager"]
         P_CFG["remote-config — swaps ConfigProvider"]
     end
@@ -55,7 +55,7 @@ graph TB
     BOOTSTRAP --> P_SERVE
     BOOTSTRAP --> P_DEV
     BOOTSTRAP --> P_LINK
-    BOOTSTRAP --> P_ADMIN
+    BOOTSTRAP --> P_PUBLISH
     BOOTSTRAP --> P_CHECK
 
     P_BUILD --> HOOKS
@@ -66,8 +66,8 @@ graph TB
     P_DEV --> HOOKS
     P_LINK --> HOOKS
     P_LINK --> CONTEXT
-    P_ADMIN --> HOOKS
-    P_ADMIN --> CONTEXT
+    P_PUBLISH --> HOOKS
+    P_PUBLISH --> CONTEXT
     P_CHECK --> HOOKS
     P_CHECK --> CONTEXT
 
@@ -84,7 +84,7 @@ Custom minimal (~60 LOC), zero dependencies, typed via declaration merging on `H
 ### Adapter Pattern
 Four interfaces isolate swappable backends:
 - **ConfigProvider**: `get() -> Required<FeConfig>` — reads `configs/fe.config.json` by default; swappable to env vars, remote config, etc. Stored at `ctx.adapters.config`. All plugins call `.get()` to read CLI config.
-- **ArtifactStorage**: `upload(slug, version, distDir) -> url` — local filesystem by default, swappable to S3/CDN
+- **SourceStorage** / **ArtifactStorage**: `upload() / fetchFile()` — local filesystem by default, swappable to S3/CDN. Used for JIT publishing.
 - **ManifestManager**: `read() / write() / registerPackage()` — JSON file by default, swappable to API/DB
 - **Builder**: `build(options) -> result` — Bun.build by default, swappable to other bundlers
 
@@ -120,10 +120,10 @@ Each plugin registers commands via `ctx.commands.set()` and hooks via `hooks.hoo
 | `dev:reload` | dev | `()` | SSE reload sent |
 | `link:before` | link | `(consumer, dep)` | Pre-link |
 | `link:after` | link | `(consumer, depName)` | Post-link |
-| `admin:upload:before` | admin | `(target, meta)` | Pre-upload validation |
-| `admin:upload:after` | admin | `(target, url, deps)` | Post-upload |
-| `admin:register:before` | admin | `(specifier, version, entry)` | Pre-manifest write |
-| `admin:register:after` | admin | `()` | Post-manifest write |
+| `publish:before` | publish | `(target, meta)` | Pre-publish validation |
+| `publish:after` | publish | `(target, url, deps)` | Post-publish |
+| `publish:register:before` | publish | `(specifier, version, entry)` | Pre-manifest write |
+| `publish:register:after` | publish | `()` | Post-manifest write |
 
 Waterfall: `build:options` — lets plugins modify `BuildOptions` before bundling.
 
@@ -146,18 +146,18 @@ packages/cli/src/                @fe/cli — the fe binary (published)
   helpers.ts                     readPackageMeta, readFeDepKeys, readFeDeps, slugFromSpecifier
   adapters/
     json-config-provider.ts      ConfigProvider: configs/fe.config.json
-    local-artifact-storage.ts    ArtifactStorage: local filesystem uploads
+    local-source-storage.ts      SourceStorage: local filesystem source uploads
     json-manifest-manager.ts     ManifestManager: platform.json read/write
     bun-builder.ts               Builder: Bun.build() wrapper
   plugins/
     build.ts                     build command + exports buildTarget()
-    serve.ts                     serve command
+    serve.ts                     serve command + mounts JIT Bundler
     dev.ts                       dev server (HMR via SSE)
     link.ts                      dependency linking
-    admin.ts                     admin upload
+    publish.ts                   fe publish (JIT source upload)
     check.ts                     typecheck + build simulation
 
 sandbox/configs/                 workspace config (not published)
-  fe.config.json                 CLI config (plugins, manifestPath, uploadsDir, shellDir)
+  fe.config.json                 CLI config (plugins, manifestPath, uploadsDir, sourcesDir, shellDir)
   platform.json                  MFE routes + packages registry
 ```

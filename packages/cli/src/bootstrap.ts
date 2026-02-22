@@ -8,13 +8,15 @@ import { createJsonConfigProvider } from "./adapters/json-config-provider";
 import { buildPlugin } from "./plugins/build";
 import { createJsonManifestManager } from "./adapters/json-manifest-manager";
 import { createLocalArtifactStorage } from "./adapters/local-artifact-storage";
+import { createLocalSourceStorage } from "./adapters/local-source-storage";
 import { adminPlugin } from "./plugins/admin";
+import { publishPlugin } from "./plugins/publish";
 import { devPlugin } from "./plugins/dev";
 import { linkPlugin } from "./plugins/link";
 import { servePlugin } from "./plugins/serve";
 import { checkPlugin } from "./plugins/check";
 
-const BUILTIN_PLUGINS: Plugin[] = [buildPlugin, servePlugin, devPlugin, linkPlugin, adminPlugin, checkPlugin];
+const BUILTIN_PLUGINS: Plugin[] = [buildPlugin, servePlugin, devPlugin, linkPlugin, adminPlugin, publishPlugin, checkPlugin];
 
 export async function bootstrap(root: string): Promise<{ ctx: CliContext; hooks: Hooks }> {
   const configProvider = createJsonConfigProvider(root);
@@ -27,6 +29,7 @@ export async function bootstrap(root: string): Promise<{ ctx: CliContext; hooks:
       artifactStorage: createLocalArtifactStorage(root, feConfig.uploadsDir),
       manifest: createJsonManifestManager(root, feConfig.manifestPath),
       builder: createBunBuilder(),
+      sourceStorage: createLocalSourceStorage(root, feConfig.sourcesDir),
     },
     commands: new Map(),
   };

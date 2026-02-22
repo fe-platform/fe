@@ -2,7 +2,7 @@
   "name": "fe-platform",
   "version": "0.0.0",
   "private": true,
-  "workspaces": ["packages/*", "sandbox/*"],
+  "workspaces": ["packages/*", "sandbox/*", "toolkit/*"],
   "scripts": {
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build --projects=@fe/core,@fe/cli,@fe/runtime",
@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
+    "@types/node": "^25.3.0",
     "nx": "^22.5.2",
     "typescript": "^5.0.0"
   }

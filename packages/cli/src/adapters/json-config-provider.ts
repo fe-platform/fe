@@ -6,6 +6,7 @@ const DEFAULTS: Required<FeConfig> = {
   manifestPath: "configs/platform.json",
   uploadsDir: "uploads",
   shellDir: "shell",
+  sourcesDir: "sources",
 };
 
 export function createJsonConfigProvider(root: string): ConfigProvider {

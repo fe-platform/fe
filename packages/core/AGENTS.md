@@ -9,7 +9,7 @@ Published. No runtime logic; pure TypeScript types + the `Hooks` class.
 ```
 src/
   fe-config.ts    FeConfig interface (CLI config schema)
-  adapters.ts     ConfigProvider · ArtifactStorage · ManifestManager · Builder
+  adapters.ts     ConfigProvider · SourceStorage · ArtifactStorage · ManifestManager · Builder
   context.ts      CliContext · CommandDef
   plugin.ts       Plugin interface
   hooks.ts        Hooks class · HookMap type
@@ -24,6 +24,7 @@ interface FeConfig {
   plugins?:      string[];   // npm packages to load as CLI plugins
   manifestPath?: string;     // default: "configs/platform.json"
   uploadsDir?:   string;     // default: "uploads"
+  sourcesDir?:   string;     // default: "sources"
   shellDir?:     string;     // default: "shell"
 }
 ```
@@ -40,14 +41,19 @@ Supplies CLI config (FeConfig with all fields filled). Stored at `ctx.adapters.c
 Default impl: `@fe/cli` `createJsonConfigProvider(root)` reads `configs/fe.config.json`.
 Plugins may swap this to pull config from env vars, remote APIs, etc.
 
-### ArtifactStorage
+### SourceStorage / ArtifactStorage
 ```ts
+interface SourceStorage {
+  upload(slug: string, version: string, srcDir: string): Promise<string>;
+  fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
+  listFiles(slug: string, version: string): Promise<string[]>;
+}
 interface ArtifactStorage {
-  upload(slug: string, version: string, distDir: string): Promise<string>; // returns artifact URL
+  upload(slug: string, version: string, distDir: string): Promise<string>;
   exists(slug: string, version: string): Promise<boolean>;
 }
 ```
-Default impl: `createLocalArtifactStorage(root, uploadsDir)` — copies to `uploads/<slug>/<ver>/`.
+Default impls: `createLocalSourceStorage` (`sources/`) and `createLocalArtifactStorage` (`uploads/`).
 
 ### ManifestManager
 ```ts
@@ -73,6 +79,7 @@ interface CliContext {
   root: string;  // absolute path to workspace root (where fe is invoked)
   adapters: {
     config:          ConfigProvider;    // CLI config; swappable by plugins
+    sourceStorage:   SourceStorage;     // JIT source uploads/fetch
     artifactStorage: ArtifactStorage;   // upload/exist checks; swappable
     manifest:        ManifestManager;   // platform.json I/O; swappable
     builder:         Builder;           // Bun.build wrapper; swappable
@@ -112,8 +119,8 @@ build:options(options) → options  (waterfall)
 build:shell:before()              build:shell:after()
 dev:start(target, port)           dev:rebuild(target)      dev:reload()
 serve:start(port)                 serve:request(req)
-admin:upload:before(target, meta) admin:upload:after(target, url, deps)
-admin:register:before(name, ver, entry) admin:register:after()
+publish:before(target, meta)      publish:after(target, url, deps)
+publish:register:before(name, ver, entry) publish:register:after()
 link:before(consumer, dep)        link:after(consumer, depName)
 ```
 

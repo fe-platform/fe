@@ -10,7 +10,7 @@
 # Install dependencies for packages that declare them (run from repo root)
 cd sandbox/mfe-b && bun install && cd -
 cd sandbox/host-app && bun install && cd -
-cd sandbox/devtools && bun install && cd -
+cd toolkit/devtools && bun install && cd -
 ```
 
 ## Building and serving the full stack
