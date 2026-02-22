@@ -56,15 +56,40 @@ share URL: ?platform:overrides=<JSON>
   → merged into sessionStorage overrides · URL param stripped
 ```
 
-## build (from repo root)
+## build
 ```
-fe build devtools
-  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=[])
-  solid-js is bundled (not external)
-
-# direct (from sandbox/devtools/):
+# from sandbox/devtools/:
 bun run build
-  → bun build src/index.tsx --outdir dist --format esm --target browser
+  → bun build.ts
+  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=[fe(*)])
+  → uses @dschz/bun-plugin-solid for correct Solid.js JSX compilation
+  solid-js is bundled (not external)
+```
+
+### Bun JSX + Solid.js — known constraints
+Bun v1.x (tested on 1.3.9) has partial JSX flag support:
+- `--jsx-factory <fn>` works — replaces the element-creation call
+- `--jsx-fragment <fn>` is SILENTLY IGNORED — bun always emits `Fragment` as a bare identifier
+- `--jsx-import-source`, `--jsx-runtime`, and tsconfig `jsxImportSource` are all ignored
+- The correct solution for Solid.js TSX is `@dschz/bun-plugin-solid` (wraps Babel+babel-preset-solid)
+  via a `build.ts` script using the `Bun.build()` API; `@babel/core`, `@babel/preset-typescript`,
+  and `babel-preset-solid` are required peer deps
+- In offline/sandboxed environments where `bun add` cannot reach the network, install these packages
+  manually; bun cache entries at `/root/.bun/install/cache/` may fail to resolve transitive deps
+  because the cache layout lacks nested node_modules — ensure @babel/* packages are present in the
+  workspace or package-local node_modules before running build.ts
+
+### build.ts (Bun.build API)
+```ts
+import { SolidPlugin } from "@dschz/bun-plugin-solid";
+await Bun.build({
+  entrypoints: ["./src/index.tsx"],
+  outdir: "./dist",
+  format: "esm",
+  target: "browser",
+  external: ["fe(*)", /^fe\(/],
+  plugins: [SolidPlugin({ generate: "dom", hydratable: false, sourceMaps: false })],
+});
 ```
 
 ## upload + activation

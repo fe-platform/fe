@@ -9,6 +9,7 @@
     "sandbox:build": "nx run-many -t build --projects=sandbox-*"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "nx": "^22.5.2",
     "typescript": "^5.0.0"
   }
