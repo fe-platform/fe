@@ -49,30 +49,32 @@ export function render(
 
 ## Preview with the Dev Server
 
-`fe dev` builds the MFE and serves it in an isolated sandbox page:
+`bunx fe dev` builds the MFE and serves it in an isolated sandbox page:
 
 ```bash
-fe dev mfe-hello
+bunx fe dev mfe-hello
 ```
 
-Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local build, then calls your `render` function on a container element. Edit `src/index.ts` and save: the server rebuilds, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance, and calls `render` again with the updated module.
+Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local build, then calls your `render` function on a container element. There is no host application, no shell, no shared workspace. This is the MFE running entirely on its own.
+
+Edit `src/index.ts` and save: the server rebuilds, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance, and calls `render` again with the updated module.
 
 To use a different port:
 
 ```bash
-fe dev mfe-hello 4000
+bunx fe dev mfe-hello 4000
 ```
 
-## Publish to the Registry
+## Register the Package
 
-When the MFE is ready to be part of a running shell, publish it:
+When the MFE is ready to ship, register it:
 
 ```bash
-fe publish mfe-hello
+bunx fe publish mfe-hello
 ```
 
 `fe publish` pre-flight type-checks the source, uploads it to the local `sources/` directory, and writes the package entry into `configs/platform.json`. The registered URL points to the JIT bundler (`/bundle/mfe-hello/1.0.0/index.ts`), which compiles the source on the first request and caches the result.
 
-After this step, `mfe-hello` exists in the registry and can be referenced by routes or depended on by other MFEs. It does not yet appear anywhere in the browser — that requires a route, a shell, and `fe serve`, all covered in the next article.
+After this step, `mfe-hello` exists in the registry as an independent, versioned artifact. How and where it appears is a separate concern — covered in the next article.
 
 **Next:** [Composing MFEs](./composing-mfes)

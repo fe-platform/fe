@@ -32,7 +32,7 @@ Create `mfe-world/package.json`:
 To import from `fe(@myorg/hello)` during development, TypeScript needs to resolve the specifier. `fe link` creates that local resolution without making the packages structurally dependent on each other:
 
 ```bash
-fe link mfe-world mfe-hello
+bunx fe link mfe-world mfe-hello
 ```
 
 This adds `"fe(@myorg/hello)": "file:../mfe-hello"` to `mfe-world`'s `devDependencies` and runs `bun install` inside `mfe-world/`. The result is a symlink at `mfe-world/node_modules/fe(@myorg/hello)` that TypeScript follows. It is a local development convenience. The packages remain independent: `mfe-world` does not bundle `mfe-hello`, does not share its `node_modules`, and does not need to know where `mfe-hello` lives in production. At runtime the browser uses an import map, not this symlink.
@@ -65,7 +65,7 @@ The bare specifier `fe(@myorg/hello)` passes through the build untouched. The ou
 ## Publish the Second MFE
 
 ```bash
-fe publish mfe-world
+bunx fe publish mfe-world
 ```
 
 `fe publish` resolves the `fe(...)` entries in `mfe-world`'s `devDependencies`, records them as semver ranges in the `deps` field of the manifest entry, and registers the full package in `configs/platform.json`. After this, `platform.json` knows that `fe(@myorg/world)@1.0.0` depends on `fe(@myorg/hello)` at `^1.0.0`.
@@ -126,18 +126,20 @@ The `packages` section was written by `fe publish`. The `routes` section is your
 ## Build and Serve
 
 ```bash
-fe build shell
-fe serve
+bunx fe build shell
+bunx fe serve
 ```
 
-`fe build shell` bundles `shell/src/index.ts` into `shell/dist/app.js`, reads `configs/platform.json`, and inlines the full config into `shell/dist/index.html`.
+`bunx fe build shell` bundles `shell/src/index.ts` into `shell/dist/app.js`, reads `configs/platform.json`, and inlines the full config into `shell/dist/index.html`.
 
-`fe serve` starts at `http://localhost:3000`, serving `shell/dist/` and the JIT bundler at `/bundle/`. The runtime resolves `/` to `fe(@myorg/world)@1.0.0`, traces its dependency on `fe(@myorg/hello)`, injects two import maps, and imports `mfe-world`. The browser fetches `mfe-hello` at the moment `mfe-world`'s import executes — not before. Each MFE is its own network request and its own module scope.
+`bunx fe serve` starts at `http://localhost:3000`, serving `shell/dist/` and the JIT bundler at `/bundle/`. Open the browser and watch the network tab. The runtime resolves `/` to `fe(@myorg/world)@1.0.0`, traces its dependency on `fe(@myorg/hello)`, injects two import maps, and imports `mfe-world`. The browser fetches `mfe-hello` at the moment `mfe-world`'s import executes — not before.
+
+Look back at what you wrote. There is no shared `package.json` between the two MFEs. No shared `node_modules`. No build plugin stitching them together. The only thing that connected them was a single line in `configs/platform.json`.
 
 To use a different port:
 
 ```bash
-fe serve 8080
+bunx fe serve 8080
 ```
 
 **Next:** [Architecture Overview](../architecture/overview)
