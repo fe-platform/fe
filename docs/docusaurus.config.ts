@@ -11,6 +11,12 @@ const config: Config = {
     v4: true,
   },
 
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: ['@docusaurus/theme-mermaid'],
+
   url: 'https://fe.frustrated.dev',
   baseUrl: '/',
 

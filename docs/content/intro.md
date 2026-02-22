@@ -9,6 +9,41 @@ The web platform already has everything needed to load and run independently dep
 
 Most microfrontend tooling arrives with a bundle of abstractions designed to simulate module isolation. `fe` skips the simulation. Native ES modules are truly isolated. Import maps resolve bare specifiers to URLs in the browser. Dynamic `import()` loads them on demand. Stack those three primitives correctly and you have a microfrontend platform. The rest is convention.
 
+## System at a Glance
+
+Before the explanations, it helps to see the map. The monorepo divides into three areas: the **packages** that form the published toolchain, the **sandbox** that is the reference workspace, and the **toolkit** that holds developer aids. The diagram below shows each part and what it is made of, along with the principal connections between them.
+
+```mermaid
+graph TB
+    subgraph packages["packages/ · published"]
+        core["@fe/core<br/>FeConfig · PlatformConfig<br/>Plugin · MFE interfaces"]
+        cli["@fe/cli · bin: fe<br/>build · serve · dev<br/>admin · check · link"]
+        runtime["@fe/runtime<br/>route resolver<br/>import map injector"]
+    end
+
+    subgraph sandbox["sandbox/ · workspace"]
+        host["host-app<br/>shell"]
+        mfea["fe(@acme/mfe-a)<br/>standalone MFE"]
+        mfeb["fe(@acme/mfe-b)<br/>composes mfe-a"]
+        configs["configs/<br/>platform.json · fe.config.json"]
+    end
+
+    subgraph toolkit["toolkit/"]
+        devtools["fe(@acme/devtools)<br/>dev overlay"]
+    end
+
+    core --> cli
+    core --> runtime
+    cli -->|"fe build · upload"| mfea
+    cli -->|"fe build · upload"| mfeb
+    cli -->|"fe build shell"| host
+    cli -->|"reads"| configs
+    runtime -->|"bundled into"| host
+    mfeb -.->|"fe() dep"| mfea
+```
+
+The solid arrows follow control: `@fe/core` provides the shared types that both the CLI and the runtime depend on; the CLI builds and uploads MFEs, builds the shell, and reads config; `@fe/runtime` is bundled into the shell once and runs in the browser thereafter. The dotted line between `mfe-b` and `mfe-a` marks a **runtime** `fe()` dependency, meaning no bundling crosses that boundary. The browser fills it in at import time using an injected import map.
+
 ## Mental Model
 
 There are three moments in an MFE's life: **build**, **deploy**, and **runtime**.

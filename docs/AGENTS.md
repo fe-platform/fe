@@ -25,19 +25,19 @@ docs/
 
 These rules apply to every content file without exception.
 
-**The cardinal rule.** Every sentence must be: concise, clear and unambiguous, complete, correct, and confident yet humble. If a sentence fails any one of those tests, rewrite it.
+**The cardinal rule.** Every sentence must satisfy five criteria simultaneously: concise, clear and unambiguous, complete, correct, and confident yet humble. If a sentence fails any one of those, rewrite it. There is no partial credit.
 
-**Prose style.** Write as though you are uncovering something for the first time alongside the reader. The platform makes choices that are genuinely unusual in the frontend world, and the writing should reflect that sense of discovery. Aim for a high-level prose rhythm — not a stream of bullet points, not a wall of dense jargon.
+**Prose style.** Write as though you and the reader are discovering something together for the first time. The platform makes choices that are genuinely unusual in the frontend world, and the prose should honour that sense of exploration. Aim for a flowing, high-level rhythm, not a parade of bullet points or an undifferentiated wall of jargon. When a design decision pays off in an interesting way, let the writing linger on that moment rather than rushing past it.
 
-**Wit — exactly 10%.** A pun, a precise turn of phrase, or a moment of dry observation is welcome. It keeps the reader from falling asleep. What is never acceptable: any humour that puts someone down, mocks a technology in a mean-spirited way, or comes at the expense of the reader. Keep it wordplay, not warfare.
+**Wit — exactly 10%.** A well-placed pun, a precise turn of phrase, or a moment of dry observation is welcome and expected. It keeps the reader awake. The constraint is specific: wit must come from wordplay, irony, or clever observation. It must never come at the expense of a person, a technology, or the reader. No put-downs. No sneering. Funny because it is smart, not because something is mocked.
 
-**Assertive without arrogance.** The platform has opinions. Express them plainly. Avoid hedging language ("you might want to consider") where a direct statement is accurate ("use `devDependencies`"). Equally, never overclaim — "the only correct approach" is a promise you will lose.
+**Assertive without arrogance.** The platform has opinions. Express them plainly. Replace hedging language ("you might want to consider") with direct statements ("use `devDependencies`"). Equally, never overclaim: "the only correct approach" is a promise you will eventually fail to keep.
 
-**No emojis.** Not in headings, not inline, not anywhere.
+**No emojis.** Not in headings, not inline, not anywhere in content files.
 
-**Em dashes — use sparingly.** One per page at most. Prefer a comma, a colon, or a new sentence.
+**Em dashes.** Use at most one per page. Prefer a comma, a colon, or a new sentence instead. This rule applies even when an em dash feels tempting.
 
-**Formatting.** Code in backticks always. Shell commands in fenced blocks with `bash`. Concepts on first appearance in **bold**. Short tables over long prose lists when comparing things. No section-header comments in code.
+**Formatting.** Code in backticks always. Shell commands in fenced blocks with `bash`. Concepts on first appearance in **bold**. Short tables over long prose lists when comparing things. No section-header comments in code blocks. Diagrams use Mermaid fenced blocks (`mermaid`).
 
 ## Content Sections
 
