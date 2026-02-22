@@ -15,7 +15,7 @@ const config: Config = {
     mermaid: true,
   },
 
-  themes: ['@docusaurus/theme-mermaid'],
+  themes: ['@docusaurus/theme-mermaid', './src/plugins/theme-brutalist'],
 
   url: 'https://fe.frustrated.dev',
   baseUrl: '/',

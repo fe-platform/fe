@@ -1,75 +1,8 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Base styles for the fe platform.
+ * This file is intentionally kept minimal as most styles are managed by the theme-brutalist plugin.
  */
 
 :root {
   --ifm-color-primary: #FC415A;
-  --ifm-color-primary-dark: #e03a50;
-  --ifm-color-primary-darker: #c93448;
-  --ifm-color-primary-darkest: #a52b3b;
-  --ifm-color-primary-light: #fd677b;
-  --ifm-color-primary-lighter: #fd7a8c;
-  --ifm-color-primary-lightest: #feadb8;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  
-  --brand-gradient: linear-gradient(132deg, #FC415A, #591BC5, #212335),
-                    linear-gradient(132deg, #FA4B57, #7D2AE8, #2F455C),
-                    linear-gradient(132deg, #FC9CAA, #7C40EA, #1C214D);
-  --brand-blend-mode: multiply, color-dodge, overlay;
-  --brand-background-size: 400% 400%, 300% 300%, 200% 200%;
-}
-
-[data-theme='dark'] {
-  --ifm-color-primary: #FA4B57;
-  --ifm-color-primary-dark: #f92a39;
-  --ifm-color-primary-darker: #f81a29;
-  --ifm-color-primary-darkest: #e10717;
-  --ifm-color-primary-light: #fb6c75;
-  --ifm-color-primary-lighter: #fb7d85;
-  --ifm-color-primary-lightest: #fdadb3;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
-}
-
-.navbar {
-  background: var(--brand-gradient);
-  background-blend-mode: var(--brand-blend-mode);
-  background-size: var(--brand-background-size);
-  color: white;
-}
-
-.navbar-sidebar__brand {
-  background: var(--brand-gradient);
-  background-blend-mode: var(--brand-blend-mode);
-  background-size: var(--brand-background-size);
-  color: white;
-}
-
-.navbar__title, .navbar__item, .navbar-sidebar__brand .navbar__title {
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-
-.navbar__logo {
-  background-color: #000;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.navbar__link:hover {
-  color: rgba(255,255,255,0.8);
-}
-
-.button--primary {
-  background: var(--brand-gradient);
-  background-blend-mode: var(--brand-blend-mode);
-  background-size: var(--brand-background-size);
-  border: none;
-  transition: opacity 0.2s;
-}
-
-.button--primary:hover {
-  opacity: 0.9;
 }
