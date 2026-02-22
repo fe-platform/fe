@@ -58,7 +58,7 @@ share URL: ?platform:overrides=<JSON>
 
 ## build
 ```
-# from sandbox/devtools/:
+# from toolkit/devtools/:
 bun run build
   → bun build.ts
   → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=[fe(*)])
