@@ -4,48 +4,43 @@ sidebar_position: 2
 
 # Your First MFE
 
-A microfrontend in fe exports one function. Not a class, not a framework component, not a configuration object. One function: `render`. That is the entire contract the platform needs to load, mount, and clean up your code. This article walks through building one from scratch.
-
-## What You Will Build
-
-A standalone MFE that renders a greeting. By the end you will have a correctly named package, a working `render` export, a production build, and a live dev server with hot module replacement.
+An MFE in fe exports one function: `render`. The platform calls it to mount your code and calls the value it returns to unmount. That is the full surface area of the contract between the platform and every MFE that runs on it.
 
 ## Create the Package
 
-All CLI commands run from the **monorepo root**. Create a new directory inside `sandbox/`:
+From your workspace root, create a directory for the MFE:
 
 ```bash
-mkdir -p sandbox/my-mfe/src
+mkdir -p mfe-hello/src
 ```
 
-Create `sandbox/my-mfe/package.json`:
+Create `mfe-hello/package.json`:
 
 ```json
 {
-  "name": "fe(@acme/my-mfe)",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "cd ../.. && fe build sandbox/my-mfe"
-  },
-  "devDependencies": {
-    "@fe/cli": "workspace:*"
-  }
+  "name": "fe(@myorg/hello)",
+  "version": "1.0.0"
 }
 ```
 
-The name `fe(@acme/my-mfe)` is a **bare specifier**: a package name, not a URL. This naming convention is doing real work. At build time, any other MFE that lists this name as a `devDependency` will have it marked as external, so Bun never bundles it. At runtime, the browser resolves the specifier to a URL via an injected import map. The name is the signal that makes both of those things happen without any extra configuration.
+Replace `@myorg` with your organisation's npm scope. The `fe(...)` wrapper is a **bare specifier**: the exact string that will appear in import statements, and the identifier the browser resolves via an import map at runtime. It is not a URL scheme. It is a naming convention, and that convention is how the build system knows to keep this package external rather than bundle it.
 
-## Write the Entry Point
+Run `bun install` from the workspace root to register the new package:
 
-Create `sandbox/my-mfe/src/index.ts`:
+```bash
+bun install
+```
+
+## Write the Render Function
+
+Create `mfe-hello/src/index.ts`:
 
 ```ts
 export function render(
   container: HTMLElement,
   props: Record<string, unknown>
 ): () => void {
-  const el = document.createElement("p");
-  el.textContent = `Hello, ${(props.name as string) ?? "world"}!`;
+  const el = document.createElement("div");
   container.appendChild(el);
 
   return () => {
@@ -54,34 +49,24 @@ export function render(
 }
 ```
 
-The return value is the **unmount function**. It removes every DOM node the MFE added. The platform calls it when navigating away or when the dev server triggers a hot reload. If your MFE sets up event listeners, timers, or subscriptions, clean them up here.
+`render` receives an `HTMLElement` and a props object. It returns the **unmount function**, which removes everything the MFE added to the DOM. The platform calls unmount before every hot reload and before navigating away from the route. An MFE that skips cleanup will accumulate stale DOM nodes; one that cleans up thoroughly composes correctly.
 
-## Build
+What you render inside is your choice. The platform has no opinion about framework, styling, or state management.
 
-```bash
-fe build sandbox/my-mfe
-```
+## Run the Dev Server
 
-The output lands at `sandbox/my-mfe/dist/index.js`. Open it and you will find a lean ES module with no bundled dependencies, because there are none to bundle yet. That changes in the next article.
-
-## Start the Dev Server
+`fe dev` builds the MFE and serves it in an isolated sandbox page, with no shell or registry required:
 
 ```bash
-fe dev sandbox/my-mfe
+fe dev mfe-hello
 ```
 
-The dev server builds the MFE first, then starts at `http://localhost:3000`. The page it serves is a minimal sandbox: an import map that resolves `fe(@acme/my-mfe)` to `/index.js`, and a small script that calls `render`.
-
-Now edit `src/index.ts` and save. The file watcher detects the change, rebuilds, and sends a Server-Sent Event to the browser. The browser re-imports the module with a cache-busting timestamp, calls `unmount` on the previous instance, then calls `render` again. The page updates without a full reload.
+Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local build, then calls your `render` function. Edit `src/index.ts` and save: the server rebuilds, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance and calls `render` again with the updated module.
 
 To use a different port:
 
 ```bash
-fe dev sandbox/my-mfe 3001
+fe dev mfe-hello 4000
 ```
-
-## A Note on Framework Code
-
-Nothing in the contract prevents you from using React, Solid, Vue, or any other framework inside an MFE. The `render` function is just the entry point. The sandbox MFE at `sandbox/mfe-a` uses React, for example. The platform does not know or care — it only calls `render` and later the cleanup function you return.
 
 **Next:** [Composing MFEs](./composing-mfes)

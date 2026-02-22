@@ -4,97 +4,172 @@ sidebar_position: 3
 
 # Composing MFEs
 
-Two MFEs. One depends on the other. No shared bundle, no shared runtime state injected by a framework, no magic. Just a bare specifier that the browser resolves at import time. This article shows the whole chain from wiring the dependency to seeing both MFEs run together in the shell.
+Two separately deployed MFEs, one depending on the other, with no bundler crossing the boundary between them. This article builds on the package from the previous article and walks through wiring a second MFE, setting up a shell, publishing both, and serving the result.
 
 ## Prerequisites
 
-This article uses the sandbox MFEs. Make sure you have completed [Installation](./installation) and that the workspace is bootstrapped with `bun install`.
+Complete [Your First MFE](./your-first-mfe) first. The `mfe-hello` package should already exist in your workspace.
 
-## Wire the Dependency
+## Create the Registry
 
-Run from the **monorepo root**:
+The manifest at `configs/platform.json` records which package versions exist and which one each route should load. Create it before running any publish commands:
 
 ```bash
-fe link sandbox/mfe-b sandbox/mfe-a
+mkdir configs
 ```
 
-`fe link` writes the `fe()` dependency into `mfe-b`'s `devDependencies` and runs `bun install` in `sandbox/mfe-b`. After it finishes, `mfe-b/package.json` contains:
+Create `configs/platform.json`:
 
 ```json
-"devDependencies": {
-  "fe(@acme/mfe-a)": "file:../mfe-a"
+{
+  "routes": {},
+  "packages": {}
 }
 ```
 
-The `file:` URI is a local symlink that Bun creates at `node_modules/fe(@acme/mfe-a)` inside `mfe-b`. TypeScript can now resolve the import without any `tsconfig.paths` configuration. The dependency goes into `devDependencies` on purpose: it is a build-time signal to the externalization step, not a bundling instruction. The build will mark it as external. The browser will fill it in at runtime via an import map.
+This file is the only persistent state the platform maintains locally. `fe publish` writes to the `packages` section automatically; you write to `routes` by hand.
 
-## Import and Use
+## Add a Second MFE
 
-In `sandbox/mfe-b/src/index.tsx` (or `index.ts`), import from the bare specifier:
+Create `mfe-world/package.json`:
+
+```json
+{
+  "name": "fe(@myorg/world)",
+  "version": "1.0.0"
+}
+```
+
+Wire the dependency from `mfe-world` to `mfe-hello`:
+
+```bash
+fe link mfe-world mfe-hello
+```
+
+`fe link` adds `"fe(@myorg/hello)": "file:../mfe-hello"` to `mfe-world`'s `devDependencies` and runs `bun install` inside `mfe-world`. The result is a symlink at `mfe-world/node_modules/fe(@myorg/hello)` that TypeScript follows for type resolution — no `tsconfig.paths` required.
+
+The dependency is in `devDependencies` on purpose. It is a build-time signal: when the CLI builds `mfe-world`, it reads all `fe(...)` keys from `devDependencies`, marks them as external in the Bun build, and leaves the bare specifier in the output bundle untouched. The browser resolves it via an import map at load time.
+
+## Import the Dependency
+
+Create `mfe-world/src/index.ts`. Import from the bare specifier exactly as you would from any module:
 
 ```ts
-import { render as renderA } from "fe(@acme/mfe-a)";
+import { render as renderHello } from "fe(@myorg/hello)";
 
 export function render(
   container: HTMLElement,
   props: Record<string, unknown>
 ): () => void {
-  const wrapper = document.createElement("div");
-  container.appendChild(wrapper);
+  const el = document.createElement("div");
+  container.appendChild(el);
 
-  const unmountA = renderA(wrapper, props);
+  const unmountHello = renderHello(el, props);
 
   return () => {
-    unmountA();
-    wrapper.remove();
+    unmountHello();
+    el.remove();
   };
 }
 ```
 
-The specifier `fe(@acme/mfe-a)` passes through the Bun build untouched. Check `sandbox/mfe-b/dist/index.js` after building and you will find it still there as a bare import, with no copy of `mfe-a`'s source bundled alongside it.
+After building, the output bundle will still contain `import { render as renderHello } from "fe(@myorg/hello)"` as a literal bare specifier. No copy of `mfe-hello`'s source appears inside it.
 
-## Build Both MFEs
+## Set Up the Shell
 
-```bash
-fe build sandbox/mfe-a
-fe build sandbox/mfe-b
-```
-
-Build order matters here: `mfe-a` must be built before it can be uploaded and referenced by `mfe-b`'s dependency resolution in the next step.
-
-## Upload to the Package Registry
+The shell is a plain web application that loads `@fe/runtime` and calls `load(path)`. Create the directory:
 
 ```bash
-fe admin upload sandbox/mfe-a
-fe admin upload sandbox/mfe-b
+mkdir -p shell/src
 ```
 
-`fe admin upload` copies each `dist/` directory to the uploads folder and registers the package, its version, and its `fe()` dependencies in `sandbox/configs/platform.json`. You do not edit `platform.json` by hand at this step. The upload command writes the `packages` section; you control only the `routes` section.
+Create `shell/package.json`:
+
+```json
+{
+  "name": "shell",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@fe/runtime": "latest"
+  }
+}
+```
+
+Create `shell/index.html`. The `<!-- __PLATFORM_CONFIG__ -->` placeholder is replaced by `fe build shell` with the embedded platform config — leave it exactly as written:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My App</title>
+  <!-- __PLATFORM_CONFIG__ -->
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
+```
+
+Create `shell/src/index.ts`:
+
+```ts
+import { load } from "@fe/runtime";
+
+const app = document.getElementById("app")!;
+const { render } = await load(window.location.pathname);
+render(app, {});
+```
+
+`load` reads the embedded platform config, resolves the current path to a specifier and version, walks the dependency graph, injects import maps for all resolved packages, and returns the MFE module. The shell calls `render`; the runtime handles everything in between.
+
+Register the new packages:
+
+```bash
+bun install
+```
+
+## Publish Both MFEs
+
+`fe publish` pre-flight type-checks the source, uploads it to the local registry, and records the package entry in `configs/platform.json`:
+
+```bash
+fe publish mfe-hello
+fe publish mfe-world
+```
+
+The registered URL points to the JIT bundler route (`/bundle/<slug>/<version>/index.ts`). On the first browser request for that module, the server compiles it on demand and caches the result. There is no separate build step for MFEs in this flow.
 
 ## Activate a Route
 
-Open `sandbox/configs/platform.json` and point a route at `mfe-b`:
+Open `configs/platform.json` and point a route at `mfe-world`. The value is `specifier@version`, matching what `fe publish` registered:
 
 ```json
 {
   "routes": {
-    "/": "fe(@acme/mfe-b)@1.0.0"
+    "/": "fe(@myorg/world)@1.0.0"
   },
   "packages": { "..." }
 }
 ```
 
-The runtime will see that `/` resolves to `fe(@acme/mfe-b)@1.0.0`, look up its dependencies in the `packages` section, find `fe(@acme/mfe-a)`, and inject import maps for both before importing either.
-
-## Build the Shell and Serve
+## Build and Serve
 
 ```bash
 fe build shell
 fe serve
 ```
 
-Open `http://localhost:3000`. The shell loads, `@fe/runtime` resolves the route, walks the dependency graph from `platform.json`, injects two import maps, and then imports `mfe-b`. The browser fetches `mfe-a` only at the moment `mfe-b` imports it — not before. Each MFE is its own network request, its own module scope, its own bundle.
+`fe build shell` bundles `shell/src/index.ts` into `shell/dist/app.js`, reads `configs/platform.json`, inlines the full config into `shell/dist/index.html` as an embedded JSON script, and writes the final HTML.
 
-That is composition without a bundler crossing the boundary.
+`fe serve` starts a server at `http://localhost:3000` that serves `shell/dist/`, the uploads directory, and the JIT bundler at `/bundle/`. Open the URL: the runtime resolves `/` to `fe(@myorg/world)@1.0.0`, traces its dependency on `fe(@myorg/hello)`, injects two import maps, and imports `mfe-world`. The browser fetches `mfe-hello` at the exact moment `mfe-world` imports it — not before.
+
+To use a different port:
+
+```bash
+fe serve 8080
+```
 
 **Next:** [Architecture Overview](../architecture/overview)
