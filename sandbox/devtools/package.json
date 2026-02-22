@@ -4,7 +4,7 @@
   "module": "src/index.tsx",
   "types": "src/index.tsx",
   "scripts": {
-    "build": "bun build src/index.tsx --outdir dist --format esm --target browser --external 'fe(*)'",
+    "build": "bun build.ts",
     "typecheck": "bunx tsc --noEmit",
     "check": "cd ../.. && fe check sandbox/devtools"
   },
@@ -12,6 +12,10 @@
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
-    "@fe/cli": "workspace:*"
+    "@babel/core": "^7.29.0",
+    "@babel/preset-typescript": "^7.28.5",
+    "@dschz/bun-plugin-solid": "^1.0.4",
+    "@fe/cli": "workspace:*",
+    "babel-preset-solid": "^1.9.10"
   }
 }

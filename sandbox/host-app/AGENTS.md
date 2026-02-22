@@ -99,3 +99,37 @@ fe admin upload mfe-b
 fe build shell
 fe serve
 ```
+
+## Playwright tests
+```
+# from sandbox/host-app/:
+bun run test           # runs playwright test (uses existing server if port 3000 is up)
+npx playwright test    # equivalent
+
+# CI (port must not be in use; webServer starts its own):
+CI=true bun run test
+```
+
+### playwright.config.ts
+```ts
+webServer.command = [
+  "fe build mfe-a", "fe admin upload mfe-a",
+  "fe build mfe-b", "fe admin upload mfe-b",
+  "bun run --cwd devtools build",   // uses devtools/package.json "build" script
+  "fe admin upload devtools",
+  "fe build shell",
+  "fe serve",
+].join(" && ")
+webServer.reuseExistingServer = !process.env.CI
+```
+Note: `fe build devtools` is intentionally NOT used — the CLI `build` command hardcodes
+`src/index.ts` but devtools uses `src/index.tsx`; `bun run --cwd devtools build` invokes
+the package's own script instead.
+
+### test coverage (tests/host.spec.ts)
+1. platform config is embedded in HTML — reads `#__platform__` JSON, checks routes + packages structure
+2. runtime injects import maps for route dependencies — waits for `#app > *`, reads all importmap scripts
+3. mfe-b renders and composes mfe-a in #app — checks rendered text content
+4. devtools overlay is mounted with toggle button — checks `#__devtools__` attached + button visible
+5. platform:overrides URL param stores in sessionStorage and is stripped — sets `?platform:overrides=`
+6. platform:clear-overrides strips sessionStorage and removes URL param — sets item then navigates
