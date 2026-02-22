@@ -122,3 +122,8 @@ Mirror of the root CONTRIBUTING.md, reformatted for Docusaurus. Keep in sync man
 - CLI command signatures documented here must match `packages/cli/src/commands/`
 - All `fe()` package names in examples follow the `fe(@scope/name)` convention exactly
 - No content file establishes a tutorial that requires tools other than Bun
+- Getting Started articles must not use Bun workspaces or any shared root `package.json` that creates coupling between MFEs. Each MFE is an independent package. The only join at runtime is `platform.json` and the import maps the runtime injects from it. `fe link` appears only as a local development convenience for TypeScript resolution, never as an architectural requirement.
+
+## Pending Code Changes That Affect Docs
+
+**Sandbox refactor (tracked, not yet done).** The sandbox in this repo currently uses a Bun workspace root that lists `sandbox/*` as workspace members. This couples the sandbox MFEs in a way that contradicts the platform's independence model. The sandbox should be refactored so each `sandbox/` subdirectory is a fully standalone package with its own `bun install`, mirroring what Getting Started now documents. Until that refactor lands, Getting Started examples use generic `my-app/` paths and do not reference the sandbox directly.

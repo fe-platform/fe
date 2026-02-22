@@ -26,34 +26,33 @@ Verify:
 bun --version
 ```
 
-## Create a Workspace
+## Set Up a Working Directory
 
-The fe CLI runs from a workspace root. Create one:
+The fe CLI runs from a directory that contains a `configs/` folder. Create one:
 
 ```bash
 mkdir my-app && cd my-app
 ```
 
-Create `package.json`:
+Install the CLI locally:
+
+```bash
+bun add -d @fe/cli
+```
+
+Create the registry file the CLI writes to:
+
+```bash
+mkdir configs
+```
+
+Create `configs/platform.json`:
 
 ```json
 {
-  "name": "my-app",
-  "private": true,
-  "workspaces": ["shell", "mfe-*"],
-  "devDependencies": {
-    "@fe/cli": "latest",
-    "@fe/runtime": "latest"
-  }
+  "routes": {},
+  "packages": {}
 }
-```
-
-The `workspaces` array tells Bun which directories contain packages. The `mfe-*` glob covers every MFE you create. `shell` is the default name the CLI expects for your host application. Both can be configured, but the defaults require no configuration file at all.
-
-Install:
-
-```bash
-bun install
 ```
 
 ## Verify the CLI
@@ -62,13 +61,17 @@ bun install
 ./node_modules/.bin/fe
 ```
 
-You should see the list of available commands. To drop the path prefix for everyday use, add `./node_modules/.bin` to your shell `PATH`:
+You should see the list of available commands. Add `./node_modules/.bin` to your shell `PATH` to use `fe` directly:
 
 ```bash
 # add to ~/.bashrc or ~/.zshrc
 export PATH="./node_modules/.bin:$PATH"
 ```
 
-All examples in this documentation use `fe` directly. Run all commands from the workspace root unless noted otherwise.
+All examples in this documentation use `fe` directly. Run all commands from this working directory unless noted otherwise.
+
+## What You Have Now
+
+A working directory that has the CLI and an empty registry. Nothing else connects the things you are about to build. MFEs you create are independent packages — each installs its own dependencies, each can live anywhere, each is deployable on its own. The only thing that will join them at runtime is `platform.json` and the import maps the runtime injects from it.
 
 **Next:** [Your First MFE](./your-first-mfe)

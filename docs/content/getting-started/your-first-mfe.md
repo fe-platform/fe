@@ -4,11 +4,11 @@ sidebar_position: 2
 
 # Your First MFE
 
-An MFE in fe exports one function: `render`. The platform calls it to mount your code and calls the value it returns to unmount. That is the full surface area of the contract between the platform and every MFE that runs on it.
+An MFE in fe exports one function: `render`. The platform calls it to mount your code and calls the value it returns to unmount. That is the complete contract.
 
 ## Create the Package
 
-From your workspace root, create a directory for the MFE:
+From your working directory, create a folder for the MFE:
 
 ```bash
 mkdir -p mfe-hello/src
@@ -23,13 +23,9 @@ Create `mfe-hello/package.json`:
 }
 ```
 
-Replace `@myorg` with your organisation's npm scope. The `fe(...)` wrapper is a **bare specifier**: the exact string that will appear in import statements, and the identifier the browser resolves via an import map at runtime. It is not a URL scheme. It is a naming convention, and that convention is how the build system knows to keep this package external rather than bundle it.
+Replace `@myorg` with your organisation's npm scope. The name is a **bare specifier**: the exact string that will appear in `import` statements and that the browser resolves via an import map. The `fe(...)` wrapper is the convention that tells the build system to keep this package external rather than bundle it into whatever imports it.
 
-Run `bun install` from the workspace root to register the new package:
-
-```bash
-bun install
-```
+This package has no dependencies yet, so no `bun install` is needed at this point. When you add framework packages later, you will run `bun install` inside `mfe-hello/` the same as any other standalone project.
 
 ## Write the Render Function
 
@@ -49,24 +45,34 @@ export function render(
 }
 ```
 
-`render` receives an `HTMLElement` and a props object. It returns the **unmount function**, which removes everything the MFE added to the DOM. The platform calls unmount before every hot reload and before navigating away from the route. An MFE that skips cleanup will accumulate stale DOM nodes; one that cleans up thoroughly composes correctly.
+`render` receives the container element and a props object. It returns the **unmount function**, which removes everything the MFE added to the DOM. The platform calls unmount before every hot reload and before navigating away. What you render inside is your decision — any framework, any DOM approach, any styling strategy all satisfy the contract as long as the cleanup function is thorough.
 
-What you render inside is your choice. The platform has no opinion about framework, styling, or state management.
+## Preview with the Dev Server
 
-## Run the Dev Server
-
-`fe dev` builds the MFE and serves it in an isolated sandbox page, with no shell or registry required:
+`fe dev` builds the MFE and serves it in an isolated sandbox page:
 
 ```bash
 fe dev mfe-hello
 ```
 
-Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local build, then calls your `render` function. Edit `src/index.ts` and save: the server rebuilds, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance and calls `render` again with the updated module.
+Open `http://localhost:3000`. The sandbox injects a minimal import map that resolves `fe(@myorg/hello)` to the local build, then calls your `render` function on a container element. Edit `src/index.ts` and save: the server rebuilds, sends a reload signal over a Server-Sent Event connection, the browser unmounts the previous instance, and calls `render` again with the updated module.
 
 To use a different port:
 
 ```bash
 fe dev mfe-hello 4000
 ```
+
+## Publish to the Registry
+
+When the MFE is ready to be part of a running shell, publish it:
+
+```bash
+fe publish mfe-hello
+```
+
+`fe publish` pre-flight type-checks the source, uploads it to the local `sources/` directory, and writes the package entry into `configs/platform.json`. The registered URL points to the JIT bundler (`/bundle/mfe-hello/1.0.0/index.ts`), which compiles the source on the first request and caches the result.
+
+After this step, `mfe-hello` exists in the registry and can be referenced by routes or depended on by other MFEs. It does not yet appear anywhere in the browser — that requires a route, a shell, and `fe serve`, all covered in the next article.
 
 **Next:** [Composing MFEs](./composing-mfes)
