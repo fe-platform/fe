@@ -5,7 +5,6 @@
   "types": "src/index.tsx",
   "scripts": {
     "build": "bun build.ts",
-    "typecheck": "bunx tsc --noEmit",
     "check": "cd ../.. && fe check toolkit/devtools"
   },
   "dependencies": {

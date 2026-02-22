@@ -1,0 +1,6 @@
+{
+  "name": "fe(@acme/devtools)",
+  "targets": {
+    "typecheck": {}
+  }
+}
