@@ -1,6 +1,7 @@
 <div align="center">
+  <img src="./assets/logo.svg" width="128" height="128" alt="⚯ (UNMARRIED PARTNERSHIP SYMBOL) - representing independent yet connected microfrontends" />
 
-# ⚯ fe
+# fe
 **Ship independently. Compose natively.**
 </div>
 

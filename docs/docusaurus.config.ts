@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: '⚯ fe',
   tagline: 'Ship independently. Compose natively.',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo.svg',
 
   future: {
     v4: true,
@@ -54,7 +54,11 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: '⚯ fe',
+      title: 'fe',
+      logo: {
+        alt: '⚯ (UNMARRIED PARTNERSHIP SYMBOL) - independent yet connected microfrontends',
+        src: 'img/logo.svg',
+      },
       items: [
         {
           type: 'docSidebar',

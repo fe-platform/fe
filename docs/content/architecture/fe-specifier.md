@@ -97,3 +97,12 @@ At runtime, `@fe/runtime` injects an import map that maps the specifier to a URL
 ```
 
 When the browser encounters `import("fe(@acme/mfe-a)")`, it consults this map, resolves the bare specifier to the URL, and fetches the module. The specifier that was left external by the build is now resolved by the browser — completing the circuit that the naming convention started.
+
+## The Symbol: ⚯
+
+You may notice the `⚯` symbol (U+26AF) appearing in our logo and internal documentation.
+
+Formally known as the **Unmarried Partnership Symbol**, we chose it to represent the core philosophy of the `fe` platform: **Independent yet Connected**.
+
+In a traditional monolith or a distributed monolith (via federation), applications are "married" at the build or deployment level. In `fe`, MFEs remain independent "partners" — they share a runtime environment and a common goal, but they maintain their own identities, lifecycles, and deployment schedules without the rigid coupling of a traditional build-time dependency.
+
