@@ -3,7 +3,7 @@ import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: '⚯ fe',
+  title: 'fe',
   tagline: 'Ship independently. Compose natively.',
   favicon: 'img/logo.svg',
 
@@ -11,11 +11,36 @@ const config: Config = {
     v4: true,
   },
 
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossorigin: 'anonymous',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap',
+      },
+    },
+  ],
+
   markdown: {
     mermaid: true,
   },
 
-  themes: ['@docusaurus/theme-mermaid', './src/plugins/theme-brutalist'],
+  themes: ['@docusaurus/theme-mermaid'],
 
   url: 'https://fe.frustrated.dev',
   baseUrl: '/',

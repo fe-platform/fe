@@ -1,8 +1,244 @@
 /**
- * Base styles for the fe platform.
- * This file is intentionally kept minimal as most styles are managed by the theme-brutalist plugin.
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
  */
+
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
 :root {
   --ifm-color-primary: #FC415A;
+  --ifm-color-primary-dark: #e03a50;
+  --ifm-color-primary-darker: #c93448;
+  --ifm-color-primary-darkest: #a52b3b;
+  --ifm-color-primary-light: #fd677b;
+  --ifm-color-primary-lighter: #fd7a8c;
+  --ifm-color-primary-lightest: #feadb8;
+  
+  --ifm-font-family-base: "Source Serif 4", serif;
+  --ifm-font-family-monospace: "Google Sans Code", monospace;
+  --ifm-code-font-size: 90%;
+  
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  
+  --brand-gradient: linear-gradient(132deg, #FC415A, #591BC5, #212335),
+                    linear-gradient(132deg, #FA4B57, #7D2AE8, #2F455C),
+                    linear-gradient(132deg, #FC9CAA, #7C40EA, #1C214D);
+  --brand-blend-mode: multiply, color-dodge, overlay;
+  --brand-background-size: 400% 400%, 300% 300%, 200% 200%;
+
+  /* Neo-Brutalist Tokens */
+  --brutalist-border-width: 1.5px;
+  --brutalist-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.9);
+  --brutalist-shadow-sm: 2px 2px 0px 0px rgba(0, 0, 0, 0.9);
+  --brutalist-shadow-hover: 1px 1px 0px 0px rgba(0, 0, 0, 0.9);
+  --brutalist-border-color: #000000;
 }
+
+[data-theme='dark'] {
+  --ifm-color-primary: #FA4B57;
+  --ifm-color-primary-dark: #f92a39;
+  --ifm-color-primary-darker: #f81a29;
+  --ifm-color-primary-darkest: #e10717;
+  --ifm-color-primary-light: #fb6c75;
+  --ifm-color-primary-lighter: #fb7d85;
+  --ifm-color-primary-lightest: #fdadb3;
+
+  --brutalist-shadow: 4px 4px 0px 0px rgba(255, 255, 255, 0.7);
+  --brutalist-shadow-sm: 2px 2px 0px 0px rgba(255, 255, 255, 0.7);
+  --brutalist-shadow-hover: 1px 1px 0px 0px rgba(255, 255, 255, 0.7);
+  --brutalist-border-color: #ffffff;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Global Typography */
+html, body {
+  font-family: var(--ifm-font-family-base) !important;
+  font-weight: 450;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+
+/* Neo-Brutalist Layout Components */
+.navbar {
+  background: var(--brand-gradient);
+  background-blend-mode: var(--brand-blend-mode);
+  background-size: var(--brand-background-size);
+  color: white !important;
+  border-bottom: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  padding: 0.25rem 1rem; /* Smaller padding */
+  height: 3.5rem; /* Explicit smaller height */
+}
+
+.navbar__link, 
+.navbar__title, 
+.navbar__item,
+.navbar__item > a,
+.navbar-sidebar__brand .navbar__title {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  font-weight: 700 !important; /* Bold links */
+  font-size: 0.95rem;
+}
+
+.navbar__link:hover {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+.navbar-sidebar__brand {
+  background: var(--brand-gradient);
+  background-blend-mode: var(--brand-blend-mode);
+  background-size: var(--brand-background-size);
+  border-bottom: var(--brutalist-border-width) solid var(--brutalist-border-color);
+}
+
+.navbar__logo {
+  background-color: #000 !important;
+  padding: 4px; /* Reduced packing */
+  border: 2px solid #fff;
+  border-radius: 0; /* Boxy */
+  box-shadow: 3px 3px 0 #fff;
+  height: 2rem !important; /* Smaller logo in header */
+}
+
+/* Sidebar Styling */
+.theme-doc-sidebar-container {
+  border-right: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+}
+
+.menu__link--active {
+  background: var(--brand-gradient) !important;
+  background-blend-mode: var(--brand-blend-mode) !important;
+  background-size: var(--brand-background-size) !important;
+  color: white !important;
+  border: 2px solid var(--brutalist-border-color);
+  margin-bottom: 4px;
+}
+
+/* Cards & Containers */
+.card {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-radius: 0 !important;
+  box-shadow: var(--brutalist-shadow);
+  transition: transform 0.1s, box-shadow 0.1s;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--brutalist-shadow-hover);
+}
+
+/* Boxes & Alerts */
+.theme-admonition {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-radius: 0 !important;
+  box-shadow: var(--brutalist-shadow-sm);
+}
+
+/* Standard Buttons */
+.button {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-radius: 0 !important;
+  font-weight: 800;
+  box-shadow: var(--brutalist-shadow-sm);
+  transition: transform 0.1s, box-shadow 0.1s;
+  background-color: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-900) !important;
+}
+
+[data-theme='dark'] .button {
+  background-color: #222;
+  color: #fff !important;
+}
+
+.button:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--brutalist-shadow-hover);
+  background-color: var(--ifm-color-emphasis-300);
+  text-decoration: none;
+  color: var(--ifm-color-emphasis-1000) !important;
+}
+
+.button--primary {
+  background: var(--brand-gradient) !important;
+  background-blend-mode: var(--brand-blend-mode) !important;
+  background-size: var(--brand-background-size) !important;
+  color: white !important;
+  border-color: var(--brutalist-border-color) !important;
+}
+
+.button--primary:hover {
+  opacity: 0.9;
+  background: var(--brand-gradient) !important;
+}
+
+/* Code Blocks */
+code {
+  font-family: var(--ifm-font-family-monospace);
+  border-radius: 0 !important;
+}
+
+pre {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-radius: 0 !important;
+  box-shadow: var(--brutalist-shadow-sm);
+}
+
+.theme-code-block {
+    margin-bottom: 2rem !important;
+}
+
+/* Footer */
+.footer {
+  border-top: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  background-color: var(--ifm-footer-background-color) !important;
+}
+
+/* Doc Pagination Nav */
+.pagination-nav__link {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-radius: 0 !important;
+  box-shadow: var(--brutalist-shadow-sm);
+}
+
+.pagination-nav__link:hover {
+  box-shadow: var(--brutalist-shadow-hover);
+}
+
+/* Tables */
+table {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  display: table;
+  width: 100%;
+}
+
+thead tr, th, td {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  border-bottom: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+  padding: 0.75rem !important;
+}
+
+tr {
+  border-bottom: var(--brutalist-border-width) solid var(--brutalist-border-color) !important;
+}
+
+
+thead {
+  background-color: var(--ifm-color-emphasis-100);
+}
+
+[data-theme='dark'] thead {
+  background-color: #1a1a1a;
+}
+
