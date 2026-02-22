@@ -9,12 +9,17 @@ export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string,
   const dir = join(ctx.root, target);
   const externals = readFeDepKeys(dir);
 
+  const entryTs = join(dir, "src", "index.ts");
+  const entryTsx = join(dir, "src", "index.tsx");
+  const entrypoint = Bun.file(entryTsx).size > 0 ? entryTsx : entryTs;
+
   let options: BuildOptions = {
-    entrypoints: [join(dir, "src", "index.ts")],
+    entrypoints: [entrypoint],
     outdir: join(dir, "dist"),
     format: "esm",
     target: "browser",
     external: externals,
+    rootDir: dir,
   };
 
   options = await hooks.waterfall("build:options", options);

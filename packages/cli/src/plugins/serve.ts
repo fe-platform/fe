@@ -1,6 +1,6 @@
 import { join } from "path";
 import type { Plugin } from "@fe/core";
-import { createJITBundler } from "@fe/runtime/server";
+import { createJITBundler } from "@fe/compiler";
 
 export const servePlugin: Plugin = {
   name: "serve",

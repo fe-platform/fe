@@ -22,6 +22,8 @@ export interface BuildOptions {
   target: "browser";
   external: string[];
   naming?: string;
+  /** Absolute path to the package root (for framework detection). */
+  rootDir?: string;
 }
 
 export interface BuildResult {

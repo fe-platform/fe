@@ -14,8 +14,10 @@
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
+    "@fe/compiler": "workspace:*",
     "@fe/core": "workspace:*",
-    "@fe/runtime": "workspace:*"
+    "@fe/runtime": "workspace:*",
+    "kleur": "^4.1.5"
   },
   "devDependencies": {
     "@fe/core": "workspace:*",
