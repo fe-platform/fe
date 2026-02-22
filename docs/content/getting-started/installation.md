@@ -58,17 +58,10 @@ Create `configs/platform.json`:
 ## Verify the CLI
 
 ```bash
-./node_modules/.bin/fe
+bunx fe
 ```
 
-You should see the list of available commands. Add `./node_modules/.bin` to your shell `PATH` to use `fe` directly:
-
-```bash
-# add to ~/.bashrc or ~/.zshrc
-export PATH="./node_modules/.bin:$PATH"
-```
-
-All examples in this documentation use `fe` directly. Run all commands from this working directory unless noted otherwise.
+You should see the list of available commands. All examples in this documentation use `bunx fe`. Run all commands from this working directory unless noted otherwise.
 
 ## What You Have Now
 
