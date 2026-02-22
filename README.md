@@ -34,10 +34,11 @@ The return value unmounts and cleans up. No framework required — pure DOM.
 |---|---|
 | `mfe-a/` | Standalone microfrontend (`fe(@acme/mfe-a)`) |
 | `mfe-b/` | Microfrontend that composes `mfe-a` (`fe(@acme/mfe-b)`) |
-| `shell/` | Host app — resolves routes, injects import maps, mounts MFEs |
+| `host-app/` | Host app — resolves routes, injects import maps, mounts MFEs |
 | `devtools/` | Developer overlay for per-tab import map overrides (`fe(@acme/devtools)`) |
 | `cli/` | Build, serve, dev, link, and upload tooling |
 | `sandbox/configs/platform.json` | Routes + package version registry |
+| `sandbox/configs/fe.config.json` | CLI config — plugins, artifact paths, shell directory |
 
 ## CLI
 

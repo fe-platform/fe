@@ -17,8 +17,7 @@ export const checkPlugin: Plugin = {
         }
 
         console.log(`Checking ${target}...`);
-        const { readFeConfig } = await import("../config");
-        const feConfig = readFeConfig(ctx.root);
+        const feConfig = await ctx.adapters.config.get();
 
         let dir: string;
         if (target === "shell") {

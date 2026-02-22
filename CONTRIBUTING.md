@@ -7,10 +7,10 @@
 ## Setup
 
 ```bash
-# Install dependencies for packages that declare them
-cd mfe-b && bun install && cd ..
-cd shell && bun install && cd ..
-cd devtools && bun install && cd ..
+# Install dependencies for packages that declare them (run from repo root)
+cd sandbox/mfe-b && bun install && cd -
+cd sandbox/host-app && bun install && cd -
+cd sandbox/devtools && bun install && cd -
 ```
 
 ## Building and serving the full stack
@@ -70,9 +70,24 @@ For packages in separate repositories, replace `file:../mfe-a` with a git URI ma
 "fe(@acme/mfe-a)": "git+https://github.com/org/mfe-a#v1.0.0"
 ```
 
+## CLI config (`sandbox/configs/fe.config.json`)
+
+The CLI reads its own config through the `ConfigProvider` adapter (`ctx.adapters.config`). The default implementation reads `configs/fe.config.json` relative to the workspace root. All fields are optional:
+
+```json
+{
+  "plugins":      [],
+  "manifestPath": "configs/platform.json",
+  "uploadsDir":   "uploads",
+  "shellDir":     "host-app"
+}
+```
+
+To extend the CLI (e.g. swap local artifact storage for S3), add a plugin package name to `plugins` and install it. Plugins swap `ctx.adapters.*` in their `setup()` function. Inside a plugin, always read config via `ctx.adapters.config.get()` — never read the file directly.
+
 ## How `fe()` externalization works
 
-`build.ts` reads `devDependencies` from the target's `package.json` and passes any key starting with `fe(` to `Bun.build`'s `external` option. The naming convention itself is the build signal — no extra config needed.
+`helpers.ts:readFeDepKeys` reads `devDependencies` from the target's `package.json` and passes any key starting with `fe(` to `Bun.build`'s `external` option. The naming convention itself is the build signal — no extra config needed.
 
 ## Hot reload internals
 
@@ -89,8 +104,8 @@ For packages in separate repositories, replace `file:../mfe-a` with a git URI ma
 - No comments unless logic is genuinely non-obvious; no section headers or doc comments
 - Prefer functions over classes
 - No stubs, mocks, or temporary workarounds — production-ready code only
-- `fe(...)` packages must go in `devDependencies`, not `dependencies` — `build.ts` reads `devDeps`
-- Do not add workspace or monorepo config — this is a plain directory, not an npm workspace
+- `fe(...)` packages must go in `devDependencies`, not `dependencies` — `helpers.ts:readFeDepKeys` filters on devDeps
+- CLI plugins access config via `ctx.adapters.config.get()` — never import from CLI internals directly
 
 ## Pre-PR checklist
 

@@ -1,6 +1,27 @@
 # ⚯ configs/ · agent-ref
 ↑ /AGENTS.md for repo-wide context
 
+## files
+```
+configs/
+  platform.json    MFE routes + packages registry (runtime config)
+  fe.config.json   CLI config (build tooling config · read by ConfigProvider adapter)
+```
+
+## fe.config.json
+CLI config for the sandbox workspace. Read by `createJsonConfigProvider` in `@fe/cli`.
+Accessed at runtime via `ctx.adapters.config.get()` — not read directly by plugins.
+```json
+{
+  "plugins":      [],
+  "manifestPath": "configs/platform.json",
+  "uploadsDir":   "uploads",
+  "shellDir":     "host-app"
+}
+```
+All fields optional. Defaults: plugins=[] manifestPath="configs/platform.json" uploadsDir="uploads" shellDir="shell".
+To add a CLI plugin: add its npm package name to `plugins[]` and install it in the workspace.
+
 ## platform.json
 ```json
 {
@@ -47,6 +68,10 @@ value = { versions: { "X.Y.Z": { url, deps } } }
 
 ## consumers
 ```
+cli/src/adapters/json-config-provider.ts
+  ← reads configs/fe.config.json → Required<FeConfig>
+  → stored as ctx.adapters.config · all plugins call ctx.adapters.config.get()
+
 cli/src/plugins/build.ts:buildShell()
   ← manifest.read() (ManifestManager adapter)
   → inject <script id="__platform__" type="application/json"> (full config) into host-app/dist/index.html
@@ -73,3 +98,4 @@ packages/runtime/src/platform.ts (browser runtime)
 - package URL must be reachable from host-app/dist/index.html at runtime
 - deps use semver ranges (e.g. "^1.0.0"); resolved by shell runtime in browser
 - cross-ecosystem packages use full URLs (https://...)
+- fe.config.json is CLI tooling config only; not embedded in HTML; not read by browser runtime

@@ -1,9 +1,9 @@
 import { Hooks } from "@fe/core";
 import type { CliContext, Plugin } from "@fe/core";
-import { readFeConfig } from "./config";
 import { loadExternalPlugins } from "./plugin-loader";
 
 import { createBunBuilder } from "./adapters/bun-builder";
+import { createJsonConfigProvider } from "./adapters/json-config-provider";
 
 import { buildPlugin } from "./plugins/build";
 import { createJsonManifestManager } from "./adapters/json-manifest-manager";
@@ -17,11 +17,13 @@ import { checkPlugin } from "./plugins/check";
 const BUILTIN_PLUGINS: Plugin[] = [buildPlugin, servePlugin, devPlugin, linkPlugin, adminPlugin, checkPlugin];
 
 export async function bootstrap(root: string): Promise<{ ctx: CliContext; hooks: Hooks }> {
-  const feConfig = readFeConfig(root);
+  const configProvider = createJsonConfigProvider(root);
+  const feConfig = await configProvider.get();
 
   const ctx: CliContext = {
     root,
     adapters: {
+      config: configProvider,
       artifactStorage: createLocalArtifactStorage(root, feConfig.uploadsDir),
       manifest: createJsonManifestManager(root, feConfig.manifestPath),
       builder: createBunBuilder(),

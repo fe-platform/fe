@@ -63,8 +63,7 @@ export const devPlugin: Plugin = {
           process.exit(1);
         }
 
-        const { readFeConfig } = await import("../config");
-        const feConfig = readFeConfig(ctx.root);
+        const feConfig = await ctx.adapters.config.get();
         const dir = join(ctx.root, target);
         const { name } = readPackageMeta(dir);
         const distDir = join(dir, "dist");
