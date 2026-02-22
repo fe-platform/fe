@@ -15,16 +15,15 @@ CLAUDE.md→symlink→here
 │  ├─ mfe-a/      name=fe(@acme/mfe-a) standalone MFE · fe()-deps=∅
 │  ├─ mfe-b/      name=fe(@acme/mfe-b) composes mfe-a · devDep→fe(@acme/mfe-a)
 │  ├─ devtools/   name=fe(@acme/devtools) overlay · uses Solid.js
-│  ├─ configs/    platform.json · routes+packages registry
-│  └─ fe.config.json · sandbox CLI config (shellDir=host-app, etc.)
+│  └─ configs/    fe.config.json · platform.json · routes+packages registry + CLI config
 ├─ nx.json        minimal Nx config (target ordering only · no nx cloud)
 └─ package.json   workspace root
 ```
 each package/subdir has own AGENTS.md with full local detail
 
 ## toolchain
-bun@latest ONLY · !node !npm !webpack !vite !rollup  
-lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler  
+bun@latest ONLY · !node !npm !webpack !vite !rollup
+lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler
 tests=∅  CI=typecheck+build (packages job → sandbox job)
 
 ## ⟿ fe() convention
@@ -32,10 +31,10 @@ tests=∅  CI=typecheck+build (packages job → sandbox job)
 fe(@scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
 pkg.json  "name":"fe(@acme/mfe-a)"
 src       import {x} from "fe(@acme/mfe-a)"
-platform  sandbox/sandbox/sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
+platform  sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
 ```
-build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]  
-ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths  
+build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]
+ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths
 runtime: browser import maps resolve bare-specifier → JS url (multiple maps, injected lazily)
 
 ## MFE interface (∀ MFE must export)
@@ -52,11 +51,13 @@ serve  [port=3000]     host-app/dist/ · /uploads/→ROOT/uploads/
 dev    <tgt> [port]    sandbox+SSE · watch src/→rebuild→HMR
 link   <consumer> <dep> write devDep file:URI + bun-install
 admin  upload <tgt>    cp dist/→uploads/slug/ver/ · register in platform.json
+check  <target>|shell  typecheck + simulate build (CI use)
 ```
-CLI reads `fe.config.json` at CWD for: plugins[], manifestPath, uploadsDir, shellDir
+CLI config is supplied by `ctx.adapters.config` (ConfigProvider adapter).
+Default impl reads `configs/fe.config.json` at workspace root. Plugins may swap this adapter.
 
 ## @fe/cli Plugin API
-Organizations extend the CLI by adding plugins in their `fe.config.json`:
+Organizations extend the CLI by adding plugins in `configs/fe.config.json`:
 ```json
 { "plugins": ["@acme/fe-plugin-s3"] }
 ```
@@ -67,21 +68,24 @@ export default {
   name: "acme-s3",
   setup(ctx: CliContext) {
     ctx.adapters.artifactStorage = new S3Storage("my-bucket");
+    // can also swap ctx.adapters.config for remote/env-based config
   }
 } satisfies Plugin;
 ```
 Plugins run after builtins so they can freely swap `ctx.adapters.*`.
 
-## fe.config.json schema (`@fe/core` FeConfig)
+## CLI config schema (`@fe/core` FeConfig · read via ConfigProvider adapter)
 ```json
 {
-  "plugins":      [],                      // npm packages to load as CLI plugins
-  "manifestPath": "sandbox/sandbox/configs/platform.json", // path to routes+packages registry
-  "uploadsDir":   "uploads",               // artifact storage dir (local adapter)
-  "shellDir":     "host-app"              // host application directory
+  "plugins":      [],                       // npm packages to load as CLI plugins
+  "manifestPath": "configs/platform.json",  // path to routes+packages registry
+  "uploadsDir":   "uploads",                // artifact storage dir (local adapter)
+  "shellDir":     "host-app"               // host application directory
 }
 ```
+File lives at `configs/fe.config.json` (co-located with platform.json).
 All fields optional; defaults apply when file is absent.
+Plugins access config via `ctx.adapters.config.get()` — NOT by reading the file directly.
 
 ## platform.json config
 ```json
@@ -97,8 +101,8 @@ All fields optional; defaults apply when file is absent.
 ## deploy flow (sandbox example)
 ```
 fe build <mfe> → fe admin upload <mfe>
-  ↓ registers package in sandbox/sandbox/configs/platform.json
-edit sandbox/sandbox/configs/platform.json "routes"
+  ↓ registers package in sandbox/configs/platform.json
+edit sandbox/configs/platform.json "routes"
   ↓
 fe build shell → fe serve
 ```
@@ -114,12 +118,12 @@ fe build shell → fe serve
 ```
 
 ## CI · .github/workflows/ci.yml
-trigger: push→main | PR→main  
-`packages` job: typecheck @fe/core @fe/cli @fe/runtime  
+trigger: push→main | PR→main
+`packages` job: typecheck @fe/core @fe/cli @fe/runtime
 `sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app
 
 ## docs/ workflow
-plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED  
+plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md, docs/
 
 ## coding rules
@@ -137,3 +141,4 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md, docs/
 - fe() devDeps → devDependencies only
 - sandbox/ is !published · packages/* are published
 - multiple import maps: deps injected lazily, deduped via versioned resolution
+- plugins must call ctx.adapters.config.get() · never import from cli/src/config directly
