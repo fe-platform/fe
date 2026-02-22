@@ -6,6 +6,17 @@
 
 A microfrontend platform built on native browser primitives — ES modules, import maps, and dynamic `import()`. MFEs deploy independently and compose at runtime. Nothing bundles across MFE boundaries.
 
+**Documentation**: Full documentation, architectural deep-dives, and tutorials are available at [fe.frustrated.dev](https://fe.frustrated.dev).
+
+## Mental Model
+
+At its core, `fe` embraces the browser rather than fighting it. We reject the complexity of distributed bundling in favor of native ES modules and import maps.
+
+1. **Convention over Configuration**: The `fe(@scope/name)` specifier is the universal contract. It's a package name, a bare import specifier, and a registry key.
+2. **Build-Time Externalization**: Any `fe()` import is automatically externalized by the bundler. MFEs are built in true isolation.
+3. **Just-In-Time Compilation**: Source code is published to the registry and compiled on-demand at the edge.
+4. **Lazy Resolution**: The browser runtime dynamically resolves dependencies, dedupes versions, and injects import maps exactly when needed.
+
 ## The `fe()` specifier scheme
 
 Cross-MFE imports use the `fe(@scope/name)` package name convention:
