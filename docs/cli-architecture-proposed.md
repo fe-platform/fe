@@ -23,7 +23,12 @@ graph TB
         JSON_CFG["json-config-provider.ts — configs/fe.config.json R"]
         LOCAL["local-source-storage.ts — cpSync to sources/ (also local-artifact-storage.ts)"]
         JSON_MAN["json-manifest-manager.ts — platform.json R/W"]
-        BUN_B["bun-builder.ts — Bun.build() wrapper"]
+        BUN_B["bun-builder.ts — delegates to @fe/compiler"]
+    end
+
+    subgraph "@fe/compiler"
+        COMPILER["compileMfe() — framework-aware Bun.build() wrapper"]
+        JIT_C["createJITBundler() — on-demand source compilation"]
     end
 
     subgraph "Built-in Plugins"
@@ -50,6 +55,8 @@ graph TB
     ADAPTERS_IF -.-> LOCAL
     ADAPTERS_IF -.-> JSON_MAN
     ADAPTERS_IF -.-> BUN_B
+    BUN_B --> COMPILER
+    P_SERVE --> JIT_C
 
     BOOTSTRAP --> P_BUILD
     BOOTSTRAP --> P_SERVE
@@ -86,7 +93,8 @@ Four interfaces isolate swappable backends:
 - **ConfigProvider**: `get() -> Required<FeConfig>` — reads `configs/fe.config.json` by default; swappable to env vars, remote config, etc. Stored at `ctx.adapters.config`. All plugins call `.get()` to read CLI config.
 - **SourceStorage** / **ArtifactStorage**: `upload() / fetchFile()` — local filesystem by default, swappable to S3/CDN. Used for JIT publishing.
 - **ManifestManager**: `read() / write() / registerPackage()` — JSON file by default, swappable to API/DB
-- **Builder**: `build(options) -> result` — Bun.build by default, swappable to other bundlers
+### Builder
+`build(options) -> result` — delegates to `@fe/compiler`'s `compileMfe()`, which auto-detects SolidJS (from `package.json` deps) and applies `bun-plugin-solid` before passing to `Bun.build()`.
 
 ### Bootstrap sequence
 1. `createJsonConfigProvider(root)` — instantiate config adapter
@@ -136,8 +144,11 @@ packages/core/src/               @fe/core — shared types (published)
   context.ts                     CliContext + CommandDef
   plugin.ts                      Plugin interface
   hooks.ts                       Hooks class + HookMap
-  types.ts                       PlatformConfig, ImportMap, BuildOptions, BuildResult
+  types.ts                       PlatformConfig, ImportMap, BuildOptions (+ rootDir), BuildResult
   index.ts                       re-exports
+
+packages/compiler/src/           @fe/compiler — framework-aware bundler (published)
+  index.ts                       compileMfe() + createJITBundler()
 
 packages/cli/src/                @fe/cli — the fe binary (published)
   index.ts                       bootstrap() + dispatch
@@ -148,10 +159,10 @@ packages/cli/src/                @fe/cli — the fe binary (published)
     json-config-provider.ts      ConfigProvider: configs/fe.config.json
     local-source-storage.ts      SourceStorage: local filesystem source uploads
     json-manifest-manager.ts     ManifestManager: platform.json read/write
-    bun-builder.ts               Builder: Bun.build() wrapper
+    bun-builder.ts               Builder: delegates to @fe/compiler compileMfe()
   plugins/
-    build.ts                     build command + exports buildTarget()
-    serve.ts                     serve command + mounts JIT Bundler
+    build.ts                     build command + exports buildTarget() (probes .tsx then .ts)
+    serve.ts                     serve command + mounts JIT Bundler from @fe/compiler
     dev.ts                       dev server (HMR via SSE)
     link.ts                      dependency linking
     publish.ts                   fe publish (JIT source upload)

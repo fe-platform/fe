@@ -7,21 +7,19 @@
 ## Setup
 
 ```bash
-# Install dependencies for packages that declare them (run from repo root)
-cd sandbox/mfe-b && bun install && cd -
-cd sandbox/host-app && bun install && cd -
-cd toolkit/devtools && bun install && cd -
+# Install all workspace dependencies from repo root
+bun install
 ```
 
 ## Building and serving the full stack
 
 ```bash
-fe build mfe-a
-fe build mfe-b
-fe build devtools
-fe admin upload mfe-a
-fe admin upload mfe-b
-fe admin upload devtools
+fe build sandbox/mfe-a
+fe build sandbox/mfe-b
+fe build toolkit/devtools
+fe publish sandbox/mfe-a
+fe publish sandbox/mfe-b
+fe publish toolkit/devtools
 # edit sandbox/configs/platform.json "routes" if needed
 fe build shell
 fe serve
@@ -30,7 +28,7 @@ fe serve
 ## Developing an MFE in isolation
 
 ```bash
-fe dev mfe-a     # sandbox at http://localhost:3000
+fe dev sandbox/mfe-a     # sandbox at http://localhost:3000
 ```
 
 Edit `src/` — Bun rebuilds, SSE notifies the browser, module swaps in-place. No page reload.
@@ -41,14 +39,14 @@ Edit `src/` — Bun rebuilds, SSE notifies the browser, module swaps in-place. N
 
 ```bash
 # 1. Build
-fe build mfe-a
+fe build sandbox/mfe-a
 
-# 2. Upload — registers the artifact in sandbox/configs/platform.json "packages"
-fe admin upload mfe-a
-# → Uploaded fe(@acme/mfe-a)@1.0.0 → ./uploads/mfe-a/1.0.0/index.js
+# 2. Publish — uploads source for JIT and registers entry in sandbox/configs/platform.json
+fe publish sandbox/mfe-a
+# → Registered fe(@acme/mfe-a)@1.0.0
 
 # 3. Activate — edit sandbox/configs/platform.json "routes" to point to the new version
-#    "routes": { "/": "fe(@acme/mfe-a)@1.0.0" }
+#    "routes": { "/": "fe(@acme/mfe-b)@1.0.0" }
 
 # 4. Rebuild shell to embed the updated config
 fe build shell && fe serve
@@ -61,7 +59,7 @@ fe build shell && fe serve
 The `link` command adds the dep as a `devDependency` with a `file:` URI and runs `bun install`, so TypeScript resolves the import directly via `node_modules` without any `tsconfig` path config:
 
 ```bash
-fe link mfe-b mfe-a
+fe link sandbox/mfe-b sandbox/mfe-a
 ```
 
 For packages in separate repositories, replace `file:../mfe-a` with a git URI manually — nothing else changes:

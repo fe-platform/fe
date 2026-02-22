@@ -26,17 +26,20 @@ Every MFE exports one function:
 export function render(container: HTMLElement, props: Record<string, unknown>): () => void
 ```
 
-The return value unmounts and cleans up. No framework required — pure DOM.
+The return value unmounts and cleans up. Any framework is supported — React, SolidJS, Svelte, or plain DOM. The contract is framework-agnostic; the host never knows what rendered into the container.
 
 ## Packages
 
 | | |
 |---|---|
-| `mfe-a/` | Standalone microfrontend (`fe(@acme/mfe-a)`) |
-| `mfe-b/` | Microfrontend that composes `mfe-a` (`fe(@acme/mfe-b)`) |
-| `host-app/` | Host app — resolves routes, injects import maps, mounts MFEs |
-| `devtools/` | Developer overlay for per-tab import map overrides (`fe(@acme/devtools)`) |
-| `cli/` | Build, serve, dev, link, and upload tooling |
+| `packages/core/` | Shared types and interfaces (`@fe/core`) |
+| `packages/runtime/` | Browser runtime — import map injection, semver resolution (`@fe/runtime`) |
+| `packages/compiler/` | Framework-aware MFE bundler + JIT bundler (`@fe/compiler`) |
+| `packages/cli/` | `fe` binary — build, serve, dev, link, publish, check (`@fe/cli`) |
+| `sandbox/mfe-a/` | React MFE (`fe(@acme/mfe-a)`) |
+| `sandbox/mfe-b/` | SolidJS MFE that composes mfe-a (`fe(@acme/mfe-b)`) |
+| `sandbox/host-app/` | Host app — resolves routes, injects import maps, mounts MFEs |
+| `toolkit/devtools/` | Developer overlay for per-tab import map overrides (`fe(@acme/devtools)`) |
 | `sandbox/configs/platform.json` | Routes + package version registry |
 | `sandbox/configs/fe.config.json` | CLI config — plugins, artifact paths, shell directory |
 

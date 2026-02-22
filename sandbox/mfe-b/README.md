@@ -1,17 +1,13 @@
 # fe(@acme/mfe-b)
 
-Microfrontend that composes `fe(@acme/mfe-a)`. Demonstrates cross-MFE dependency composition using the `fe()` specifier scheme.
+SolidJS microfrontend that composes `fe(@acme/mfe-a)`. Demonstrates cross-MFE dependency composition using the `fe()` specifier scheme with two different frameworks.
 
 ```ts
 import { render as renderA } from "fe(@acme/mfe-a)";  // external — never bundled
-
-export function render(container: HTMLElement, props: Record<string, unknown>): () => void {
-  // renders own chrome, delegates content area to mfe-a
-  const unmountA = renderA(wrapper, props);
-  return () => { unmountA(); wrapper.remove(); };
-}
 ```
+
+Implemented with **SolidJS** (`solid-js/web`). Renders a styled wrapper, then calls into `mfe-a` (a React MFE) to render inside it. Neither MFE knows what framework the other uses — composition happens through the `render()` contract.
 
 `mfe-a` is not bundled into `mfe-b`'s output — it stays external at build time and resolves at runtime via the platform's import map injection. Both MFEs unmount cleanly through the returned cleanup function.
 
-Part of the [fe microfrontend platform](../README.md).
+Part of the [fe microfrontend platform](../../README.md).
