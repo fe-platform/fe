@@ -18,7 +18,10 @@
         <link rel="icon" type="image/png" href="favicon.png" />
     </head>
     <body>
-        <div id="app"><div class="loader-wrap"><div class="loader"></div></div></div>
+        <div id="loader-overlay">
+            <div class="loader"></div>
+        </div>
+        <div id="app"></div>
 
         <script>
             window.$docsify = {
@@ -59,8 +62,8 @@
         </script>
 
         <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-        <script src="//cdn.jsdelivr.net/npm/docsify@4/plugins/search.min.js"></script>
-        <script src="//cdn.jsdelivr.net/npm/docsify@4/plugins/copy-code.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/copy-code.min.js"></script>
         <script src="//cdn.jsdelivr.net/npm/docsify-pagination@0.0.2/dist/pagination.min.js"></script>
         <script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
         <script>
@@ -73,6 +76,12 @@
                 function (hook, vm) {
                     hook.doneEach(function () {
                         mermaid.run();
+                    });
+                },
+                function (hook) {
+                    hook.ready(function () {
+                        var overlay = document.getElementById('loader-overlay');
+                        if (overlay) overlay.classList.add('hidden');
                     });
                 },
             ].concat(window.$docsify.plugins || []);
