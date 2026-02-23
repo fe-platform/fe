@@ -7,6 +7,7 @@
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build --projects=@fe/core,@fe/cli,@fe/runtime",
     "sandbox:build": "nx run-many -t build --projects=sandbox-*",
+    "predocs": "bun run meta/docsify-slab/scripts/copy-to-docs.ts",
     "docs": "cd docs && bunx serve ."
   },
   "devDependencies": {

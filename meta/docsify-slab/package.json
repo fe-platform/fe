@@ -1,0 +1,20 @@
+{
+  "name": "@fe/docsify-slab",
+  "version": "0.0.1",
+  "description": "A neo-brutalist Docsify theme with sharp borders, serif typography, and centered layout.",
+  "keywords": ["docsify", "docsify-theme", "neo-brutalist", "theme"],
+  "homepage": "https://github.com/fe-platform/fe",
+  "license": "MIT",
+  "type": "module",
+  "main": "theme.css",
+  "exports": {
+    ".": "./theme.css",
+    "./theme.css": "./theme.css"
+  },
+  "files": [
+    "theme.css"
+  ],
+  "scripts": {
+    "dev:copy": "bun run scripts/copy-to-docs.ts"
+  }
+}
