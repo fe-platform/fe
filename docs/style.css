@@ -1,3 +1,57 @@
+/* Loading animation */
+#app > .loader-wrap {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#app > .loader-wrap > .loader {
+  animation: rotate 1s infinite;
+  height: 50px;
+  width: 50px;
+}
+
+#app > .loader-wrap > .loader:before,
+#app > .loader-wrap > .loader:after {
+  border-radius: 50%;
+  content: "";
+  display: block;
+  height: 20px;
+  width: 20px;
+}
+
+#app > .loader-wrap > .loader:before {
+  animation: ball1 1s infinite;
+  background-color: #ffffff;
+  box-shadow: 30px 0 0 #FC415A;
+  margin-bottom: 10px;
+}
+
+#app > .loader-wrap > .loader:after {
+  animation: ball2 1s infinite;
+  background-color: #FC415A;
+  box-shadow: 30px 0 0 #ffffff;
+}
+
+@keyframes rotate {
+  0%   { transform: rotate(0deg) scale(0.8); }
+  50%  { transform: rotate(360deg) scale(1.2); }
+  100% { transform: rotate(720deg) scale(0.8); }
+}
+
+@keyframes ball1 {
+  0%   { box-shadow: 30px 0 0 #FC415A; }
+  50%  { box-shadow: 0 0 0 #FC415A; margin-bottom: 0; transform: translate(15px, 15px); }
+  100% { box-shadow: 30px 0 0 #FC415A; margin-bottom: 10px; }
+}
+
+@keyframes ball2 {
+  0%   { box-shadow: 30px 0 0 #ffffff; }
+  50%  { box-shadow: 0 0 0 #ffffff; margin-top: -20px; transform: translate(15px, 15px); }
+  100% { box-shadow: 30px 0 0 #ffffff; margin-top: 0; }
+}
+
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
