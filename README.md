@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/logo.svg" width="128" height="128" alt="⚯ (UNMARRIED PARTNERSHIP SYMBOL) - representing independent yet connected microfrontends" />
+  <img src="./assets/logo.png" width="128" height="128" alt="⚯ (UNMARRIED PARTNERSHIP SYMBOL) - representing independent yet connected microfrontends" />
 
 # fe
 **Ship independently. Compose natively.**
@@ -7,7 +7,23 @@
 
 A microfrontend platform built on native browser primitives — ES modules, import maps, and dynamic `import()`. MFEs deploy independently and compose at runtime. Nothing bundles across MFE boundaries.
 
-**Documentation**: Full documentation, architectural deep-dives, and tutorials are available at [fe.frustrated.dev](https://fe.frustrated.dev).
+## Documentation
+
+Full documentation is available in the `docs/` directory. To view it locally:
+
+```bash
+cd docs
+npx serve
+```
+
+Then open http://localhost:3000 in your browser.
+
+The documentation covers:
+- Architecture overview
+- API reference for all packages (@fe/core, @fe/runtime, @fe/compiler, @fe/cli)
+- Guides for development workflows
+- Tutorials for building MFEs with React and SolidJS
+- Advanced topics
 
 ## Mental Model
 
@@ -84,6 +100,10 @@ All commands run from the repo root:
 5. `import(specifier)` — the browser resolves via the injected map and mounts the MFE
 
 Multiple import maps are injected lazily and deduped across navigations.
+
+## Attributions
+
+This project uses icons from [Streamline](https://streamlinehq.com). Some icons are licensed under Creative Commons 4.0 Attribution (CC BY 4.0), while others are free to use under Streamline's free license. See the [@fe/icons package](./meta/icons/) for detailed licensing information.
 
 ---
 

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>fe - Ship independently. Compose natively.</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="//cdn.jsdelivr.net/npm/docsify@4/themes/vue.css"
+        />
+        <link rel="stylesheet" href="style.css" />
+        <link rel="icon" type="image/png" href="favicon.png" />
+    </head>
+    <body>
+        <div id="app">Loading...</div>
+
+        <script>
+            window.$docsify = {
+                name: '<img src="favicon.png" alt="fe logo - two interconnected circles representing microfrontend composition" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">',
+                repo: "https://github.com/AshGw/fe",
+                loadSidebar: true,
+                subMaxLevel: 3,
+                auto2top: true,
+                search: {
+                    maxAge: 86400000,
+                    paths: "auto",
+                    placeholder: "Search",
+                    noData: "No Results!",
+                },
+                copyCode: {
+                    buttonText: "Copy",
+                    errorText: "Error",
+                    successText: "Copied",
+                },
+                pagination: {
+                    previousText: "Previous",
+                    nextText: "Next",
+                    crossChapter: true,
+                },
+                markdown: {
+                    renderer: {
+                        code: function (code, lang) {
+                            if (lang === "mermaid") {
+                                return (
+                                    '<div class="mermaid">' + code + "</div>"
+                                );
+                            }
+                            return this.origin.code.apply(this, arguments);
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/docsify@4/plugins/search.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/docsify@4/plugins/copy-code.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/docsify-pagination@0.0.2/dist/pagination.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: "default",
+                securityLevel: "loose",
+            });
+            window.$docsify.plugins = [
+                function (hook, vm) {
+                    hook.doneEach(function () {
+                        mermaid.run();
+                    });
+                },
+            ].concat(window.$docsify.plugins || []);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,369 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+
+:root {
+  --docsify-color-primary: #FC415A;
+  --docsify-color-primary-dark: #e03a50;
+  --docsify-color-primary-darker: #c93448;
+  --docsify-color-primary-darkest: #a52b3b;
+  --docsify-color-primary-light: #fd677b;
+  --docsify-color-primary-lighter: #fd7a8c;
+  --docsify-color-primary-lightest: #feadb8;
+  
+  --docsify-font-family: "Source Serif 4", serif;
+  --docsify-code-font: "Google Sans Code", monospace;
+  
+  --brand-background: #ffffff;
+  --brutalist-border-color: #e0e0e0;
+  --brutalist-border-width: 1px;
+  
+  --sidebar-nav-link-color: #333;
+  --sidebar-nav-link-hover-color: var(--docsify-color-primary);
+  --sidebar-nav-active-link-color: var(--docsify-color-primary);
+}
+
+[data-theme="dark"] {
+  --docsify-color-primary: #FA4B57;
+  --docsify-color-primary-dark: #f92a39;
+  --docsify-color-primary-darker: #f81a29;
+  --docsify-color-primary-darkest: #e10717;
+  --docsify-color-primary-light: #fb6c75;
+  --docsify-color-primary-lighter: #fb7d85;
+  --docsify-color-primary-lightest: #fdadb3;
+
+  --brand-background: #1b1b1d;
+  --brutalist-border-color: #333333;
+}
+
+/* Global Typography */
+html, body {
+  font-family: var(--docsify-font-family);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+}
+
+/* Heading sizes - max 1.5rem */
+.markdown-section h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: #000000;
+}
+
+.markdown-section h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #000000;
+}
+
+.markdown-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 1.2rem;
+  margin-bottom: 0.8rem;
+  color: #000000;
+}
+
+.markdown-section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 1rem;
+  margin-bottom: 0.6rem;
+  color: #000000;
+}
+
+.markdown-section h5, 
+.markdown-section h6 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 0.8rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+}
+
+/* Ensure anchor spans within headings are also black */
+.markdown-section h1 .anchor span,
+.markdown-section h2 .anchor span,
+.markdown-section h3 .anchor span,
+.markdown-section h4 .anchor span,
+.markdown-section h5 .anchor span,
+.markdown-section h6 .anchor span {
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .markdown-section h1,
+[data-theme="dark"] .markdown-section h2,
+[data-theme="dark"] .markdown-section h3,
+[data-theme="dark"] .markdown-section h4,
+[data-theme="dark"] .markdown-section h5,
+[data-theme="dark"] .markdown-section h6 {
+  color: #ffffff;
+}
+
+/* Ensure anchor spans within headings are also white in dark mode */
+[data-theme="dark"] .markdown-section h1 .anchor span,
+[data-theme="dark"] .markdown-section h2 .anchor span,
+[data-theme="dark"] .markdown-section h3 .anchor span,
+[data-theme="dark"] .markdown-section h4 .anchor span,
+[data-theme="dark"] .markdown-section h5 .anchor span,
+[data-theme="dark"] .markdown-section h6 .anchor span {
+  color: #ffffff !important;
+}
+
+/* Code blocks with Google Sans Code */
+.markdown-section code {
+  font-family: var(--docsify-code-font);
+  font-size: 85%;
+}
+
+.markdown-section pre {
+  font-family: var(--docsify-code-font);
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 1em;
+  margin-bottom: 2rem;
+}
+
+.markdown-section pre code {
+  font-size: 85%;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+/* Inline code */
+.markdown-section :not(pre) > code {
+  font-family: var(--docsify-code-font);
+  background-color: #f5f5f5;
+  color: #e03a50;
+  padding: 0.2em 0.4em;
+  border-radius: 2px;
+  font-size: 85%;
+}
+
+[data-theme="dark"] .markdown-section :not(pre) > code {
+  background-color: #2a2a2a;
+  color: #fd677b;
+}
+
+/* Sidebar styling */
+.sidebar {
+  font-family: var(--docsify-font-family);
+  width: 255px;
+  border-right: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  background: var(--brand-background);
+}
+
+.sidebar-nav > ul > li > a {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.sidebar-nav ul li a {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--sidebar-nav-link-color);
+}
+
+.sidebar-nav ul li a:hover {
+  color: var(--sidebar-nav-link-hover-color);
+}
+
+.sidebar-nav ul li.active > a {
+  color: var(--sidebar-nav-active-link-color);
+  font-weight: 600;
+  border: 1px solid var(--brutalist-border-color);
+  background: rgba(0, 0, 0, 0.05);
+  margin-bottom: 2px;
+}
+
+/* Navigation bar */
+.app-nav {
+  font-family: var(--docsify-font-family);
+  border-bottom: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  background: var(--brand-background);
+  padding: 0.25rem 1rem;
+  height: 3.5rem;
+}
+
+.app-nav a {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.app-nav a:hover {
+  color: var(--docsify-color-primary);
+}
+
+/* Content area */
+.markdown-section {
+  max-width: 850px;
+  padding: 2rem 3rem;
+}
+
+/* Cards & Containers */
+.markdown-section .card {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-radius: 4px;
+  box-shadow: none;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Alerts/Admonitions */
+.markdown-section blockquote {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-radius: 4px;
+  box-shadow: none;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* Tables */
+.markdown-section table {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.markdown-section th,
+.markdown-section td {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.markdown-section thead {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .markdown-section thead {
+  background-color: #1a1a1a;
+}
+
+/* Buttons */
+.markdown-section .button,
+.markdown-section .btn {
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-radius: 4px;
+  font-weight: 600;
+  box-shadow: none;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .markdown-section .button,
+[data-theme="dark"] .markdown-section .btn {
+  background-color: #2a2a2a;
+  color: #eee;
+}
+
+.markdown-section .button:hover,
+.markdown-section .btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.markdown-section .button.primary,
+.markdown-section .btn.primary {
+  background: var(--docsify-color-primary);
+  color: white;
+  border-color: var(--docsify-color-primary);
+}
+
+.markdown-section .button.primary:hover,
+.markdown-section .btn.primary:hover {
+  opacity: 0.9;
+}
+
+/* Search */
+.search input {
+  font-family: var(--docsify-font-family);
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-radius: 0;
+}
+
+.search .search-results .show {
+  font-family: var(--docsify-font-family);
+}
+
+/* Pagination */
+.pagination-item {
+  font-family: var(--docsify-font-family);
+  border: var(--brutalist-border-width) solid var(--brutalist-border-color);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.pagination-item:hover {
+  box-shadow: none;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+  font-family: var(--docsify-font-family);
+}
+
+/* Mermaid diagrams */
+.markdown-section .mermaid {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Code copy button */
+.docsify-copy-code-button {
+  font-family: var(--docsify-font-family);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .docsify-copy-code-button {
+  background: #2a2a2a;
+}
+
+/* Highlighted code lines */
+.markdown-section pre .code-line.highlighted {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .markdown-section pre .code-line.highlighted {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .markdown-section {
+    padding: 1rem;
+  }
+  
+  .app-nav {
+    height: auto;
+    padding: 0.5rem;
+  }
+}

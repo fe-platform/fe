@@ -2,16 +2,19 @@
   "name": "fe-platform",
   "version": "0.0.0",
   "private": true,
-  "workspaces": ["packages/*", "sandbox/*", "toolkit/*", "docs"],
+  "workspaces": ["packages/*", "sandbox/*", "toolkit/*", "meta/*"],
   "scripts": {
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build --projects=@fe/core,@fe/cli,@fe/runtime",
-    "sandbox:build": "nx run-many -t build --projects=sandbox-*"
+    "sandbox:build": "nx run-many -t build --projects=sandbox-*",
+    "docs": "cd docs && bunx serve ."
   },
   "devDependencies": {
+    "@iconify-json/streamline": "^1.2.5",
     "@playwright/test": "1.56.1",
     "@types/node": "^25.3.0",
+    "fantasticon": "^4.1.0",
     "nx": "^22.5.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.3"
   }
 }
