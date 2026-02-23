@@ -19,27 +19,27 @@ function Home(): React.JSX.Element {
           src="img/logo.svg" 
           alt="fe logo" 
           style={{ 
-            width: '180px', 
-            height: '180px', 
-            marginBottom: '2rem',
+            width: '140px', 
+            height: '140px', 
+            marginBottom: '1.5rem',
           }} 
         />
-        <h1 style={{fontSize: '4rem', marginBottom: '0.5rem', fontWeight: 800, textTransform: 'lowercase'}}>{siteConfig.title}</h1>
-        <p style={{fontSize: '1.5rem', opacity: 0.9, maxWidth: '600px', marginBottom: '1.5rem', fontWeight: 600}}>
+        <h1 style={{fontSize: '3rem', marginBottom: '0.5rem', fontWeight: 700, textTransform: 'lowercase'}}>{siteConfig.title}</h1>
+        <p style={{fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', marginBottom: '1.25rem', fontWeight: 600}}>
           {siteConfig.tagline}
         </p>
-        <p style={{fontSize: '1.1rem', maxWidth: '750px', lineHeight: 1.6, marginBottom: '2.5rem'}}>
+        <p style={{fontSize: '1rem', maxWidth: '750px', lineHeight: 1.6, marginBottom: '2rem'}}>
           A microfrontend platform built on native browser primitives — ES modules,
           import maps, and dynamic <code>import()</code>. MFEs deploy independently
           and compose at runtime.
         </p>
-        <div style={{display: 'flex', gap: '1.5rem'}}>
+        <div style={{display: 'flex', gap: '1rem'}}>
           <a
             href="/docs"
             className="button button--primary"
             style={{
-              padding: '1rem 2.5rem',
-              fontSize: '1.1rem',
+              padding: '0.8rem 2rem',
+              fontSize: '1rem',
             }}
           >
             Get Started
@@ -48,8 +48,8 @@ function Home(): React.JSX.Element {
             href="https://github.com/AshGw/fe"
             className="button"
             style={{
-              padding: '1rem 2.5rem',
-              fontSize: '1.1rem',
+              padding: '0.8rem 2rem',
+              fontSize: '1rem',
               background: 'transparent',
             }}
           >
