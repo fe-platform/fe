@@ -98,7 +98,7 @@ The `~/.bun/install/cache` directory stores downloaded packages. Caching it with
 
 Publishing MFEs and activating routes in `platform.json` are separate steps that the CI pipeline can drive. A deployment workflow might:
 
-1. Run `fe publish <path-to-mfe>` (uploads source, registers in `platform.json` via the `manifest` adapter).
+1. Run `fe admin upload <path-to-mfe>` (copies the built dist to the uploads directory and registers the package in `platform.json`).
 2. Commit and push the updated `platform.json` to your platform configuration.
 3. Run `fe build shell` and deploy the output of the configured `shellDir` to a hosting service.
 
