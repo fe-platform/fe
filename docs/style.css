@@ -215,25 +215,40 @@ html, body {
 :root {
   --layout-max-width: 1200px;
   --sidebar-width: 255px;
-  --layout-offset: max(0px, calc((100vw - var(--layout-max-width)) / 2));
+}
+
+html, body {
+  height: 100%;
+}
+
+#app {
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  position: relative;
+  min-height: 100vh;
 }
 
 .sidebar-toggle {
   display: none !important;
 }
 
-/* Sidebar styling */
-.sidebar {
-  font-family: var(--docsify-font-family);
+/* Keep sidebar absolutely positioned inside #app, never fixed */
+.sidebar,
+body.sticky .sidebar {
+  position: absolute !important;
+  left: 0 !important;
   width: var(--sidebar-width);
   border-right: var(--brutalist-border-width) solid var(--brutalist-border-color);
   background: var(--brand-background);
-  left: var(--layout-offset) !important;
+  font-family: var(--docsify-font-family);
 }
 
-.content {
-  left: calc(var(--layout-offset) + var(--sidebar-width)) !important;
-  right: var(--layout-offset) !important;
+/* Keep content positioned inside #app, never fixed */
+.content,
+body.sticky .content {
+  position: absolute !important;
+  left: var(--sidebar-width) !important;
+  right: 0 !important;
 }
 
 .sidebar-nav > ul > li > a {
@@ -423,16 +438,19 @@ html, body {
 
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
+  .sidebar,
+  body.sticky .sidebar {
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important;
     left: 0 !important;
   }
 
-  .content {
+  .content,
+  body.sticky .content {
     left: 0 !important;
     right: 0 !important;
+    position: relative !important;
   }
 
   .markdown-section {
