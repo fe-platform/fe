@@ -65,6 +65,12 @@
             };
         </script>
 
+        <script>
+            setTimeout(function () {
+                var overlay = document.getElementById("loader-overlay");
+                if (overlay) overlay.classList.add("hidden");
+            }, 5000);
+        </script>
         <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
         <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
         <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
@@ -84,6 +90,10 @@
                 },
                 function (hook) {
                     hook.ready(function () {
+                        var overlay = document.getElementById("loader-overlay");
+                        if (overlay) overlay.classList.add("hidden");
+                    });
+                    hook.doneEach(function () {
                         var overlay = document.getElementById("loader-overlay");
                         if (overlay) overlay.classList.add("hidden");
                     });
