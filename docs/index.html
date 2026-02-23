@@ -68,8 +68,8 @@
         <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
         <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
         <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/copy-code.min.js"></script>
-        <script src="//cdn.jsdelivr.net/npm/docsify-pagination@0.0.2/dist/pagination.min.js"></script>
-        <script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/docsify-pagination@2.10.1/dist/docsify-pagination.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.esm.min.mjs"></script>
         <script>
             mermaid.initialize({
                 startOnLoad: true,
@@ -84,8 +84,8 @@
                 },
                 function (hook) {
                     hook.ready(function () {
-                        var overlay = document.getElementById('loader-overlay');
-                        if (overlay) overlay.classList.add('hidden');
+                        var overlay = document.getElementById("loader-overlay");
+                        if (overlay) overlay.classList.add("hidden");
                     });
                 },
             ].concat(window.$docsify.plugins || []);
