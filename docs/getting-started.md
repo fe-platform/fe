@@ -10,7 +10,7 @@ This guide will walk you through setting up your first fe microfrontend.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/AshGw/fe.git
+   git clone https://github.com/fe-platform/fe.git
    cd fe
    ```
 
