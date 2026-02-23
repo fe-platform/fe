@@ -157,12 +157,29 @@ html, body {
   color: #fd677b;
 }
 
+/* Centered layout wrapper */
+:root {
+  --layout-max-width: 1200px;
+  --sidebar-width: 255px;
+  --layout-offset: max(0px, calc((100vw - var(--layout-max-width)) / 2));
+}
+
+.sidebar-toggle {
+  display: none !important;
+}
+
 /* Sidebar styling */
 .sidebar {
   font-family: var(--docsify-font-family);
-  width: 255px;
+  width: var(--sidebar-width);
   border-right: var(--brutalist-border-width) solid var(--brutalist-border-color);
   background: var(--brand-background);
+  left: var(--layout-offset) !important;
+}
+
+.content {
+  left: calc(var(--layout-offset) + var(--sidebar-width)) !important;
+  right: var(--layout-offset) !important;
 }
 
 .sidebar-nav > ul > li > a {
@@ -356,8 +373,14 @@ html, body {
     width: 100%;
     height: auto;
     position: relative;
+    left: 0 !important;
   }
-  
+
+  .content {
+    left: 0 !important;
+    right: 0 !important;
+  }
+
   .markdown-section {
     padding: 1rem;
   }
