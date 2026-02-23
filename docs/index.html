@@ -78,14 +78,16 @@
         <script src="//cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.min.js"></script>
         <script>
             mermaid.initialize({
-                startOnLoad: true,
+                startOnLoad: false,
                 theme: "default",
                 securityLevel: "loose",
             });
             window.$docsify.plugins = [
                 function (hook, vm) {
                     hook.doneEach(function () {
-                        mermaid.run();
+                        if (document.querySelector(".mermaid")) {
+                            mermaid.run({ querySelector: ".mermaid" });
+                        }
                     });
                 },
                 function (hook) {
