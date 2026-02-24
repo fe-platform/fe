@@ -136,21 +136,33 @@ html, body {
   display: none !important;
 }
 
+#app {
+  display: flex;
+  align-items: stretch;
+}
+
 .sidebar,
 body.sticky .sidebar {
-  position: absolute !important;
-  left: 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  left: unset !important;
+  height: 100vh;
+  overflow-y: auto;
+  flex: 0 0 var(--slab-sidebar-width);
   width: var(--slab-sidebar-width);
   border-right: var(--slab-border-width) solid var(--slab-border-color);
   background: var(--slab-bg);
   font-family: var(--docsify-font-family);
+  align-self: flex-start;
 }
 
 .content,
 body.sticky .content {
-  position: absolute !important;
-  left: var(--slab-sidebar-width) !important;
-  right: 0 !important;
+  position: relative !important;
+  left: unset !important;
+  right: unset !important;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 /* Headings */
@@ -445,19 +457,52 @@ body.sticky .content {
 
 /* Responsive */
 @media screen and (max-width: 768px) {
+  #app {
+    display: block;
+  }
+
+  .sidebar-toggle {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 1.5rem !important;
+    right: 1.5rem !important;
+    top: unset !important;
+    left: unset !important;
+    z-index: 200;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    background: var(--slab-bg);
+    border: var(--slab-border-width) solid var(--slab-border-color);
+    cursor: pointer;
+  }
+
   .sidebar,
   body.sticky .sidebar {
-    width: 100% !important;
-    height: auto !important;
-    position: relative !important;
+    position: fixed !important;
+    top: 0 !important;
     left: 0 !important;
+    height: 100vh !important;
+    width: 80vw !important;
+    max-width: 320px !important;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+    flex: unset;
+  }
+
+  body.close .sidebar,
+  body.close body.sticky .sidebar {
+    transform: translateX(0);
   }
 
   .content,
   body.sticky .content {
+    position: relative !important;
     left: 0 !important;
     right: 0 !important;
-    position: relative !important;
   }
 
   .markdown-section {
