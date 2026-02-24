@@ -123,9 +123,9 @@ trigger: push→main | PR→main
 `packages` job: typecheck @fe/core @fe/cli @fe/runtime
 `sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app
 
-## docs/ workflow
-plan docs in docs/ follow a strict lifecycle: proposed → implemented → ARCHIVED
-pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md, docs/
+## docs
+documentation lives at https://deepwiki.com/fe-platform/fe
+pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
 ## ✗ agent conduct — cardinal rules
 - oversight and caution are paramount · code velocity is not

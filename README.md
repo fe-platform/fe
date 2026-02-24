@@ -85,8 +85,8 @@ Multiple import maps are injected lazily and deduped across navigations.
 
 ## Attributions
 
-This project uses icons from [Streamline](https://streamlinehq.com). Some icons are licensed under Creative Commons 4.0 Attribution (CC BY 4.0), while others are free to use under Streamline's free license. See the [@fe/icons package](./meta/icons/) for detailed licensing information.
+This project uses icons from [Streamline](https://streamlinehq.com). Some icons are licensed under Creative Commons 4.0 Attribution (CC BY 4.0), while others are free to use under Streamline's free license.
 
 ---
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, development workflows, and contribution guidelines.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup and development workflows, or the [full documentation](https://deepwiki.com/fe-platform/fe) for architecture and guides.

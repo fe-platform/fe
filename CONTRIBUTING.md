@@ -11,15 +11,6 @@
 bun install
 ```
 
-## Documentation
-
-To run the documentation site locally from the repository root:
-
-```bash
-# Serves docs/ at http://localhost:3000
-bun run docs
-```
-
 ## Building and serving the full stack
 
 ```bash
@@ -121,4 +112,4 @@ Before opening a pull request, update all of the following to reflect the curren
 - [ ] All affected `AGENTS.md` files
 - [ ] All affected `README.md` files (root and any relevant subpackage)
 - [ ] `CONTRIBUTING.md` — if any workflow, setup step, or development pattern changed
-- [ ] `docs/` — archive any plan docs whose implementing PR is landing; add `> **Status:** COMPLETED / ARCHIVED` header and update the title
+- [ ] [Documentation wiki](https://deepwiki.com/fe-platform/fe) — verify any affected concepts are still accurate
