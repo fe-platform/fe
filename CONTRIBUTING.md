@@ -11,6 +11,15 @@
 bun install
 ```
 
+## Documentation
+
+To run the documentation site locally from the repository root:
+
+```bash
+# Serves docs/ at http://localhost:3000
+bun run docs
+```
+
 ## Building and serving the full stack
 
 ```bash

@@ -9,14 +9,9 @@ A microfrontend platform built on native browser primitives — ES modules, impo
 
 ## Documentation
 
-Full documentation is available in the `docs/` directory. To view it locally:
+The full documentation is available in the `docs/` directory.
 
-```bash
-cd docs
-npx serve
-```
-
-Then open http://localhost:3000 in your browser.
+To run the documentation site locally, see the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
 
 The documentation covers:
 - Architecture overview
