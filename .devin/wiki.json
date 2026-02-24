@@ -1,0 +1,97 @@
+{
+  "repo_notes": [
+    {
+      "content": "This is a microfrontend (MFE) platform framework. Documentation should be structured around: the MFE scenario/landscape, what fe is and what it solves, what an MFE platform consists of, what fe owns, future roadmap, how-to guides, and advanced contributor topics. Prioritize the CLI, JIT bundler, runtime/shell, CI/CD workflows, and config/infra/CSP areas.",
+      "author": "fe-platform maintainer"
+    }
+  ],
+  "overview": {
+    "purpose": "A friendly, concise welcome page for the fe microfrontend platform. Must include: 1) A Markmap mind-map diagram (using ```markmap code block) showing an example MFE website with color-coded groupings, boundaries, and labels depicting: multiple teams (e.g. Team Checkout, Team Search, Team Profile), each owning different MFEs (e.g. checkout-widget, search-bar, profile-card), hosted in separate repos, composed into a single website shell. Use color and grouping to distinguish team boundaries, shared services, and the runtime shell. 2) Below the diagram, render a set of clickable navigation tiles/cards for different audiences and knowledge paths: Philosophy, Architectural Style, Technology Radar/Toolkit, APIs & Packages, Getting Started as a Platform, Getting Started as an MFE Team, Getting Started for a POC. Each tile should link to the corresponding wiki page. Keep the tone welcoming and concise — this is the front door."
+  },
+  "pages": [
+    {
+      "title": "Philosophy",
+      "purpose": "The core philosophy and principles behind fe and microfrontend architecture"
+    },
+    {
+      "title": "Architectural Style",
+      "purpose": "The architectural patterns and style fe follows — runtime composition, isolation, shared nothing, etc."
+    },
+    {
+      "title": "Technology Radar & Toolkit",
+      "purpose": "The technology choices, supported frameworks, and recommended toolkit for MFE teams"
+    },
+    {
+      "title": "APIs & Packages",
+      "purpose": "Reference documentation for fe's public APIs, packages, and exports"
+    },
+    {
+      "title": "Getting Started as a Platform",
+      "purpose": "Step-by-step guide for platform teams to set up fe and the runtime shell"
+    },
+    {
+      "title": "Getting Started as an MFE Team",
+      "purpose": "Guide for MFE teams to create, develop, and deploy their first microfrontend"
+    },
+    {
+      "title": "Getting Started for a POC",
+      "purpose": "Quickstart guide for evaluating fe with a proof of concept"
+    },
+    {
+      "title": "Scenario",
+      "purpose": "Who microfrontends apply to, what the options are with pros/cons, and where fe fits in the landscape"
+    },
+    {
+      "title": "What is fe",
+      "purpose": "What problem fe solves, what your investment is to adopt fe, and what you will get"
+    },
+    {
+      "title": "What Your MFE Platform Will Be Made Of",
+      "purpose": "Overview of configs, infra, CSP/security, your runtime/shell, MFE teams, and common tooling"
+    },
+    {
+      "title": "Configs, Infra and Security (CSP)",
+      "purpose": "Detail the configuration, infrastructure, and Content Security Policy aspects",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "Your Runtime/Shell",
+      "purpose": "Document the runtime shell that hosts and orchestrates microfrontends",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "Your MFE Teams",
+      "purpose": "How MFE teams are structured and operate within the platform",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "Your Common Tooling",
+      "purpose": "Shared tooling provided to MFE teams",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "What fe Will Own",
+      "purpose": "The brains of runtime, the CLI, the JIT bundler, and common CI/CD workflows/actions/templates"
+    },
+    {
+      "title": "Future Roadmap",
+      "purpose": "MFE registry tied to JSR, MFEs exporting more than render, NATIVES tooling, shared automation/testing"
+    },
+    {
+      "title": "How Do You Set Up Your Platform",
+      "purpose": "Step-by-step platform setup guide"
+    },
+    {
+      "title": "How Does Your Org Create MFEs",
+      "purpose": "Guide for teams to create new microfrontends"
+    },
+    {
+      "title": "How Do You Maintain Your MFE Ecosystem",
+      "purpose": "Ongoing maintenance of the MFE ecosystem and platform"
+    },
+    {
+      "title": "Advanced Topics for Contributors",
+      "purpose": "How fe works internally, project goals, and contributor deep dives"
+    }
+  ]
+}
