@@ -7,19 +7,6 @@
 
 A microfrontend platform built on native browser primitives — ES modules, import maps, and dynamic `import()`. MFEs deploy independently and compose at runtime. Nothing bundles across MFE boundaries.
 
-## Documentation
-
-The full documentation is available in the `docs/` directory.
-
-To run the documentation site locally, see the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
-
-The documentation covers:
-- Architecture overview
-- API reference for all packages (@fe/core, @fe/runtime, @fe/compiler, @fe/cli)
-- Guides for development workflows
-- Tutorials for building MFEs with React and SolidJS
-- Advanced topics
-
 ## Mental Model
 
 At its core, `fe` embraces the browser rather than fighting it. The platform rejects the complexity of distributed bundling in favor of native ES modules and import maps.
