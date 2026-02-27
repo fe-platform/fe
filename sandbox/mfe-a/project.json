@@ -1,5 +1,5 @@
 {
-  "name": "fe(@acme/mfe-a)",
+  "name": "fe(acme/mfe-a)",
   "targets": {
     "typecheck": {}
   }

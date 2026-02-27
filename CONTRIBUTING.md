@@ -43,10 +43,10 @@ fe build sandbox/mfe-a
 
 # 2. Publish — uploads source for JIT and registers entry in sandbox/configs/platform.json
 fe publish sandbox/mfe-a
-# → Registered fe(@acme/mfe-a)@1.0.0
+# → Registered fe(acme/mfe-a)@1.0.0
 
 # 3. Activate — edit sandbox/configs/platform.json "routes" to point to the new version
-#    "routes": { "/": "fe(@acme/mfe-b)@1.0.0" }
+#    "routes": { "/": "fe(acme/mfe-b)@1.0.0" }
 
 # 4. Rebuild shell to embed the updated config
 fe build shell && fe serve
@@ -65,7 +65,7 @@ fe link sandbox/mfe-b sandbox/mfe-a
 For packages in separate repositories, replace `file:../mfe-a` with a git URI manually — nothing else changes:
 
 ```json
-"fe(@acme/mfe-a)": "git+https://github.com/org/mfe-a#v1.0.0"
+"fe(acme/mfe-a)": "git+https://github.com/org/mfe-a#v1.0.0"
 ```
 
 ## CLI config (`sandbox/configs/fe.config.json`)

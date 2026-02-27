@@ -12,7 +12,7 @@
     "@fe/runtime": "workspace:*"
   },
   "devDependencies": {
-    "fe(@acme/mfe-b)": "file:../mfe-b",
+    "fe(acme/mfe-b)": "file:../mfe-b",
     "@fe/cli": "workspace:*"
   }
 }

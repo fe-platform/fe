@@ -27,10 +27,10 @@ To add a CLI plugin: add its npm package name to `plugins[]` and install it in t
 ```json
 {
   "routes": {
-    "/": "fe(@acme/mfe-b)@1.0.0"
+    "/": "fe(acme/mfe-b)@1.0.0"
   },
   "packages": {
-    "fe(@acme/mfe-a)": {
+    "fe(acme/mfe-a)": {
       "versions": {
         "1.0.0": {
           "url": "/bundle/mfe-a/1.0.0/index.ts",
@@ -38,12 +38,12 @@ To add a CLI plugin: add its npm package name to `plugins[]` and install it in t
         }
       }
     },
-    "fe(@acme/mfe-b)": {
+    "fe(acme/mfe-b)": {
       "versions": {
         "1.0.0": {
           "url": "/bundle/mfe-b/1.0.0/index.ts",
           "deps": {
-            "fe(@acme/mfe-a)": "^1.0.0"
+            "fe(acme/mfe-a)": "^1.0.0"
           }
         }
       }
@@ -60,7 +60,7 @@ value = "specifier@version" — the top-level MFE for that route
   resolved by platform.ts at runtime; no static import map in HTML
 
 ### packages
-key   = fe() bare-specifier (exact string in `import … from "fe(@acme/…)"`)
+key   = fe() bare-specifier (exact string in `import … from "fe(acme/…)"`)
 value = { versions: { "X.Y.Z": { url, deps } } }
   url:  runtime URL for the artifact (often built on-the-fly via JIT bundler)
     local JIT: "/bundle/<slug>/<ver>/index.ts"

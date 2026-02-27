@@ -12,11 +12,11 @@ CLAUDE.md→symlink→here
 │  └─ runtime/    @fe/runtime  v0.1.0  browser platform loader (published)
 ├─ sandbox/                            example workspace (not published)
 │  ├─ host-app/   name=host-app        shell using @fe/runtime · builds to host-app/dist/
-│  ├─ mfe-a/      name=fe(@acme/mfe-a) standalone MFE · fe()-deps=∅
-│  ├─ mfe-b/      name=fe(@acme/mfe-b) composes mfe-a · devDep→fe(@acme/mfe-a)
+│  ├─ mfe-a/      name=fe(acme/mfe-a) standalone MFE · fe()-deps=∅
+│  ├─ mfe-b/      name=fe(acme/mfe-b) composes mfe-a · devDep→fe(acme/mfe-a)
 │  └─ configs/    fe.config.json · platform.json · routes+packages registry + CLI config
 ├─ toolkit/                            reusable tools and low-dependency MFEs
-│  └─ devtools/   name=fe(@acme/devtools) overlay · uses Solid.js
+│  └─ devtools/   name=fe(acme/devtools) overlay · uses Solid.js
 ├─ nx.json        minimal Nx config (target ordering only · no nx cloud)
 └─ package.json   workspace root
 ```
@@ -29,13 +29,13 @@ tests=∅  CI=typecheck+build (packages job → sandbox job)
 
 ## ⟿ fe() convention
 ```
-fe(@scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
-pkg.json  "name":"fe(@acme/mfe-a)"
-src       import {x} from "fe(@acme/mfe-a)"
+fe(scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
+pkg.json  "name":"fe(acme/mfe-a)"
+src       import {x} from "fe(acme/mfe-a)"
 platform  sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
 ```
 build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]
-ts: bun-install creates node_modules/fe(@acme/mfe-a) symlink → resolves without tsconfig.paths
+ts: bun-install creates node_modules/fe(acme/mfe-a) symlink → resolves without tsconfig.paths
 runtime: browser import maps resolve bare-specifier → JS url (multiple maps, injected lazily)
 
 ## MFE interface (∀ MFE must export)
@@ -91,10 +91,10 @@ Plugins access config via `ctx.adapters.config.get()` — NOT by reading the fil
 ## platform.json config
 ```json
 {
-  "routes": { "/": "fe(@acme/mfe-b)@1.0.0" },
+  "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
   "packages": {
-    "fe(@acme/mfe-a)": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
-    "fe(@acme/mfe-b)": { "versions": { "1.0.0": { "url": "...", "deps": { "fe(@acme/mfe-a)": "^1.0.0" } } } }
+    "fe(acme/mfe-a)": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
+    "fe(acme/mfe-b)": { "versions": { "1.0.0": { "url": "...", "deps": { "fe(acme/mfe-a)": "^1.0.0" } } } }
   }
 }
 ```

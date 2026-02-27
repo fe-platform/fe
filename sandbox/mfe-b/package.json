@@ -1,5 +1,5 @@
 {
-  "name": "fe(@acme/mfe-b)",
+  "name": "fe(acme/mfe-b)",
   "version": "1.0.0",
   "module": "src/index.tsx",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "bun-plugin-solid": "^1.0.0",
-    "fe(@acme/mfe-a)": "file:../mfe-a",
+    "fe(acme/mfe-a)": "file:../mfe-a",
     "@fe/cli": "workspace:*"
   },
   "dependencies": {

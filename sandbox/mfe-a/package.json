@@ -1,5 +1,5 @@
 {
-  "name": "fe(@acme/mfe-a)",
+  "name": "fe(acme/mfe-a)",
   "version": "1.0.0",
   "module": "src/index.tsx",
   "scripts": {

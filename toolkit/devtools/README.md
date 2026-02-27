@@ -1,4 +1,4 @@
-# fe(@acme/devtools)
+# fe(acme/devtools)
 
 Developer overlay MFE. Renders a floating panel for managing per-tab import map overrides — swap any `fe()` package's resolved URL without redeploying or restarting anything.
 

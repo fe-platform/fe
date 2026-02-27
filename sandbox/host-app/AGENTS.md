@@ -6,8 +6,8 @@
 name:    shell
 version: 1.0.0
 devDependencies:
-  "fe(@acme/mfe-b)": "file:../mfe-b"
-    → node_modules/fe(@acme/mfe-b) symlink (after bun install)
+  "fe(acme/mfe-b)": "file:../mfe-b"
+    → node_modules/fe(acme/mfe-b) symlink (after bun install)
     → no longer statically imported; kept for bun install compatibility
 ```
 
@@ -31,7 +31,7 @@ dist/            build output (gitignored)
 import {load, loadDevtools} from "./platform"
 const app = document.getElementById("app")!
 const path = window.location.pathname
-await loadDevtools()                // loads fe(@acme/devtools) if config.devtools is set
+await loadDevtools()                // loads fe(acme/devtools) if config.devtools is set
 const {render} = await load(path)  // resolves deps, injects import maps, dynamic import
 render(app, {name:"Shell User"})
 ```
@@ -48,7 +48,7 @@ overrides.ts
 
 platform.ts
   readConfig()                  reads <script id="__platform__"> from DOM → PlatformConfig
-  parseSpecVersion(sv)          "fe(@acme/mfe-b)@1.0.0" → {specifier,version}
+  parseSpecVersion(sv)          "fe(acme/mfe-b)@1.0.0" → {specifier,version}
   resolveDeps(spec,ver)         walk transitive fe() dep graph → flat Map<specifier,url>
   injectImportMap(imports)      create+append <script type="importmap"> · deduplicates
   applyOverridesAndInject(deps) merge sessionStorage overrides then injectImportMap

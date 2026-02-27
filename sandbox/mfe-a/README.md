@@ -1,4 +1,4 @@
-# fe(@acme/mfe-a)
+# fe(acme/mfe-a)
 
 React microfrontend — no cross-MFE dependencies.
 
