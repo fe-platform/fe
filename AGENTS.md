@@ -133,6 +133,8 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 - before starting any multi-file or substantial change: state what you believe the task is and wait for explicit confirmation
 - "try again" or similar resumption prompts are not task authorisation · ask what the user wants done
 - when scope is unclear: ask one focused question · do not proceed on assumptions
+- for any GitHub operation (issues, PRs, comments, labels): use `gh` CLI · install if missing: `which gh || (sudo apt-get update -qq && sudo apt-get install -y gh)` · then use as: `gh issue view 22`, `gh pr list` · `GITHUB_TOKEN` is always present in the environment via the connected GitHub App and `gh` picks it up automatically · do not curl internal proxy endpoints or the git remote URL for API access
+- never read credential or token files (e.g. `~/.claude/remote/.session_ingress_token`, `~/.ssh/*`, `~/.netrc`) and never scan environment variables for secrets (e.g. `env | grep -i token`) · if a tool requires authentication and the credential is not already available via `gh auth status` or standard git config, stop and ask the user
 
 ## ✗ agent conduct — voice and tone
 - **The cardinal rule.** Every sentence must satisfy six criteria simultaneously: concise, clear and unambiguous, complete, correct, confident yet humble, and use common and simple language. If a sentence fails any one of those, rewrite it.
