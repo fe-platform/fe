@@ -139,7 +139,7 @@ fe check <target|shell>
 readPackageMeta(dir)    → { name, version }  reads dir/package.json
 readFeDepKeys(dir)      → string[]           devDep keys that start with "fe("
 readFeDeps(dir)         → Record<string,string>  full devDeps map filtered to fe() keys
-slugFromSpecifier(name) → string             "fe(@acme/mfe-a)" → "mfe-a"
+slugFromSpecifier(name) → string             "fe(acme/mfe-a)" → "mfe-a"
 ```
 
 ## external plugin loading (plugin-loader.ts)

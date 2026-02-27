@@ -3,13 +3,13 @@
 
 ## identity
 ```
-name:    fe(@acme/mfe-b)
+name:    fe(acme/mfe-b)
 version: 1.0.0
 module:  src/index.tsx
 framework: SolidJS (solid-js/web)
 devDependencies:
-  "fe(@acme/mfe-a)": "file:../mfe-a"
-    → node_modules/fe(@acme/mfe-a) symlink (after bun install)
+  "fe(acme/mfe-a)": "file:../mfe-a"
+    → node_modules/fe(acme/mfe-a) symlink (after bun install)
     → external at build · importmap at runtime
 ```
 
@@ -19,7 +19,7 @@ jsx=preserve jsxImportSource=solid-js lib=[ES2022,DOM] include=[src]
 
 ## src/index.tsx — full behaviour
 ```tsx
-import { render as renderA } from "fe(@acme/mfe-a)"  // external · resolved via importmap
+import { render as renderA } from "fe(acme/mfe-a)"  // external · resolved via importmap
 import { render as solidRender } from "solid-js/web"
 
 function Wrapper(props:{name?:string;container:HTMLElement})
@@ -44,7 +44,7 @@ Consumers resolve types from `index.d.ts`, not `src/index.tsx`, avoiding Solid J
 fe build sandbox/mfe-b
   → @fe/compiler detects SolidJS (solid-js in package.json)
   → applies bun-plugin-solid (Babel-based JSX transform)
-  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=["fe(@acme/mfe-a)"])
+  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=["fe(acme/mfe-a)"])
 
 # direct (from sandbox/mfe-b/):
 bun run build  (calls fe build sandbox/mfe-b via CLI)
@@ -69,12 +69,12 @@ fe publish sandbox/mfe-b
 ```
 fe dev sandbox/mfe-b
   sandbox at http://localhost:3000
-  importmap: {"imports":{"fe(@acme/mfe-b)":"/index.js"}}
+  importmap: {"imports":{"fe(acme/mfe-b)":"/index.js"}}
   initial render: render(#sandbox,{})
   on src/ change: rebuild → SSE {t:timestamp} → unmount + import("/index.js?t="+t) + re-render
   no page reload · module-swap HMR · reconnecting tabs receive latest pending rebuild
 
-  NOTE: dev sandbox only maps fe(@acme/mfe-b) → /index.js
+  NOTE: dev sandbox only maps fe(acme/mfe-b) → /index.js
         mfe-a is NOT in this import map → composing mfe-a will fail at runtime in dev mode
         workaround: publish mfe-a first, then run full shell serve instead of dev
 ```

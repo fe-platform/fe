@@ -1,4 +1,4 @@
-import { render as renderA } from "fe(@acme/mfe-a)";
+import { render as renderA } from "fe(acme/mfe-a)";
 import { render as solidRender } from "solid-js/web";
 
 function Wrapper(props: { name?: string; container: HTMLElement }) {

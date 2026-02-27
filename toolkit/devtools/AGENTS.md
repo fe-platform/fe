@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:    fe(@acme/devtools)
+name:    fe(acme/devtools)
 version: 1.0.0
 module:  src/index.tsx
 types:   src/index.tsx
@@ -100,7 +100,7 @@ fe admin upload devtools
 
 # activate: add to platform.json manually:
 {
-  "devtools": "fe(@acme/devtools)@1.0.0",
+  "devtools": "fe(acme/devtools)@1.0.0",
   "routes": { ... },
   "packages": { ... }
 }

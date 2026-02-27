@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:    fe(@acme/mfe-a)
+name:    fe(acme/mfe-a)
 version: 1.0.0
 module:  src/index.tsx
 framework: React 19 (react-dom/client)
@@ -57,7 +57,7 @@ fe publish sandbox/mfe-a
 ```
 fe dev sandbox/mfe-a
   sandbox at http://localhost:3000
-  importmap: {"imports":{"fe(@acme/mfe-a)":"/index.js"}}
+  importmap: {"imports":{"fe(acme/mfe-a)":"/index.js"}}
   initial render: render(#sandbox,{})
   on src/ change: rebuild → SSE {t:timestamp} → unmount + import("/index.js?t="+t) + re-render
   no page reload · module-swap HMR · reconnecting tabs receive latest pending rebuild
