@@ -17,13 +17,15 @@ export interface PlatformConfig {
 
 export interface BuildOptions {
   entrypoints: string[];
-  outdir: string;
+  outdir?: string;
   format: "esm";
   target: "browser";
   external: string[];
   naming?: string;
   /** Absolute path to the package root (for framework detection). */
   rootDir?: string;
+  /** Bun build plugins. When set, the compiler skips framework auto-detection. */
+  plugins?: unknown[];
 }
 
 export interface BuildResult {

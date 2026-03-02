@@ -15,29 +15,28 @@ export const servePlugin: Plugin = {
         const distDir = join(ctx.root, feConfig.shellDir, "dist");
         const uploadsDir = join(ctx.root, feConfig.uploadsDir);
 
-        // JIT bundler is automatically initialized and mounted — no setup needed by the shell author.
-        const jit = createJITBundler({ storage: ctx.adapters.sourceStorage });
+        const jit = createJITBundler({
+          storage: ctx.adapters.sourceStorage,
+          jitPlugins: ctx.jitPlugins,
+        });
 
         Bun.serve({
           port,
           async fetch(req) {
             await hooks.callHook("serve:request", req);
 
-            // 1. Let the JIT bundler handle /bundle/* requests first
             const jitResponse = await jit.handle(req);
             if (jitResponse) return jitResponse;
 
             const url = new URL(req.url);
             let pathname = url.pathname === "/" ? "/index.html" : url.pathname;
 
-            // 2. Serve pre-built artifacts (legacy / fe admin upload compat)
             if (pathname.startsWith(`/${feConfig.uploadsDir}/`)) {
               const file = Bun.file(join(ctx.root, pathname.slice(1)));
               if (await file.exists()) return new Response(file);
               return new Response("Not found", { status: 404 });
             }
 
-            // 3. Serve shell dist files (HTML, platform.js, etc.)
             const file = Bun.file(join(distDir, pathname));
             if (await file.exists()) return new Response(file);
             return new Response("Not found", { status: 404 });

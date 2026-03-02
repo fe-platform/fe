@@ -12,6 +12,7 @@ src/
   adapters.ts     ConfigProvider · SourceStorage · ArtifactStorage · ManifestManager · Builder
   context.ts      CliContext · CommandDef
   plugin.ts       Plugin interface
+  jit-plugin.ts   JitPlugin interface
   hooks.ts        Hooks class · HookMap type
   types.ts        PlatformConfig · PackageVersion · PackageEntry · ImportMap · BuildOptions · BuildResult
   index.ts        re-exports everything above
@@ -22,6 +23,7 @@ CLI config sourced via `ConfigProvider`. Default impl reads `configs/fe.config.j
 ```ts
 interface FeConfig {
   plugins?:      string[];   // npm packages to load as CLI plugins
+  jitPlugins?:   string[];   // npm packages to load as JIT compiler plugins
   manifestPath?: string;     // default: "configs/platform.json"
   uploadsDir?:   string;     // default: "uploads"
   sourcesDir?:   string;     // default: "sources"
@@ -84,7 +86,8 @@ interface CliContext {
     manifest:        ManifestManager;   // platform.json I/O; swappable
     builder:         Builder;           // Bun.build wrapper; swappable
   };
-  commands: Map<string, CommandDef>;    // populated by plugin setup()
+  commands:   Map<string, CommandDef>;  // populated by plugin setup()
+  jitPlugins: JitPlugin[];             // populated from FeConfig.jitPlugins at bootstrap
 }
 
 interface CommandDef {
@@ -103,6 +106,27 @@ interface Plugin {
 }
 ```
 `setup` is called once at bootstrap. Plugins register commands and/or swap adapters.
+
+## JitPlugin (jit-plugin.ts)
+```ts
+interface JitPlugin {
+  transform(options: BuildOptions): BuildOptions;
+}
+```
+JIT plugins intercept the Bun build pipeline. `transform` receives the current `BuildOptions`
+and returns a (possibly modified) copy. Typical use: append Bun plugins to `options.plugins`.
+
+Each JIT plugin package exports a default `JitPlugin` (or named `jitPlugin`):
+```ts
+export default { transform(options) { return { ...options, plugins: [...] }; } } satisfies JitPlugin;
+```
+Bootstrap loads them from `FeConfig.jitPlugins` and applies their transforms via the
+`build:options` waterfall hook before every build and JIT bundle request.
+
+When `BuildOptions.plugins` is set (by any JIT plugin), `@fe/compiler` uses it directly and
+skips Solid.js auto-detection. When it is `undefined`, auto-detection runs as a fallback.
+
+Published packages: `@fe/jit-plugin-solid`, `@fe/jit-plugin-react`.
 
 ## Hooks (hooks.ts)
 ```ts
@@ -141,3 +165,4 @@ interface PackageVersion {
 - core exports types only; no runtime I/O, no file system access
 - adding a new adapter interface here requires: default impl in @fe/cli + add to CliContext.adapters
 - Hooks event names are stringly-typed; grep for `callHook`/`hook` to find all sites
+- JitPlugin packages export default or named `jitPlugin`; bootstrap validates the shape

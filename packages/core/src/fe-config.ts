@@ -13,6 +13,15 @@ export interface FeConfig {
   plugins?: string[];
 
   /**
+   * NPM package names of JIT compiler plugins to load.
+   * Each package must export a default JitPlugin (or named `jitPlugin`) with
+   * a `transform(options: BuildOptions): BuildOptions` method.
+   * JIT plugins run during every `fe build`, `fe check`, and JIT bundle request.
+   * @example ["@fe/jit-plugin-solid", "@fe/jit-plugin-react"]
+   */
+  jitPlugins?: string[];
+
+  /**
    * Path to the platform manifest, relative to workspace root.
    * @default "configs/platform.json"
    */

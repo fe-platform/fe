@@ -3,6 +3,7 @@ import type { FeConfig, ConfigProvider } from "@fe/core";
 
 const DEFAULTS: Required<FeConfig> = {
   plugins: [],
+  jitPlugins: [],
   manifestPath: "configs/platform.json",
   uploadsDir: "uploads",
   shellDir: "shell",

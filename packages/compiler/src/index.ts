@@ -1,5 +1,5 @@
 /// <reference types="bun-types" />
-import type { SourceStorage } from "@fe/core";
+import type { BuildOptions, JitPlugin, SourceStorage } from "@fe/core";
 import { SolidPlugin } from "bun-plugin-solid";
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
@@ -10,25 +10,30 @@ export interface CompileOptions {
   external?: string[];
   rootDir: string;
   naming?: string | Record<string, string>;
+  plugins?: unknown[];
 }
 
 export async function compileMfe(options: CompileOptions) {
-  const { entrypoints, outdir, external = ["fe(*)"], rootDir, naming } = options;
+  const { entrypoints, outdir, external = ["fe(*)"], rootDir, naming, plugins } = options;
 
-  let hasSolid = false;
-  try {
-    const pkgJsonPath = join(rootDir, "package.json");
-    if (existsSync(pkgJsonPath)) {
-      const pkg = JSON.parse(readFileSync(pkgJsonPath, "utf-8"));
-      if (pkg.dependencies?.["solid-js"] || pkg.devDependencies?.["solid-js"]) {
-        hasSolid = true;
+  let buildPlugins: unknown[];
+  if (plugins !== undefined) {
+    buildPlugins = plugins;
+  } else {
+    let hasSolid = false;
+    try {
+      const pkgJsonPath = join(rootDir, "package.json");
+      if (existsSync(pkgJsonPath)) {
+        const pkg = JSON.parse(readFileSync(pkgJsonPath, "utf-8"));
+        if (pkg.dependencies?.["solid-js"] || pkg.devDependencies?.["solid-js"]) {
+          hasSolid = true;
+        }
       }
+    } catch (e) {
+      // ignore
     }
-  } catch (e) {
-    // ignore
+    buildPlugins = hasSolid ? [SolidPlugin()] : [];
   }
-
-  const plugins = hasSolid ? [SolidPlugin()] : [];
 
   const result = await Bun.build({
     entrypoints,
@@ -36,7 +41,7 @@ export async function compileMfe(options: CompileOptions) {
     format: "esm",
     target: "browser",
     external,
-    plugins,
+    plugins: buildPlugins as Parameters<typeof Bun.build>[0]["plugins"],
     naming,
   });
 
@@ -46,12 +51,13 @@ export async function compileMfe(options: CompileOptions) {
 export interface JITBundlerOptions {
   storage: SourceStorage;
   external?: string[];
+  jitPlugins?: JitPlugin[];
 }
 
 type CacheEntry = { js: string };
 
 export function createJITBundler(options: JITBundlerOptions) {
-  const { storage, external = ["fe(*)"] } = options;
+  const { storage, external = ["fe(*)"], jitPlugins = [] } = options;
   const cache = new Map<string, CacheEntry>();
 
   async function handle(req: Request): Promise<Response | null> {
@@ -85,10 +91,25 @@ export function createJITBundler(options: JITBundlerOptions) {
       await Bun.write(dest, src);
     }
 
+    let plugins: unknown[] | undefined;
+    if (jitPlugins.length > 0) {
+      let opts: BuildOptions = {
+        entrypoints: [`${tmpDir}/${filePath}`],
+        format: "esm",
+        target: "browser",
+        external,
+      };
+      for (const jp of jitPlugins) {
+        opts = jp.transform(opts);
+      }
+      plugins = opts.plugins;
+    }
+
     const result = await compileMfe({
       entrypoints: [`${tmpDir}/${filePath}`],
       external,
       rootDir: tmpDir,
+      plugins,
     });
 
     if (!result.success) {
