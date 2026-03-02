@@ -1,4 +1,5 @@
 import type { ArtifactStorage, ManifestManager, Builder, ConfigProvider, SourceStorage } from "./adapters";
+import type { JitPlugin } from "./jit-plugin";
 
 export interface CommandDef {
   name: string;
@@ -17,4 +18,5 @@ export interface CliContext {
     sourceStorage: SourceStorage;
   };
   commands: Map<string, CommandDef>;
+  jitPlugins: JitPlugin[];
 }

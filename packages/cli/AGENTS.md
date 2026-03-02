@@ -18,10 +18,10 @@ src/
     json-manifest-manager.ts ManifestManager: reads/writes configs/platform.json
     local-source-storage.ts  SourceStorage: cp src/→sources/<slug>/<ver>/
     local-artifact-storage.ts ArtifactStorage: cp dist/→uploads/<slug>/<ver>/
-    bun-builder.ts           Builder: thin Bun.build() wrapper
+    bun-builder.ts           Builder: thin Bun.build() wrapper; applies BuildOptions.plugins
   plugins/
     build.ts                 `fe build <target|shell>`
-    serve.ts                 `fe serve [port]` (has JIT bundler)
+    serve.ts                 `fe serve [port]` (has JIT bundler; passes ctx.jitPlugins)
     dev.ts                   `fe dev <target> [port]`
     link.ts                  `fe link <consumer> <dep>`
     publish.ts               `fe publish <target>`
@@ -32,19 +32,23 @@ src/
 ## bootstrap flow (bootstrap.ts)
 ```
 1. createJsonConfigProvider(root)          → configProvider
-2. configProvider.get()                    → feConfig (plugins, manifestPath, uploadsDir, shellDir)
+2. configProvider.get()                    → feConfig (plugins, jitPlugins, manifestPath, uploadsDir, shellDir)
 3. build CliContext:
      adapters.config          = configProvider
      adapters.sourceStorage   = createLocalSourceStorage(root, feConfig.sourcesDir)
      adapters.artifactStorage = createLocalArtifactStorage(root, feConfig.uploadsDir)
      adapters.manifest        = createJsonManifestManager(root, feConfig.manifestPath)
      adapters.builder         = createBunBuilder()
+     jitPlugins               = []
 4. loadExternalPlugins(root, feConfig.plugins)  → external Plugin[]
 5. run setup() for each plugin in order:
      BUILTIN_PLUGINS (build, serve, dev, link, admin, check) first
      external plugins after → can swap any ctx.adapters.*
+6. load JIT plugins from feConfig.jitPlugins → push to ctx.jitPlugins
+7. register build:options waterfall hook → applies ctx.jitPlugins transforms before each build
 ```
 The `configProvider` is stored in `ctx.adapters.config` so plugins can swap it or call `.get()`.
+CLI plugins added before step 6 can push to `ctx.jitPlugins` in their `setup()`.
 
 ## ConfigProvider adapter (adapters/json-config-provider.ts)
 ```ts
@@ -53,6 +57,7 @@ createJsonConfigProvider(root: string): ConfigProvider
 Reads `<root>/configs/fe.config.json`. Returns `Required<FeConfig>` with defaults merged:
 ```
 plugins:      []
+jitPlugins:   []
 manifestPath: "configs/platform.json"
 uploadsDir:   "uploads"
 sourcesDir:   "sources"
@@ -82,11 +87,12 @@ fe build shell      Bun.build src/index.ts → dist/app.js
                     reads platform.json → injects as <script id="__platform__"> in dist/index.html
 ```
 `buildTarget(ctx, hooks, target, shellDir)` is exported — re-used by dev plugin.
+JIT plugin transforms are applied via the `build:options` waterfall hook before each build.
 
 ### serve (plugins/serve.ts)
 ```
 fe serve [port=3000]
-  mounts JIT bundler at /bundle/*
+  mounts JIT bundler at /bundle/* (passes ctx.jitPlugins for on-demand compilation)
   serves <shellDir>/dist/  (index.html + app.js)
   /<uploadsDir>/* → <root>/<uploadsDir>/  (artifact passthrough)
   all other paths → distDir file or 404
@@ -155,3 +161,4 @@ loadExternalPlugins(root, pluginNames): Promise<Plugin[]>
 - builtin plugins are always loaded first; external plugins run after
 - admin upload writes packages only, never routes
 - build plugin exports buildTarget() for reuse; do not duplicate build logic
+- JIT plugin packages export default or named `jitPlugin`; bootstrap validates the shape

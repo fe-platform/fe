@@ -1,0 +1,20 @@
+{
+  "name": "@fe/jit-plugin-solid",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*",
+    "bun-plugin-solid": "^1.0.0",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
+}

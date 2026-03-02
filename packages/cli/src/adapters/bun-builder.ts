@@ -10,6 +10,7 @@ export function createBunBuilder(): Builder {
         external: options.external,
         rootDir: options.rootDir ?? process.cwd(),
         naming: options.naming,
+        plugins: options.plugins,
       });
       return { success: result.success, logs: result.logs };
     },

@@ -4,17 +4,14 @@
   "module": "src/index.tsx",
   "types": "src/index.tsx",
   "scripts": {
-    "build": "bun build.ts",
+    "build": "cd ../.. && fe build toolkit/devtools",
     "check": "cd ../.. && fe check toolkit/devtools"
   },
   "dependencies": {
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-typescript": "^7.28.5",
-    "@dschz/bun-plugin-solid": "^1.0.4",
     "@fe/cli": "workspace:*",
-    "babel-preset-solid": "^1.9.10"
+    "@fe/jit-plugin-solid": "workspace:*"
   }
 }

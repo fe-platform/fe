@@ -1,5 +1,5 @@
 import { Hooks } from "@fe/core";
-import type { CliContext, Plugin } from "@fe/core";
+import type { CliContext, JitPlugin, Plugin } from "@fe/core";
 import { loadExternalPlugins } from "./plugin-loader";
 
 import { createBunBuilder } from "./adapters/bun-builder";
@@ -32,6 +32,7 @@ export async function bootstrap(root: string): Promise<{ ctx: CliContext; hooks:
       sourceStorage: createLocalSourceStorage(root, feConfig.sourcesDir),
     },
     commands: new Map(),
+    jitPlugins: [],
   };
 
   const hooks = new Hooks();
@@ -41,6 +42,24 @@ export async function bootstrap(root: string): Promise<{ ctx: CliContext; hooks:
   for (const plugin of [...BUILTIN_PLUGINS, ...externalPlugins]) {
     await plugin.setup(ctx, hooks);
   }
+
+  for (const name of feConfig.jitPlugins) {
+    try {
+      const mod = await import(name) as { default?: JitPlugin; jitPlugin?: JitPlugin };
+      const jp = mod.default ?? mod.jitPlugin;
+      if (!jp || typeof jp.transform !== "function") {
+        throw new Error(`JIT plugin "${name}" does not export a valid JitPlugin object.`);
+      }
+      ctx.jitPlugins.push(jp);
+    } catch (err) {
+      throw new Error(`Failed to load JIT plugin "${name}": ${(err as Error).message}`);
+    }
+  }
+
+  hooks.hook("build:options", (options) => {
+    const transformed = ctx.jitPlugins.reduce((opts, jp) => jp.transform(opts), options);
+    Object.assign(options, transformed);
+  });
 
   return { ctx, hooks };
 }
