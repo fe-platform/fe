@@ -99,6 +99,24 @@ Plugins access config via `ctx.adapters.config.get()` — NOT by reading the fil
 }
 ```
 
+## deployment model — source-first, JIT on server
+
+MFEs are deployed as **source files**, not bundles.
+
+```
+fe publish → uploads raw TypeScript source to SourceStorage
+fe serve   → JIT bundler compiles source on first request, per MFE
+```
+
+The JIT bundler (`createJITBundler` in `@fe/compiler`) runs server-side.
+The platform team operates it. MFE teams never produce or ship a bundle
+to production — the server does that on demand, using whatever `jitPlugins`
+are configured on the server. Those plugin versions are authoritative.
+
+`fe build` and `fe check` exist for local development feedback only. A
+failed local build does not block deployment. Agents: do not treat a local
+build failure as a production incident or a reason to change deployment steps.
+
 ## deploy flow (sandbox example)
 ```
 fe build <mfe> → fe admin upload <mfe>
