@@ -9,24 +9,26 @@ Published. Entry: `src/index.ts` → dispatches to `ctx.commands`. Bin alias: `f
 ## src/ file map
 ```
 src/
-  index.ts                   CLI entry: parse argv → bootstrap → dispatch
-  bootstrap.ts               wires up CliContext + loads plugins
-  plugin-loader.ts           dynamic import() of external plugin npm packages
-  helpers.ts                 readPackageMeta · readFeDepKeys · readFeDeps · slugFromSpecifier
+  index.ts                           CLI entry: parse argv → bootstrap → dispatch
+  bootstrap.ts                       wires up CliContext + loads plugins
+  plugin-loader.ts                   dynamic import() of external plugin npm packages
+  helpers.ts                         readPackageMeta · readFeDepKeys · readFeDeps · slugFromSpecifier
   adapters/
-    json-config-provider.ts  ConfigProvider: reads configs/fe.config.json
-    json-manifest-manager.ts ManifestManager: reads/writes configs/platform.json
-    local-source-storage.ts  SourceStorage: cp src/→sources/<slug>/<ver>/
-    local-artifact-storage.ts ArtifactStorage: cp dist/→uploads/<slug>/<ver>/
-    bun-builder.ts           Builder: thin Bun.build() wrapper; applies BuildOptions.plugins
+    json-config-provider.ts          ConfigProvider: reads configs/fe.config.json
+    package-json-config-provider.ts  ConfigProvider: reads "fe" key from package.json
+    json-manifest-manager.ts         ManifestManager: reads/writes configs/platform.json
+    local-source-storage.ts          SourceStorage: cp src/→sources/<slug>/<ver>/
+    local-artifact-storage.ts        ArtifactStorage: cp dist/→uploads/<slug>/<ver>/
+    bun-builder.ts                   Builder: thin Bun.build() wrapper; applies BuildOptions.plugins
   plugins/
-    build.ts                 `fe build <target|shell>`
-    serve.ts                 `fe serve [port]` (has JIT bundler; passes ctx.jitPlugins)
-    dev.ts                   `fe dev <target> [port]`
-    link.ts                  `fe link <consumer> <dep>`
-    publish.ts               `fe publish <target>`
-    admin.ts                 `fe admin upload <target>` (legacy artifact upload)
-    check.ts                 `fe check <target|shell>`
+    build.ts                         `fe build <target|shell>`
+    serve.ts                         `fe serve [port]` (has JIT bundler; passes ctx.jitPlugins)
+    dev.ts                           `fe dev <target> [port]`
+    link.ts                          `fe link <consumer> <dep>`
+    publish.ts                       `fe publish <target>`
+    admin.ts                         `fe admin upload <target>` (legacy artifact upload)
+    check.ts                         `fe check <target|shell>`
+    new.ts                           `fe new <scope/name>` (scaffold new MFE)
 ```
 
 ## bootstrap flow (bootstrap.ts)
@@ -50,11 +52,30 @@ src/
 The `configProvider` is stored in `ctx.adapters.config` so plugins can swap it or call `.get()`.
 CLI plugins added before step 6 can push to `ctx.jitPlugins` in their `setup()`.
 
-## ConfigProvider adapter (adapters/json-config-provider.ts)
+## ConfigProvider adapters
+Two config provider implementations are available:
+
+### json-config-provider.ts (monorepo / shell mode)
 ```ts
 createJsonConfigProvider(root: string): ConfigProvider
 ```
-Reads `<root>/configs/fe.config.json`. Returns `Required<FeConfig>` with defaults merged:
+Reads `<root>/configs/fe.config.json`. This is the default used at bootstrap.
+
+### package-json-config-provider.ts (per-project mode)
+```ts
+createPackageJsonConfigProvider(root: string): ConfigProvider
+```
+Reads the `"fe"` key from `<root>/package.json`. Use this when running `fe`
+commands from an MFE project directory rather than the monorepo root:
+```json
+{ "name": "fe(acme/my-mfe)", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
+```
+A CLI plugin can swap to this adapter in its `setup()`:
+```ts
+ctx.adapters.config = createPackageJsonConfigProvider(ctx.root);
+```
+
+Both return `Required<FeConfig>` with defaults merged:
 ```
 plugins:      []                      npm packages loaded as CLI plugins
 jitPlugins:   []                      npm packages loaded as JIT compiler plugins
@@ -63,9 +84,8 @@ uploadsDir:   "uploads"               artifact storage dir (fe admin upload)
 sourcesDir:   "sources"               source upload dir (fe publish)
 shellDir:     "shell"                 host application directory
 ```
-If file is absent, returns defaults. Throws on malformed JSON.
 
-**All plugins must call `ctx.adapters.config.get()` to read config — never import from this file directly.**
+**All plugins must call `ctx.adapters.config.get()` to read config — never import from these files directly.**
 
 ## Plugin pattern
 Each builtin plugin's `run()` fetches config on-demand:
@@ -131,6 +151,16 @@ fe publish <target>
 ```
 Never touches "routes" — only "packages" in platform.json. Legacy `admin.ts` provides artifact uploads but `publish` handles source code for JIT.
 Note: pre-flight hardcodes `src/index.ts` — use `fe admin upload` for MFEs with `src/index.tsx` entrypoints.
+
+### new (plugins/new.ts)
+```
+fe new <scope/name>
+  creates <name-slug>/ directory in cwd with:
+    package.json  name=fe(<scope/name>), "fe" config key, build/check scripts
+    tsconfig.json  strict · ESNext · bundler moduleResolution
+    src/index.ts   render() stub
+  exits 1 if directory already exists
+```
 
 ### check (plugins/check.ts)
 ```
