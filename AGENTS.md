@@ -19,7 +19,8 @@ CLAUDE.md→symlink→here
 │  ├─ mfe-b/            name=fe(acme/mfe-b)           composes mfe-a · devDep→fe(acme/mfe-a)
 │  └─ configs/          fe.config.json · platform.json · routes+packages registry + CLI config
 ├─ toolkit/                                           reusable tools and low-dependency MFEs
-│  └─ devtools/         name=fe(acme/devtools)        overlay · uses Solid.js
+│  ├─ devtools/         name=fe(acme/devtools)        overlay · uses Solid.js
+│  └─ store/            name=fe(acme/store)           global state primitive · zero deps
 ├─ nx.json              minimal Nx config (target ordering only · no nx cloud)
 └─ package.json         workspace root
 ```

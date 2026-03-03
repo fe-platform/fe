@@ -1,0 +1,13 @@
+{
+  "name": "fe(acme/store)",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "cd ../.. && fe build toolkit/store",
+    "check": "cd ../.. && fe check toolkit/store"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*"
+  }
+}
