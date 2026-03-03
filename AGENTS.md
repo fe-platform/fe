@@ -179,6 +179,26 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 - no stubs or mocks: production-ready code only
 - debugging: halt at 2 failed attempts · report state + request guidance
 
+## lazy import convention (toolkit and glue packages)
+Toolkit packages are loaded via import map; their module load is the first real cost the browser
+pays. Static top-level framework imports run at that moment — before any user interaction.
+
+For toolkit packages that adapt a framework (glue packages), defer framework imports inside each
+exported function using dynamic `import()`:
+```ts
+// in a hypothetical react-glue toolkit package
+export async function createReactStore<T>(key: string, init: T) {
+  const { useState, useEffect } = await import("react");
+  // ... build and return the adapter
+}
+```
+This way, the framework module is not loaded until the glue is actually called.
+
+Exceptions:
+- `toolkit/devtools` bundles Solid.js directly into its output — lazy import would not help.
+- Published packages (`packages/*`) contain no framework imports; the rule does not apply.
+- MFE entry files (`src/index.ts`) are themselves the bundle root; static imports are correct.
+
 ## ✗ invariants
 - !bundle fe(*) · must stay external · importmap resolves runtime
 - admin-upload writes to packages only, never routes
@@ -188,3 +208,4 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 - sandbox/ is !published · packages/* are published
 - multiple import maps: deps injected lazily, deduped via versioned resolution
 - plugins must call ctx.adapters.config.get() · never import from cli/src/config directly
+- toolkit glue packages use dynamic import() for framework code (see lazy import convention above)
