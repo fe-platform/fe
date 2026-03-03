@@ -102,7 +102,11 @@ export async function load(path: string): Promise<{ render: RenderFn;[key: strin
   const allDeps = resolveDeps(specifier, version);
   applyOverridesAndInject(allDeps);
 
-  return import(specifier);
+  const mod = await import(specifier) as Record<string, unknown>;
+  if (typeof mod.render !== "function") {
+    throw new Error(`${specifier}@${version} does not export render`);
+  }
+  return mod as { render: RenderFn; [key: string]: unknown };
 }
 
 export async function loadDevtools(): Promise<void> {

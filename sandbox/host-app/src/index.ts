@@ -5,5 +5,9 @@ const path = window.location.pathname;
 
 await loadDevtools();
 
-const { render } = await load(path);
-render(app, { name: "Shell User" });
+try {
+  const { render } = await load(path);
+  render(app, { name: "Shell User" });
+} catch (err) {
+  app.textContent = err instanceof Error ? err.message : String(err);
+}
