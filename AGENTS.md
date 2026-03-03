@@ -20,7 +20,8 @@ CLAUDE.md→symlink→here
 │  └─ configs/          fe.config.json · platform.json · routes+packages registry + CLI config
 ├─ toolkit/                                           reusable tools and low-dependency MFEs
 │  ├─ devtools/         name=fe(acme/devtools)        overlay · uses Solid.js
-│  └─ store/            name=fe(acme/store)           global state primitive · zero deps
+│  ├─ store/            name=fe(acme/store)           global state primitive · zero deps
+│  └─ network/          name=fe(acme/network)         shared fetch · dedup + cache + interceptors
 ├─ nx.json              minimal Nx config (target ordering only · no nx cloud)
 └─ package.json         workspace root
 ```

@@ -1,0 +1,13 @@
+{
+  "name": "fe(acme/network)",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "cd ../.. && fe build toolkit/network",
+    "check": "cd ../.. && fe check toolkit/network"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*"
+  }
+}
