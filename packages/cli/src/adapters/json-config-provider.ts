@@ -10,18 +10,20 @@ const DEFAULTS: Required<FeConfig> = {
   sourcesDir: "sources",
 };
 
+async function jsonConfigGet(configPath: string): Promise<Required<FeConfig>> {
+  const file = Bun.file(configPath);
+  if (!(await file.exists())) return DEFAULTS;
+  try {
+    const raw = (await file.json()) as FeConfig;
+    return { ...DEFAULTS, ...raw };
+  } catch {
+    throw new Error(`Failed to parse fe.config.json at ${configPath}`);
+  }
+}
+
 export function createJsonConfigProvider(root: string): ConfigProvider {
   const configPath = join(root, "configs", "fe.config.json");
   return {
-    async get() {
-      const file = Bun.file(configPath);
-      if (!(await file.exists())) return DEFAULTS;
-      try {
-        const raw = (await file.json()) as FeConfig;
-        return { ...DEFAULTS, ...raw };
-      } catch {
-        throw new Error(`Failed to parse fe.config.json at ${configPath}`);
-      }
-    },
+    get: () => jsonConfigGet(configPath),
   };
 }

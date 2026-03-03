@@ -1,0 +1,1516 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+The content has been processed where comments have been removed, empty lines have been removed, content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Code comments have been removed from supported file types
+- Empty lines have been removed from all files
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.claude/
+  settings.local.json
+.devin/
+  wiki.json
+.github/
+  workflows/
+    ci.yml
+packages/
+  cli/
+    src/
+      adapters/
+        bun-builder.ts
+        json-config-provider.ts
+        json-manifest-manager.ts
+        local-artifact-storage.ts
+        local-source-storage.ts
+      plugins/
+        admin.ts
+        build.ts
+        check.ts
+        dev.ts
+        link.ts
+        publish.ts
+        serve.ts
+      bootstrap.ts
+      helpers.ts
+      index.ts
+      plugin-loader.ts
+    package.json
+    tsconfig.json
+  compiler/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
+  core/
+    src/
+      adapters.ts
+      context.ts
+      fe-config.ts
+      hooks.ts
+      index.ts
+      jit-plugin.ts
+      plugin.ts
+      types.ts
+    package.json
+    tsconfig.json
+  jit-plugin-react/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
+  jit-plugin-solid/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
+  runtime/
+    src/
+      index.ts
+      overrides.ts
+      platform.ts
+      semver.ts
+    package.json
+    tsconfig.json
+sandbox/
+  configs/
+    fe.config.json
+    platform.json
+  host-app/
+    src/
+      index.ts
+    tests/
+      host.spec.ts
+    index.html
+    package.json
+    playwright.config.ts
+    tsconfig.json
+    tsconfig.playwright.json
+  mfe-a/
+    src/
+      index.tsx
+    index.d.ts
+    package.json
+    project.json
+    tsconfig.json
+  mfe-b/
+    src/
+      index.tsx
+    index.d.ts
+    package.json
+    project.json
+    tsconfig.json
+  package.json
+toolkit/
+  devtools/
+    src/
+      index.tsx
+      styles.ts
+    package.json
+    project.json
+    tsconfig.json
+.agent
+.gemini
+.gitignore
+.repomixignore
+nx.json
+package.json
+repomix.config.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".claude/settings.local.json">
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: remove local docs and meta, point to DeepWiki\n\nLocal Docsify site \\(docs/\\), theme package \\(meta/docsify-slab/\\), icon\nassets \\(meta/icons/\\), and the Cloudflare Pages deploy workflow are\nreplaced by the DeepWiki at https://deepwiki.com/fe-platform/fe.\n\nReferences in README, CONTRIBUTING, and AGENTS updated accordingly.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)"
+    ]
+  }
+}
+</file>
+
+<file path=".repomixignore">
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+**/*.md
+**/*.svg
+**/*.png
+**/*.jpg
+**/*.jpeg
+</file>
+
+<file path="repomix.config.json">
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "input": {
+    "maxFileSize": 52428800
+  },
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "parsableStyle": false,
+    "fileSummary": true,
+    "directoryStructure": true,
+    "files": true,
+    "removeComments": true,
+    "removeEmptyLines": true,
+    "compress": true,
+    "topFilesLength": 5,
+    "showLineNumbers": false,
+    "truncateBase64": false,
+    "copyToClipboard": false,
+    "includeFullDirectoryStructure": false,
+    "tokenCountTree": true,
+    "git": {
+      "sortByChanges": true,
+      "sortByChangesMaxCommits": 100,
+      "includeDiffs": false,
+      "includeLogs": false,
+      "includeLogsCount": 50
+    }
+  },
+  "include": [],
+  "ignore": {
+    "useGitignore": true,
+    "useDotIgnore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": []
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "o200k_base"
+  }
+}
+</file>
+
+<file path=".devin/wiki.json">
+{
+  "repo_notes": [
+    {
+      "content": "This is a microfrontend (MFE) platform framework. Documentation should be structured around: the MFE scenario/landscape, what fe is and what it solves, what an MFE platform consists of, what fe owns, future roadmap, how-to guides, and advanced contributor topics. Prioritize the CLI, JIT bundler, runtime/shell, CI/CD workflows, and config/infra/CSP areas.",
+      "author": "fe-platform maintainer"
+    }
+  ],
+  "overview": {
+    "purpose": "A friendly, concise welcome page for the fe microfrontend platform. Must include: 1) A Markmap mind-map diagram (using ```markmap code block) showing an example MFE website with color-coded groupings, boundaries, and labels depicting: multiple teams (e.g. Team Checkout, Team Search, Team Profile), each owning different MFEs (e.g. checkout-widget, search-bar, profile-card), hosted in separate repos, composed into a single website shell. Use color and grouping to distinguish team boundaries, shared services, and the runtime shell. 2) Below the diagram, render a set of clickable navigation tiles/cards for different audiences and knowledge paths: Philosophy, Architectural Style, Technology Radar/Toolkit, APIs & Packages, Getting Started as a Platform, Getting Started as an MFE Team, Getting Started for a POC. Each tile should link to the corresponding wiki page. Keep the tone welcoming and concise — this is the front door."
+  },
+  "pages": [
+    {
+      "title": "Philosophy",
+      "purpose": "The core philosophy and principles behind fe and microfrontend architecture"
+    },
+    {
+      "title": "Architectural Style",
+      "purpose": "The architectural patterns and style fe follows — runtime composition, isolation, shared nothing, etc."
+    },
+    {
+      "title": "Technology Radar & Toolkit",
+      "purpose": "The technology choices, supported frameworks, and recommended toolkit for MFE teams"
+    },
+    {
+      "title": "APIs & Packages",
+      "purpose": "Reference documentation for fe's public APIs, packages, and exports"
+    },
+    {
+      "title": "Getting Started as a Platform",
+      "purpose": "Step-by-step guide for platform teams to set up fe and the runtime shell"
+    },
+    {
+      "title": "Getting Started as an MFE Team",
+      "purpose": "Guide for MFE teams to create, develop, and deploy their first microfrontend"
+    },
+    {
+      "title": "Getting Started for a POC",
+      "purpose": "Quickstart guide for evaluating fe with a proof of concept"
+    },
+    {
+      "title": "Scenario",
+      "purpose": "Who microfrontends apply to, what the options are with pros/cons, and where fe fits in the landscape"
+    },
+    {
+      "title": "What is fe",
+      "purpose": "What problem fe solves, what your investment is to adopt fe, and what you will get"
+    },
+    {
+      "title": "What Your MFE Platform Will Be Made Of",
+      "purpose": "Overview of configs, infra, CSP/security, your runtime/shell, MFE teams, and common tooling"
+    },
+    {
+      "title": "Configs, Infra and Security (CSP)",
+      "purpose": "Detail the configuration, infrastructure, and Content Security Policy aspects",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "Your Runtime/Shell",
+      "purpose": "Document the runtime shell that hosts and orchestrates microfrontends",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "Your MFE Teams",
+      "purpose": "How MFE teams are structured and operate within the platform",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "Your Common Tooling",
+      "purpose": "Shared tooling provided to MFE teams",
+      "parent": "What Your MFE Platform Will Be Made Of"
+    },
+    {
+      "title": "What fe Will Own",
+      "purpose": "The brains of runtime, the CLI, the JIT bundler, and common CI/CD workflows/actions/templates"
+    },
+    {
+      "title": "Future Roadmap",
+      "purpose": "MFE registry tied to JSR, MFEs exporting more than render, NATIVES tooling, shared automation/testing"
+    },
+    {
+      "title": "How Do You Set Up Your Platform",
+      "purpose": "Step-by-step platform setup guide"
+    },
+    {
+      "title": "How Does Your Org Create MFEs",
+      "purpose": "Guide for teams to create new microfrontends"
+    },
+    {
+      "title": "How Do You Maintain Your MFE Ecosystem",
+      "purpose": "Ongoing maintenance of the MFE ecosystem and platform"
+    },
+    {
+      "title": "Advanced Topics for Contributors",
+      "purpose": "How fe works internally, project goals, and contributor deep dives"
+    }
+  ]
+}
+</file>
+
+<file path="packages/cli/src/adapters/json-manifest-manager.ts">
+import { join } from "path";
+import { readFileSync } from "fs";
+import type { ManifestManager, PlatformConfig, PackageVersion } from "@fe/core";
+async function jsonRegisterPackage(
+  configPath: string,
+  specifier: string,
+  version: string,
+  entry: PackageVersion,
+): Promise<void>
+export function createJsonManifestManager(root: string, manifestPath: string): ManifestManager
+⋮----
+async read()
+async write(config)
+</file>
+
+<file path="packages/cli/src/adapters/local-artifact-storage.ts">
+import { join } from "path";
+import { cpSync, mkdirSync, existsSync } from "fs";
+import type { ArtifactStorage } from "@fe/core";
+export function createLocalArtifactStorage(root: string, uploadsDir: string): ArtifactStorage
+⋮----
+async upload(slug, version, distDir)
+async exists(slug, version)
+</file>
+
+<file path="packages/cli/src/adapters/local-source-storage.ts">
+import { join } from "path";
+import { cpSync, mkdirSync, existsSync, readdirSync, readFileSync } from "fs";
+import type { SourceStorage } from "@fe/core";
+function walkDir(current: string, prefix: string, results: string[]): void
+async function localListFiles(dir: string): Promise<string[]>
+export function createLocalSourceStorage(root: string, sourcesDir: string): SourceStorage
+⋮----
+function pkgPath(slug: string, version: string): string
+⋮----
+async upload(slug, version, srcDir)
+async fetchFile(slug, version, relativePath)
+</file>
+
+<file path="packages/cli/src/plugins/admin.ts">
+import { join } from "path";
+import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
+import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
+async function adminUpload(ctx: CliContext, hooks: Hooks, target: string): Promise<void>
+async function runAdmin(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupAdmin(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/plugins/link.ts">
+import { join, relative } from "path";
+import { readFileSync, writeFileSync } from "fs";
+import type { Plugin, CliContext, Hooks } from "@fe/core";
+import { readPackageMeta } from "../helpers";
+async function runLink(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupLink(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/plugins/publish.ts">
+import { join } from "path";
+import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
+import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
+async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<void>
+async function runPublish(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupPublish(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/helpers.ts">
+import { join } from "path";
+import { readFileSync } from "fs";
+export function readPackageMeta(dir: string):
+export function readFeDeps(dir: string): Record<string, string>
+export function readFeDepKeys(dir: string): string[]
+export function parseSpecVersion(sv: string):
+export function slugFromSpecifier(specifier: string): string
+</file>
+
+<file path="packages/cli/src/index.ts">
+import { cwd } from "process";
+import { bootstrap } from "./bootstrap";
+</file>
+
+<file path="packages/cli/src/plugin-loader.ts">
+import type { Plugin } from "@fe/core";
+export async function loadExternalPlugins(root: string, pluginNames: string[]): Promise<Plugin[]>
+</file>
+
+<file path="packages/compiler/package.json">
+{
+  "name": "@fe/compiler",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --format esm --target bun",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*",
+    "bun-plugin-solid": "^1.0.0",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "bun-types": "^1.1.0",
+    "typescript": "^5.0.0"
+  }
+}
+</file>
+
+<file path="packages/compiler/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": [
+      "bun-types"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="packages/core/src/jit-plugin.ts">
+import type { BuildOptions } from "./types";
+export interface JitPlugin {
+  transform(options: BuildOptions): BuildOptions;
+}
+⋮----
+transform(options: BuildOptions): BuildOptions;
+</file>
+
+<file path="packages/core/src/plugin.ts">
+import type { CliContext } from "./context";
+import type { Hooks } from "./hooks";
+export interface Plugin {
+  name: string;
+  setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
+}
+⋮----
+setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
+</file>
+
+<file path="packages/core/package.json">
+{
+  "name": "@fe/core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --format esm --target bun",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+</file>
+
+<file path="packages/jit-plugin-react/src/index.ts">
+import type { JitPlugin, BuildOptions } from "@fe/core";
+⋮----
+transform(options: BuildOptions): BuildOptions
+</file>
+
+<file path="packages/jit-plugin-react/package.json">
+{
+  "name": "@fe/jit-plugin-react",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
+}
+</file>
+
+<file path="packages/jit-plugin-react/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["bun-types"]
+  },
+  "include": ["src"]
+}
+</file>
+
+<file path="packages/jit-plugin-solid/src/index.ts">
+import type { JitPlugin, BuildOptions } from "@fe/core";
+import { SolidPlugin } from "bun-plugin-solid";
+⋮----
+transform(options: BuildOptions): BuildOptions
+</file>
+
+<file path="packages/jit-plugin-solid/package.json">
+{
+  "name": "@fe/jit-plugin-solid",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*",
+    "bun-plugin-solid": "^1.0.0",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
+}
+</file>
+
+<file path="packages/jit-plugin-solid/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["bun-types"]
+  },
+  "include": ["src"]
+}
+</file>
+
+<file path="packages/runtime/src/overrides.ts">
+export function readOverrides(): Record<string, string>
+export function processUrlParams(): void
+</file>
+
+<file path="packages/runtime/src/semver.ts">
+function parseSemver(v: string): [number, number, number]
+export function satisfies(version: string, range: string): boolean
+export function resolveVersion(versions: string[], range: string): string | null
+</file>
+
+<file path="sandbox/configs/fe.config.json">
+{
+  "plugins": [],
+  "manifestPath": "configs/platform.json",
+  "uploadsDir": "uploads",
+  "shellDir": "host-app"
+}
+</file>
+
+<file path="sandbox/host-app/index.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shell</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
+</file>
+
+<file path="sandbox/host-app/tsconfig.playwright.json">
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/playwright",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "playwright.config.ts",
+    "tests/**/*.spec.ts"
+  ]
+}
+</file>
+
+<file path="sandbox/mfe-a/src/index.tsx">
+import React from "react";
+import { createRoot, Root } from "react-dom/client";
+</file>
+
+<file path="sandbox/mfe-a/index.d.ts">
+export declare function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): ()
+</file>
+
+<file path="sandbox/mfe-b/index.d.ts">
+export declare function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): ()
+</file>
+
+<file path="toolkit/devtools/src/styles.ts">
+
+</file>
+
+<file path=".agent">
+agentInstructions: ./AGENTS.md
+</file>
+
+<file path=".gemini">
+instructions_file: AGENTS.md
+</file>
+
+<file path="packages/cli/src/plugins/check.ts">
+import { join } from "path";
+import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
+import { readPackageMeta, readFeDepKeys } from "../helpers";
+async function runCheck(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupCheck(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/plugins/dev.ts">
+import { join } from "path";
+import { watch } from "fs";
+import type { Plugin, CliContext, Hooks } from "@fe/core";
+import { readPackageMeta } from "../helpers";
+import { buildTarget } from "./build";
+⋮----
+function notifyReload(): void
+function drainPending(ctrl: ReadableStreamDefaultController): void
+function sandboxHtml(name: string): string
+async function devFetch(req: Request, distDir: string, name: string): Promise<Response>
+⋮----
+start(c)
+cancel()
+⋮----
+async function devWatchRebuild(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void>
+async function runDev(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupDev(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": [
+      "bun-types"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="packages/core/src/hooks.ts">
+import type { BuildOptions, BuildResult, PackageVersion } from "./types";
+export interface HookMap {
+  "build:before": [target: string, options: BuildOptions];
+  "build:after": [target: string, result: BuildResult];
+  "build:options": [options: BuildOptions];
+  "build:shell:before": [];
+  "build:shell:after": [];
+  "serve:start": [port: number];
+  "serve:request": [req: Request];
+  "dev:start": [target: string, port: number];
+  "dev:rebuild": [target: string];
+  "dev:reload": [];
+  "link:before": [consumer: string, dep: string];
+  "link:after": [consumer: string, depName: string];
+  "admin:upload:before": [target: string, meta: { name: string; version: string }];
+  "admin:upload:after": [target: string, url: string, deps: Record<string, string>];
+  "admin:register:before": [specifier: string, version: string, entry: PackageVersion];
+  "admin:register:after": [];
+  "publish:before": [target: string, meta: { name: string; version: string }];
+  "publish:after": [target: string, url: string, deps: Record<string, string>];
+  "publish:register:before": [specifier: string, version: string, entry: PackageVersion];
+  "publish:register:after": [];
+}
+type HookName = keyof HookMap & string;
+type HookHandler<K extends HookName> = (...args: HookMap[K]) => void | Promise<void>;
+export class Hooks
+⋮----
+hook<K extends HookName>(name: K, fn: HookHandler<K>, priority = 10): void
+async callHook<K extends HookName>(name: K, ...args: HookMap[K]): Promise<void>
+async waterfall<T>(name: string, initial: T): Promise<T>
+</file>
+
+<file path="packages/core/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="packages/runtime/src/platform.ts">
+import type { PlatformConfig } from "@fe/core";
+import { resolveVersion } from "./semver";
+import { readOverrides, processUrlParams } from "./overrides";
+export type RenderFn = (container: HTMLElement, props: Record<string, unknown>) => () => void;
+⋮----
+function readConfig(): PlatformConfig
+function parseSpecVersion(sv: string):
+⋮----
+function resolveDeps(
+  specifier: string,
+  version: string,
+  resolved: Map<string, string> = new Map(),
+): Map<string, string>
+function injectImportMap(imports: Record<string, string>): void
+function applyOverridesAndInject(allDeps: Map<string, string>): void
+export async function load(path: string): Promise<
+export async function loadDevtools(): Promise<void>
+</file>
+
+<file path="sandbox/configs/platform.json">
+{
+  "routes": {
+    "/": "fe(acme/mfe-b)@1.0.0"
+  },
+  "devtools": "fe(acme/devtools)@1.0.0",
+  "packages": {
+    "fe(acme/devtools)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/devtools/1.0.0/index.js",
+          "deps": {}
+        }
+      }
+    },
+    "fe(acme/mfe-a)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-a/1.0.0/index.js",
+          "deps": {}
+        }
+      }
+    },
+    "fe(acme/mfe-b)": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-b/1.0.0/index.js",
+          "deps": {
+            "fe(acme/mfe-a)": "^1.0.0"
+          }
+        }
+      }
+    }
+  }
+}
+</file>
+
+<file path="sandbox/host-app/src/index.ts">
+import { load, loadDevtools } from "@fe/runtime";
+</file>
+
+<file path="sandbox/host-app/tests/host.spec.ts">
+import { test, expect } from "@playwright/test";
+</file>
+
+<file path="sandbox/host-app/playwright.config.ts">
+import { defineConfig } from "@playwright/test";
+import { fileURLToPath } from "url";
+import { join, dirname } from "path";
+</file>
+
+<file path="sandbox/host-app/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="sandbox/mfe-a/project.json">
+{
+  "name": "fe(acme/mfe-a)",
+  "targets": {
+    "typecheck": {}
+  }
+}
+</file>
+
+<file path="sandbox/mfe-a/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="sandbox/mfe-b/src/index.tsx">
+import { render as renderA } from "fe(acme/mfe-a)";
+import { render as solidRender } from "solid-js/web";
+function Wrapper(props:
+export function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): () => void
+</file>
+
+<file path="sandbox/mfe-b/project.json">
+{
+  "name": "fe(acme/mfe-b)",
+  "targets": {
+    "typecheck": {}
+  }
+}
+</file>
+
+<file path="sandbox/mfe-b/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="sandbox/package.json">
+{
+  "name": "sandbox",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun fe dev",
+    "build": "bun fe build"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*",
+    "fe(acme/mfe-b)": "file:./mfe-b"
+  }
+}
+</file>
+
+<file path="toolkit/devtools/src/index.tsx">
+import { createSignal, createMemo, For, Show } from "solid-js";
+import { render as solidRender } from "solid-js/web";
+import {
+  panelStyle, headerStyle, sectionStyle, labelStyle,
+  rowStyle, specStyle, specNameStyle, urlTextStyle,
+  iconBtnStyle, inputStyle, addBtnStyle, actionsStyle, actionBtnStyle,
+} from "./styles";
+⋮----
+function readOverrides(): Record<string, string>
+function writeOverrides(overrides: Record<string, string>): void
+⋮----
+function togglePanel()
+function removeOverride(spec: string)
+function clearAll()
+function addOverride()
+function share()
+⋮----
+<button style=
+
+⋮----
+<Show when=
+</file>
+
+<file path="toolkit/devtools/project.json">
+{
+  "name": "fe(acme/devtools)",
+  "targets": {
+    "typecheck": {}
+  }
+}
+</file>
+
+<file path="toolkit/devtools/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="nx.json">
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx tsc --noEmit",
+        "cwd": "{projectRoot}"
+      }
+    }
+  },
+  "nxCloudId": null
+}
+</file>
+
+<file path="packages/cli/src/adapters/bun-builder.ts">
+import type { Builder, BuildOptions } from "@fe/core";
+import { compileMfe } from "@fe/compiler";
+async function bunBuild(options: BuildOptions): Promise<
+export function createBunBuilder(): Builder
+</file>
+
+<file path="packages/cli/src/adapters/json-config-provider.ts">
+import { join } from "path";
+import type { FeConfig, ConfigProvider } from "@fe/core";
+⋮----
+async function jsonConfigGet(configPath: string): Promise<Required<FeConfig>>
+export function createJsonConfigProvider(root: string): ConfigProvider
+</file>
+
+<file path="packages/cli/src/plugins/build.ts">
+import { join } from "path";
+import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
+import { readFeDepKeys } from "../helpers";
+export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void>
+async function buildShell(ctx: CliContext, hooks: Hooks, shellDir: string): Promise<void>
+async function runBuild(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupBuild(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/package.json">
+{
+  "name": "@fe/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "fe": "./src/index.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./bootstrap": "./src/bootstrap.ts"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --format esm --target bun",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/compiler": "workspace:*",
+    "@fe/core": "workspace:*",
+    "@fe/runtime": "workspace:*",
+    "kleur": "^4.1.5"
+  },
+  "devDependencies": {
+    "@fe/core": "workspace:*",
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
+}
+</file>
+
+<file path="packages/compiler/src/index.ts">
+import type { BuildOptions, JitPlugin, SourceStorage } from "@fe/core";
+import { SolidPlugin } from "bun-plugin-solid";
+import { join } from "path";
+import { existsSync, readFileSync } from "fs";
+export interface CompileOptions {
+  entrypoints: string[];
+  outdir?: string;
+  external?: string[];
+  rootDir: string;
+  naming?: string | Record<string, string>;
+  plugins?: unknown[];
+}
+export async function compileMfe(options: CompileOptions)
+export interface JITBundlerOptions {
+  storage: SourceStorage;
+  external?: string[];
+  jitPlugins?: JitPlugin[];
+}
+type CacheEntry = { js: string };
+async function jitHandle(
+  req: Request,
+  storage: SourceStorage,
+  cache: Map<string, CacheEntry>,
+  external: string[],
+  jitPlugins: JitPlugin[],
+): Promise<Response | null>
+export function createJITBundler(options: JITBundlerOptions)
+</file>
+
+<file path="packages/core/src/adapters.ts">
+import type { PlatformConfig, PackageVersion, BuildOptions, BuildResult } from "./types";
+import type { FeConfig } from "./fe-config";
+export interface ConfigProvider {
+  get(): Promise<Required<FeConfig>>;
+}
+⋮----
+get(): Promise<Required<FeConfig>>;
+⋮----
+export interface ArtifactStorage {
+  upload(slug: string, version: string, distDir: string): Promise<string>;
+  exists(slug: string, version: string): Promise<boolean>;
+}
+⋮----
+upload(slug: string, version: string, distDir: string): Promise<string>;
+exists(slug: string, version: string): Promise<boolean>;
+⋮----
+export interface SourceStorage {
+  upload(slug: string, version: string, srcDir: string): Promise<string>;
+  fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
+  listFiles(slug: string, version: string): Promise<string[]>;
+}
+⋮----
+upload(slug: string, version: string, srcDir: string): Promise<string>;
+fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
+listFiles(slug: string, version: string): Promise<string[]>;
+⋮----
+export interface ManifestManager {
+  read(): Promise<PlatformConfig>;
+  write(config: PlatformConfig): Promise<void>;
+  registerPackage(specifier: string, version: string, entry: PackageVersion): Promise<void>;
+}
+⋮----
+read(): Promise<PlatformConfig>;
+write(config: PlatformConfig): Promise<void>;
+registerPackage(specifier: string, version: string, entry: PackageVersion): Promise<void>;
+⋮----
+export interface Builder {
+  build(options: BuildOptions): Promise<BuildResult>;
+}
+⋮----
+build(options: BuildOptions): Promise<BuildResult>;
+</file>
+
+<file path="packages/core/src/types.ts">
+export type ImportMap = { imports: Record<string, string> };
+export interface PackageVersion {
+  url: string;
+  deps: Record<string, string>;
+}
+export interface PackageEntry {
+  versions: Record<string, PackageVersion>;
+}
+export interface PlatformConfig {
+  routes: Record<string, string>;
+  packages: Record<string, PackageEntry>;
+  devtools?: string;
+}
+export interface BuildOptions {
+  entrypoints: string[];
+  outdir?: string;
+  format: "esm";
+  target: "browser";
+  external: string[];
+  naming?: string;
+  rootDir?: string;
+  plugins?: unknown[];
+}
+export interface BuildResult {
+  success: boolean;
+  logs: unknown[];
+}
+</file>
+
+<file path="packages/runtime/src/index.ts">
+
+</file>
+
+<file path="packages/runtime/package.json">
+{
+  "name": "@fe/runtime",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --format esm --target browser",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
+}
+</file>
+
+<file path="sandbox/host-app/package.json">
+{
+  "name": "host-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "cd .. && fe build shell",
+    "check": "cd .. && fe check shell",
+    "typecheck": "bunx tsc --noEmit",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@fe/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "fe(acme/mfe-b)": "file:../mfe-b",
+    "@fe/cli": "workspace:*"
+  }
+}
+</file>
+
+<file path="sandbox/mfe-a/package.json">
+{
+  "name": "fe(acme/mfe-a)",
+  "version": "1.0.0",
+  "module": "src/index.tsx",
+  "scripts": {
+    "build": "cd ../.. && fe build sandbox/mfe-a",
+    "check": "cd ../.. && fe check sandbox/mfe-a"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*"
+  },
+  "dependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
+</file>
+
+<file path="sandbox/mfe-b/package.json">
+{
+  "name": "fe(acme/mfe-b)",
+  "version": "1.0.0",
+  "module": "src/index.tsx",
+  "scripts": {
+    "build": "cd ../.. && fe build sandbox/mfe-b",
+    "check": "cd ../.. && fe check sandbox/mfe-b"
+  },
+  "devDependencies": {
+    "bun-plugin-solid": "^1.0.0",
+    "fe(acme/mfe-a)": "file:../mfe-a",
+    "@fe/cli": "workspace:*"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.11"
+  }
+}
+</file>
+
+<file path="packages/cli/src/bootstrap.ts">
+import { Hooks } from "@fe/core";
+import type { CliContext, JitPlugin, Plugin } from "@fe/core";
+import { loadExternalPlugins } from "./plugin-loader";
+import { createBunBuilder } from "./adapters/bun-builder";
+import { createJsonConfigProvider } from "./adapters/json-config-provider";
+import { buildPlugin } from "./plugins/build";
+import { createJsonManifestManager } from "./adapters/json-manifest-manager";
+import { createLocalArtifactStorage } from "./adapters/local-artifact-storage";
+import { createLocalSourceStorage } from "./adapters/local-source-storage";
+import { adminPlugin } from "./plugins/admin";
+import { publishPlugin } from "./plugins/publish";
+import { devPlugin } from "./plugins/dev";
+import { linkPlugin } from "./plugins/link";
+import { servePlugin } from "./plugins/serve";
+import { checkPlugin } from "./plugins/check";
+⋮----
+export async function bootstrap(root: string): Promise<
+</file>
+
+<file path="packages/core/src/context.ts">
+import type { ArtifactStorage, ManifestManager, Builder, ConfigProvider, SourceStorage } from "./adapters";
+import type { JitPlugin } from "./jit-plugin";
+export interface CommandDef {
+  name: string;
+  description: string;
+  usage: string;
+  run(args: string[]): Promise<void>;
+}
+⋮----
+run(args: string[]): Promise<void>;
+⋮----
+export interface CliContext {
+  root: string;
+  adapters: {
+    config: ConfigProvider;
+    artifactStorage: ArtifactStorage;
+    manifest: ManifestManager;
+    builder: Builder;
+    sourceStorage: SourceStorage;
+  };
+  commands: Map<string, CommandDef>;
+  jitPlugins: JitPlugin[];
+}
+</file>
+
+<file path="packages/core/src/fe-config.ts">
+export interface FeConfig {
+  plugins?: string[];
+  jitPlugins?: string[];
+  manifestPath?: string;
+  uploadsDir?: string;
+  shellDir?: string;
+  sourcesDir?: string;
+}
+</file>
+
+<file path="packages/core/src/index.ts">
+
+</file>
+
+<file path="packages/runtime/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "strict": true,
+    "skipLibCheck": true,
+    "types": [
+      "bun-types"
+    ],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="toolkit/devtools/package.json">
+{
+  "name": "fe(acme/devtools)",
+  "version": "1.0.0",
+  "module": "src/index.tsx",
+  "types": "src/index.tsx",
+  "scripts": {
+    "build": "cd ../.. && fe build toolkit/devtools",
+    "check": "cd ../.. && fe check toolkit/devtools"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*",
+    "@fe/jit-plugin-solid": "workspace:*"
+  }
+}
+</file>
+
+<file path=".gitignore">
+# Dependencies
+node_modules/
+bun.lock
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+
+# Upload registry (local filesystem backend — not committed)
+uploads/
+
+# Nx
+.nx/
+</file>
+
+<file path="packages/cli/src/plugins/serve.ts">
+import { join } from "path";
+import type { Plugin, CliContext, Hooks } from "@fe/core";
+import { createJITBundler } from "@fe/compiler";
+async function serveFetch(
+  req: Request,
+  hooks: Hooks,
+  jit: { handle: (req: Request) => Promise<Response | null> },
+  root: string,
+  distDir: string,
+  uploadsPrefix: string,
+): Promise<Response>
+async function runServe(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupServe(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path=".github/workflows/ci.yml">
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    name: Packages (typecheck)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: bun-
+      - name: Install
+        run: bun install
+      - name: Typecheck packages
+        run: |
+          bunx tsc --noEmit --project packages/core/tsconfig.json
+          bunx tsc --noEmit --project packages/cli/tsconfig.json
+          bunx tsc --noEmit --project packages/runtime/tsconfig.json
+          bunx tsc --noEmit --project packages/compiler/tsconfig.json
+          bunx tsc --noEmit --project packages/jit-plugin-react/tsconfig.json
+          bunx tsc --noEmit --project packages/jit-plugin-solid/tsconfig.json
+  sandbox:
+    runs-on: ubuntu-latest
+    name: Sandbox (typecheck + build)
+    needs: packages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: bun-
+      - name: Install
+        run: bun install
+      - name: Typecheck sandbox
+        run: |
+          bunx tsc --noEmit --project sandbox/mfe-a/tsconfig.json
+          bunx tsc --noEmit --project sandbox/mfe-b/tsconfig.json
+          bunx tsc --noEmit --project sandbox/host-app/tsconfig.json
+          bunx tsc --noEmit --project toolkit/devtools/tsconfig.json
+      - name: Build sandbox
+        run: |
+          (cd sandbox/mfe-a && bun run check)
+          (cd sandbox/mfe-b && bun run check)
+          (cd toolkit/devtools && bun run check)
+          (cd sandbox/host-app && bun run check)
+</file>
+
+<file path="package.json">
+{
+  "name": "fe-platform",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": ["packages/*", "sandbox/*", "toolkit/*"],
+  "scripts": {
+    "typecheck": "nx run-many -t typecheck",
+    "build": "nx run-many -t build --projects=@fe/core,@fe/cli,@fe/runtime",
+    "sandbox:build": "nx run-many -t build --projects=sandbox-*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "^25.3.0",
+    "nx": "^22.5.2",
+    "typescript": "^5.9.3"
+  }
+}
+</file>
+
+</files>

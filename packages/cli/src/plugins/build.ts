@@ -1,6 +1,5 @@
 import { join } from "path";
-import type { Plugin, CliContext, BuildOptions, BuildResult } from "@fe/core";
-import type { Hooks } from "@fe/core";
+import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
 import { readFeDepKeys } from "../helpers";
 
 export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void> {
@@ -69,22 +68,26 @@ async function buildShell(ctx: CliContext, hooks: Hooks, shellDir: string): Prom
   console.log(`Built shell → ${shellDir}/dist/`);
 }
 
+async function runBuild(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void> {
+  const target = args[0];
+  if (!target) {
+    console.error("Usage: build <target>");
+    process.exit(1);
+  }
+  const feConfig = await ctx.adapters.config.get();
+  await buildTarget(ctx, hooks, target, feConfig.shellDir);
+}
+
+function setupBuild(ctx: CliContext, hooks: Hooks): void {
+  ctx.commands.set("build", {
+    name: "build",
+    description: "Build an MFE or the shell",
+    usage: "build <target|shell>",
+    run: (args) => runBuild(ctx, hooks, args),
+  });
+}
+
 export const buildPlugin: Plugin = {
   name: "build",
-  setup(ctx, hooks) {
-    ctx.commands.set("build", {
-      name: "build",
-      description: "Build an MFE or the shell",
-      usage: "build <target|shell>",
-      async run(args) {
-        const target = args[0];
-        if (!target) {
-          console.error("Usage: build <target>");
-          process.exit(1);
-        }
-        const feConfig = await ctx.adapters.config.get();
-        await buildTarget(ctx, hooks, target, feConfig.shellDir);
-      },
-    });
-  },
+  setup: setupBuild,
 };

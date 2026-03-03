@@ -1,5 +1,5 @@
 import { join } from "path";
-import type { Plugin, PackageVersion } from "@fe/core";
+import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
 import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
 
 /**
@@ -17,30 +17,8 @@ import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
  *
  * Future: auth / signing will be layered here without changing the interface.
  */
-export const publishPlugin: Plugin = {
-  name: "publish",
-  setup(ctx, hooks) {
-    ctx.commands.set("publish", {
-      name: "publish",
-      description: "Publish MFE source for JIT compilation",
-      usage: "publish <target>",
-      async run(args) {
-        const target = args[0];
-        if (!target) {
-          console.error("Usage: fe publish <target>");
-          process.exit(1);
-        }
-        await publish(ctx, hooks, target);
-      },
-    });
-  },
-};
 
-async function publish(
-  ctx: import("@fe/core").CliContext,
-  hooks: import("@fe/core").Hooks,
-  target: string,
-): Promise<void> {
+async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<void> {
   const dir = join(ctx.root, target);
   const srcDir = join(dir, "src");
 
@@ -97,3 +75,26 @@ async function publish(
   console.log(`Deps: ${Object.keys(deps).length === 0 ? "(none)" : Object.keys(deps).join(", ")}`);
   console.log(`\nRegistered in manifest. Update "routes" to activate for a path.`);
 }
+
+async function runPublish(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void> {
+  const target = args[0];
+  if (!target) {
+    console.error("Usage: fe publish <target>");
+    process.exit(1);
+  }
+  await publish(ctx, hooks, target);
+}
+
+function setupPublish(ctx: CliContext, hooks: Hooks): void {
+  ctx.commands.set("publish", {
+    name: "publish",
+    description: "Publish MFE source for JIT compilation",
+    usage: "publish <target>",
+    run: (args) => runPublish(ctx, hooks, args),
+  });
+}
+
+export const publishPlugin: Plugin = {
+  name: "publish",
+  setup: setupPublish,
+};

@@ -1,37 +1,8 @@
 import { join } from "path";
-import type { Plugin, PackageVersion } from "@fe/core";
+import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
 import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
 
-export const adminPlugin: Plugin = {
-  name: "admin",
-  setup(ctx, hooks) {
-    ctx.commands.set("admin", {
-      name: "admin",
-      description: "Admin operations (upload artifacts)",
-      usage: "admin upload <target>",
-      async run(args) {
-        const subcommand = args[0];
-        if (subcommand === "upload") {
-          const target = args[1];
-          if (!target) {
-            console.error("Usage: admin upload <target>");
-            process.exit(1);
-          }
-          await adminUpload(ctx, hooks, target);
-        } else {
-          console.error("Unknown admin subcommand. Available: upload");
-          process.exit(1);
-        }
-      },
-    });
-  },
-};
-
-async function adminUpload(
-  ctx: import("@fe/core").CliContext,
-  hooks: import("@fe/core").Hooks,
-  target: string,
-): Promise<void> {
+async function adminUpload(ctx: CliContext, hooks: Hooks, target: string): Promise<void> {
   const dir = join(ctx.root, target);
   const distDir = join(dir, "dist");
 
@@ -71,3 +42,32 @@ async function adminUpload(
   console.log(`Deps: ${Object.keys(deps).length === 0 ? "(none)" : Object.keys(deps).join(", ")}`);
   console.log(`\nRegistered in manifest. Update "routes" to activate for a path.`);
 }
+
+async function runAdmin(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void> {
+  const subcommand = args[0];
+  if (subcommand === "upload") {
+    const target = args[1];
+    if (!target) {
+      console.error("Usage: admin upload <target>");
+      process.exit(1);
+    }
+    await adminUpload(ctx, hooks, target);
+  } else {
+    console.error("Unknown admin subcommand. Available: upload");
+    process.exit(1);
+  }
+}
+
+function setupAdmin(ctx: CliContext, hooks: Hooks): void {
+  ctx.commands.set("admin", {
+    name: "admin",
+    description: "Admin operations (upload artifacts)",
+    usage: "admin upload <target>",
+    run: (args) => runAdmin(ctx, hooks, args),
+  });
+}
+
+export const adminPlugin: Plugin = {
+  name: "admin",
+  setup: setupAdmin,
+};
