@@ -162,6 +162,7 @@ interface PlatformConfig {
   routes:   Record<string, string>;                      // path → "specifier@version"
   packages: Record<string, { versions: Record<string, PackageVersion> }>;
   devtools?: string;                                     // "specifier@version" | undefined
+  preload?: string[];                                    // specifier@version strings to preload on init
 }
 interface PackageVersion {
   url:  string;                  // runtime-reachable artifact URL

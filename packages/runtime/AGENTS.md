@@ -10,8 +10,8 @@ Reads the embedded platform config, resolves the dep graph, injects import maps,
 ## src/ file map
 ```
 src/
-  index.ts      re-exports: load · loadDevtools · readOverrides · processUrlParams · resolveVersion · satisfies
-  platform.ts   readConfig · parseSpecVersion · resolveDeps · injectImportMap · applyOverridesAndInject · load · loadDevtools
+  index.ts      re-exports: load · loadDevtools · preload · readOverrides · processUrlParams · resolveVersion · satisfies
+  platform.ts   readConfig · parseSpecVersion · resolveDeps · injectImportMap · applyOverridesAndInject · preload · load · loadDevtools
   semver.ts     parseSemver · satisfies · resolveVersion
   overrides.ts  readOverrides · processUrlParams
 ```
@@ -30,6 +30,19 @@ Injected by `fe build shell` at build time.
 4. applyOverridesAndInject(allDeps)  → merge sessionStorage overrides, then injectImportMap
 5. return import(specifier)          → dynamic import resolves via injected map
 ```
+
+### preload(specifierVersion: string)
+```
+preload("fe(acme/mfe-b)@1.0.0")
+1. parseSpecVersion → { specifier, version }
+2. resolveDeps(specifier, version) → Map<specifier, url>  (transitive walk)
+3. applyOverridesAndInject(allDeps)  → merge sessionStorage overrides, then injectImportMap
+4. appends <link rel="modulepreload"> for the specifier's entry URL
+   (no import(); the browser fetches it in the background)
+```
+Can be called from host-app before navigation to warm the module cache.
+Also called automatically for each entry in `config.preload` on platform init (after
+existing import maps are scanned, so deduplication works correctly).
 
 ### loadDevtools()
 Loads `config.devtools` MFE (if set) into a `<div id="__devtools__">` appended to body.

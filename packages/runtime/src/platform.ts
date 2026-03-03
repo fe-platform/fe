@@ -33,6 +33,12 @@ const injectedSpecifiers = new Map<string, string>();
   }
 })();
 
+if (config.preload?.length) {
+  for (const sv of config.preload) {
+    preload(sv).catch(() => { /* preload errors are non-fatal */ });
+  }
+}
+
 function resolveDeps(
   specifier: string,
   version: string,
@@ -92,6 +98,27 @@ function applyOverridesAndInject(allDeps: Map<string, string>): void {
   const imports: Record<string, string> = {};
   for (const [spec, url] of allDeps) imports[spec] = url;
   injectImportMap(imports);
+}
+
+/**
+ * Resolves the dep graph and injects the import map for `specifierVersion`
+ * without loading the module. Queues a `<link rel="modulepreload">` so the
+ * browser fetches the module entry in the background.
+ *
+ * Calling `load()` after `preload()` for the same specifier skips the map
+ * injection step (already done) and relies on the browser module cache.
+ */
+export async function preload(specifierVersion: string): Promise<void> {
+  const { specifier, version } = parseSpecVersion(specifierVersion);
+  const allDeps = resolveDeps(specifier, version);
+  applyOverridesAndInject(allDeps);
+  const url = allDeps.get(specifier);
+  if (url) {
+    const link = document.createElement("link");
+    link.rel = "modulepreload";
+    link.href = url;
+    document.head.appendChild(link);
+  }
 }
 
 export async function load(path: string): Promise<{ render: RenderFn;[key: string]: unknown }> {
