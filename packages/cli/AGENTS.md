@@ -156,6 +156,9 @@ loadExternalPlugins(root, pluginNames): Promise<Plugin[]>
   for each name: dynamic import(name)
   expects: mod.default or mod.plugin implementing Plugin interface
   throws on missing export or failed import
+  after loading: if plugin.updatePolicy set, checks npm registry for latest version
+    "warn"  → console.warn if installed < latest (network errors silently ignored)
+    "block" → throws if installed < latest (network errors silently ignored)
 ```
 
 ## ✗ invariants
