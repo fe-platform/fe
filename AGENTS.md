@@ -5,20 +5,23 @@ CLAUDE.md→symlink→here
 
 ## topology
 ```
-/ (nx monorepo · workspaces: packages/* sandbox/*)
+/ (nx monorepo · workspaces: packages/* sandbox/* toolkit/*)
 ├─ packages/
-│  ├─ core/       @fe/core     v0.1.0  shared types + interfaces (published)
-│  ├─ cli/        @fe/cli      v0.1.0  build/serve/dev/admin CLI (published · bin: fe)
-│  └─ runtime/    @fe/runtime  v0.1.0  browser platform loader (published)
-├─ sandbox/                            example workspace (not published)
-│  ├─ host-app/   name=host-app        shell using @fe/runtime · builds to host-app/dist/
-│  ├─ mfe-a/      name=fe(acme/mfe-a) standalone MFE · fe()-deps=∅
-│  ├─ mfe-b/      name=fe(acme/mfe-b) composes mfe-a · devDep→fe(acme/mfe-a)
-│  └─ configs/    fe.config.json · platform.json · routes+packages registry + CLI config
-├─ toolkit/                            reusable tools and low-dependency MFEs
-│  └─ devtools/   name=fe(acme/devtools) overlay · uses Solid.js
-├─ nx.json        minimal Nx config (target ordering only · no nx cloud)
-└─ package.json   workspace root
+│  ├─ core/             @fe/core              v0.1.0  shared types + interfaces (published)
+│  ├─ cli/              @fe/cli               v0.1.0  build/serve/dev/admin CLI (published · bin: fe)
+│  ├─ runtime/          @fe/runtime           v0.1.0  browser platform loader (published)
+│  ├─ compiler/         @fe/compiler          v1.0.0  MFE bundler + JIT bundler (published)
+│  ├─ jit-plugin-react/ @fe/jit-plugin-react  v0.1.0  JIT plugin: React JSX (published)
+│  └─ jit-plugin-solid/ @fe/jit-plugin-solid  v0.1.0  JIT plugin: Solid.js JSX (published)
+├─ sandbox/                                           example workspace (not published)
+│  ├─ host-app/         name=host-app                 shell using @fe/runtime · builds to host-app/dist/
+│  ├─ mfe-a/            name=fe(acme/mfe-a)           standalone MFE · fe()-deps=∅
+│  ├─ mfe-b/            name=fe(acme/mfe-b)           composes mfe-a · devDep→fe(acme/mfe-a)
+│  └─ configs/          fe.config.json · platform.json · routes+packages registry + CLI config
+├─ toolkit/                                           reusable tools and low-dependency MFEs
+│  └─ devtools/         name=fe(acme/devtools)        overlay · uses Solid.js
+├─ nx.json              minimal Nx config (target ordering only · no nx cloud)
+└─ package.json         workspace root
 ```
 each package/subdir has own AGENTS.md with full local detail
 
@@ -79,9 +82,11 @@ Plugins run after builtins so they can freely swap `ctx.adapters.*`.
 ```json
 {
   "plugins":      [],                       // npm packages to load as CLI plugins
+  "jitPlugins":   [],                       // npm packages to load as JIT compiler plugins
   "manifestPath": "configs/platform.json",  // path to routes+packages registry
   "uploadsDir":   "uploads",                // artifact storage dir (local adapter)
-  "shellDir":     "host-app"               // host application directory
+  "sourcesDir":   "sources",               // raw source upload dir (fe publish)
+  "shellDir":     "shell"                  // host application directory
 }
 ```
 File lives at `configs/fe.config.json` (co-located with platform.json).
@@ -119,12 +124,14 @@ build failure as a production incident or a reason to change deployment steps.
 
 ## deploy flow (sandbox example)
 ```
-fe build <mfe> → fe admin upload <mfe>
-  ↓ registers package in sandbox/configs/platform.json
+fe publish <mfe>
+  ↓ uploads raw source · registers /bundle/<slug>/<ver>/index.ts URL in platform.json
 edit sandbox/configs/platform.json "routes"
   ↓
 fe build shell → fe serve
 ```
+`fe publish` is the standard path. `fe admin upload <mfe>` is the legacy artifact-based path
+(requires a prior `fe build <mfe>`); still used for devtools (see toolkit/devtools/AGENTS.md).
 
 ## runtime flow (browser · @fe/runtime)
 ```
@@ -138,8 +145,8 @@ fe build shell → fe serve
 
 ## CI · .github/workflows/ci.yml
 trigger: push→main | PR→main
-`packages` job: typecheck @fe/core @fe/cli @fe/runtime
-`sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app
+`packages` job: typecheck @fe/core @fe/cli @fe/runtime @fe/compiler @fe/jit-plugin-react @fe/jit-plugin-solid
+`sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app + toolkit/devtools
 
 ## docs
 documentation lives at https://deepwiki.com/fe-platform/fe

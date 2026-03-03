@@ -28,6 +28,9 @@ jobs:
           bunx tsc --noEmit --project packages/core/tsconfig.json
           bunx tsc --noEmit --project packages/cli/tsconfig.json
           bunx tsc --noEmit --project packages/runtime/tsconfig.json
+          bunx tsc --noEmit --project packages/compiler/tsconfig.json
+          bunx tsc --noEmit --project packages/jit-plugin-react/tsconfig.json
+          bunx tsc --noEmit --project packages/jit-plugin-solid/tsconfig.json
 
   sandbox:
     runs-on: ubuntu-latest

@@ -46,6 +46,8 @@ The return value unmounts and cleans up. Any framework is supported — React, S
 | `packages/runtime/` | Browser runtime — import map injection, semver resolution (`@fe/runtime`) |
 | `packages/compiler/` | Framework-aware MFE bundler + JIT bundler (`@fe/compiler`) |
 | `packages/cli/` | `fe` binary — build, serve, dev, link, publish, check (`@fe/cli`) |
+| `packages/jit-plugin-react/` | JIT plugin for React JSX — disables Solid auto-detection (`@fe/jit-plugin-react`) |
+| `packages/jit-plugin-solid/` | JIT plugin for Solid.js JSX — appends `bun-plugin-solid` to the build pipeline (`@fe/jit-plugin-solid`) |
 | `sandbox/mfe-a/` | React MFE (`fe(acme/mfe-a)`) |
 | `sandbox/mfe-b/` | SolidJS MFE that composes mfe-a (`fe(acme/mfe-b)`) |
 | `sandbox/host-app/` | Host app — resolves routes, injects import maps, mounts MFEs |

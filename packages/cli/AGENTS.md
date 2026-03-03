@@ -56,12 +56,12 @@ createJsonConfigProvider(root: string): ConfigProvider
 ```
 Reads `<root>/configs/fe.config.json`. Returns `Required<FeConfig>` with defaults merged:
 ```
-plugins:      []
-jitPlugins:   []
-manifestPath: "configs/platform.json"
-uploadsDir:   "uploads"
-sourcesDir:   "sources"
-shellDir:     "shell"
+plugins:      []                      npm packages loaded as CLI plugins
+jitPlugins:   []                      npm packages loaded as JIT compiler plugins
+manifestPath: "configs/platform.json" path to routes+packages registry
+uploadsDir:   "uploads"               artifact storage dir (fe admin upload)
+sourcesDir:   "sources"               source upload dir (fe publish)
+shellDir:     "shell"                 host application directory
 ```
 If file is absent, returns defaults. Throws on malformed JSON.
 
@@ -121,21 +121,23 @@ fe link <consumer> <dep>
 ### publish (plugins/publish.ts)
 ```
 fe publish <target>
-  runs pre-flight check (build simulation)
+  runs pre-flight check (build simulation to /dev/null via index.ts)
   reads name + version from target/package.json
   slug = slugFromSpecifier(name)  // strips "fe(" prefix/suffix chars
-  sourceStorage.upload(slug, version, srcDir)
+  sourceStorage.upload(slug, version, srcDir)   // uploads src/ directory
   reads fe() devDeps → resolves dep versions from local package.json files
   url = `/bundle/${slug}/${version}/index.ts`
   manifest.registerPackage(name, version, {url, deps})
 ```
 Never touches "routes" — only "packages" in platform.json. Legacy `admin.ts` provides artifact uploads but `publish` handles source code for JIT.
+Note: pre-flight hardcodes `src/index.ts` — use `fe admin upload` for MFEs with `src/index.tsx` entrypoints.
 
 ### check (plugins/check.ts)
 ```
 fe check <target|shell>
   tsc --noEmit (via bunx tsc --project <dir>/tsconfig.json)
-  Bun.build simulation (same options as real build, respects build:options waterfall)
+  Bun.build simulation (tries src/index.ts first, falls back to src/index.tsx)
+  applies build:options waterfall (same as real build)
   exits 0 on pass · exits 1 on first failure
   NOTE: check writes to dist/ as a side effect of the build simulation
 ```

@@ -10,15 +10,18 @@ types:   src/index.tsx
 fe()-deps: ∅  (no cross-MFE imports)
 dependencies:
   "solid-js": "^1.9.0"  (bundled into output, NOT external)
+devDependencies:
+  "@fe/jit-plugin-solid": "workspace:*"  (used by build:options waterfall)
 ```
 
 ## purpose
 Developer overlay MFE. Renders a floating panel for managing per-tab import map overrides.
 Loaded by shell via `loadDevtools()` when `config.devtools` is set in platform.json.
-Not in routes; not uploaded via admin — loaded on-demand from whatever URL `config.devtools` resolves to.
+Not in routes; activated by pointing the `devtools` key in platform.json to its artifact URL.
 
 ## tsconfig
 target=ES2022 module=ESNext moduleResolution=bundler strict=true lib=[ES2022,DOM] include=[src]
+jsx=react-jsx jsxImportSource=solid-js (standard Solid.js tsconfig; `@fe/jit-plugin-solid` handles the transform)
 
 ## files
 ```
@@ -34,7 +37,7 @@ export function render(container: HTMLElement, _props): () => void
   mounts <DevTools /> via solid-js · returns unmount fn
 
 DevTools:
-  toggle button (fixed, bottom-right)
+  toggle button (fixed, bottom-right) · badge shows active override count
   panel with:
     - list of active sessionStorage overrides (spec → url)
     - remove individual override · clear all
@@ -58,53 +61,47 @@ share URL: ?platform:overrides=<JSON>
 
 ## build
 ```
+# from repo root (preferred):
+fe build toolkit/devtools
+  → reads @fe/jit-plugin-solid from devDependencies via build:options waterfall
+  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=["fe(*)"])
+  → solid-js is bundled (not external)
+
 # from toolkit/devtools/:
-bun run build
-  → bun build.ts
-  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=[fe(*)])
-  → uses @dschz/bun-plugin-solid for correct Solid.js JSX compilation
-  solid-js is bundled (not external)
+bun run build   (calls fe build toolkit/devtools via package.json script)
+
+output: toolkit/devtools/dist/index.js
 ```
 
-### Bun JSX + Solid.js — known constraints
-Bun v1.x (tested on 1.3.9) has partial JSX flag support:
-- `--jsx-factory <fn>` works — replaces the element-creation call
-- `--jsx-fragment <fn>` is SILENTLY IGNORED — bun always emits `Fragment` as a bare identifier
-- `--jsx-import-source`, `--jsx-runtime`, and tsconfig `jsxImportSource` are all ignored
-- The correct solution for Solid.js TSX is `@dschz/bun-plugin-solid` (wraps Babel+babel-preset-solid)
-  via a `build.ts` script using the `Bun.build()` API; `@babel/core`, `@babel/preset-typescript`,
-  and `babel-preset-solid` are required peer deps
-- In offline/sandboxed environments where `bun add` cannot reach the network, install these packages
-  manually; bun cache entries at `/root/.bun/install/cache/` may fail to resolve transitive deps
-  because the cache layout lacks nested node_modules — ensure @babel/* packages are present in the
-  workspace or package-local node_modules before running build.ts
+`fe build` checks for `src/index.tsx` first — devtools uses `.tsx` so this works correctly.
+`solid-js` is listed in `dependencies` (not devDependencies), so it is bundled into the output.
 
-### build.ts (Bun.build API)
-```ts
-import { SolidPlugin } from "@dschz/bun-plugin-solid";
-await Bun.build({
-  entrypoints: ["./src/index.tsx"],
-  outdir: "./dist",
-  format: "esm",
-  target: "browser",
-  external: ["fe(*)", /^fe\(/],
-  plugins: [SolidPlugin({ generate: "dom", hydratable: false, sourceMaps: false })],
-});
-```
+## upload + activation (legacy artifact path)
+Devtools uses the artifact upload path (`fe admin upload`) rather than JIT publish,
+because the sandbox does not configure `jitPlugins` in `fe.config.json`.
 
-## upload + activation
 ```
-fe admin upload devtools
+# 1. Build
+fe build toolkit/devtools
+
+# 2. Upload artifact
+fe admin upload toolkit/devtools
   copies dist/ → uploads/devtools/1.0.0/
   registers in platform.json packages section
 
-# activate: add to platform.json manually:
+# 3. Activate — add to platform.json manually:
 {
   "devtools": "fe(acme/devtools)@1.0.0",
   "routes": { ... },
   "packages": { ... }
 }
 
-# then rebuild shell to embed updated config:
+# 4. Rebuild shell to embed updated config:
 fe build shell
 ```
+
+## ✗ invariants
+- solid-js goes in dependencies (not devDependencies); it must be bundled into dist/index.js
+- @fe/jit-plugin-solid goes in devDependencies; it is used at build time only
+- devtools is activated via platform.json "devtools" key, not via "routes"
+- admin upload writes to packages only, never routes

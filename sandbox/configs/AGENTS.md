@@ -16,12 +16,13 @@ Accessed at runtime via `ctx.adapters.config.get()` — not read directly by plu
   "plugins":      [],
   "manifestPath": "configs/platform.json",
   "uploadsDir":   "uploads",
-  "sourcesDir":   "sources",
   "shellDir":     "host-app"
 }
 ```
-All fields optional. Defaults: plugins=[] manifestPath="configs/platform.json" uploadsDir="uploads" sourcesDir="sources" shellDir="shell".
+All fields optional. Defaults: plugins=[] jitPlugins=[] manifestPath="configs/platform.json" uploadsDir="uploads" sourcesDir="sources" shellDir="shell".
+The sandbox omits `sourcesDir` and `jitPlugins` — defaults apply.
 To add a CLI plugin: add its npm package name to `plugins[]` and install it in the workspace.
+To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` to `jitPlugins[]`.
 
 ## platform.json
 ```json

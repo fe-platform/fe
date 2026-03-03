@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:    shell
+name:    host-app
 version: 1.0.0
 devDependencies:
   "fe(acme/mfe-b)": "file:../mfe-b"
@@ -92,8 +92,9 @@ fe serve [port=3000]
 
 ## full run sequence (from repo root)
 ```
-fe publish mfe-a
-fe publish mfe-b
+fe build mfe-a && fe admin upload mfe-a
+fe build mfe-b && fe admin upload mfe-b
+bun run --cwd toolkit/devtools build && fe admin upload toolkit/devtools
 # edit sandbox/configs/platform.json "routes" if needed
 fe build shell
 fe serve
@@ -112,18 +113,21 @@ CI=true bun run test
 ### playwright.config.ts
 ```ts
 webServer.command = [
-  "fe publish mfe-a",
-  "fe publish mfe-b",
+  "fe build mfe-a",
+  "fe admin upload mfe-a",
+  "fe build mfe-b",
+  "fe admin upload mfe-b",
   "bun run --cwd ../toolkit/devtools build",
-  "fe admin upload ../toolkit/devtools", // legacy devtools uses admin upload
+  "fe admin upload ../toolkit/devtools",
   "fe build shell",
   "fe serve",
 ].join(" && ")
 webServer.reuseExistingServer = !process.env.CI
 ```
-Note: `fe build devtools` is intentionally NOT used — the CLI `build` command hardcodes
-`src/index.ts` but devtools uses `src/index.tsx`; `bun run --cwd ../toolkit/devtools build` invokes
-the package's own script instead.
+The tests use the legacy artifact path (`fe build + fe admin upload`) because the sandbox
+`fe.config.json` does not configure `jitPlugins`, so JIT compilation of SolidJS MFEs is not set up.
+`bun run --cwd ../toolkit/devtools build` invokes the devtools package's own `build` script
+(`fe build toolkit/devtools`) since its entry is `src/index.tsx`, not `src/index.ts`.
 
 ### test coverage (tests/host.spec.ts)
 1. platform config is embedded in HTML — reads `#__platform__` JSON, checks routes + packages structure

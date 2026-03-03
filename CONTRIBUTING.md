@@ -14,16 +14,20 @@ bun install
 ## Building and serving the full stack
 
 ```bash
-fe build sandbox/mfe-a
-fe build sandbox/mfe-b
-fe build toolkit/devtools
 fe publish sandbox/mfe-a
 fe publish sandbox/mfe-b
-fe publish toolkit/devtools
+fe build toolkit/devtools
+fe admin upload toolkit/devtools
 # edit sandbox/configs/platform.json "routes" if needed
 fe build shell
 fe serve
 ```
+
+`fe publish` uploads raw source and registers a JIT bundle URL. `fe build` is not required
+before `fe publish` — the pre-flight check inside `publish` is sufficient.
+
+Devtools uses the legacy artifact path (`fe build + fe admin upload`) because the sandbox
+`fe.config.json` does not configure `jitPlugins` for Solid.js JIT compilation.
 
 ## Developing an MFE in isolation
 

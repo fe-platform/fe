@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./server": "./src/jit.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --format esm --target browser",
