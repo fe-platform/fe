@@ -10,10 +10,14 @@ docs/site/
 │  ├─ 02-hero.html     Hero section with tagline
 │  ├─ 03-architecture.html
 │  └─ ...              Other content sections
+├─ styles/             Modular CSS files (concatenated by build.ts)
+│  ├─ 00-tokens.css    Color variables and dark mode
+│  ├─ 01-base.css      Resets and body styles
+│  └─ ...              Other style modules
 ├─ index.template.html Skeleton HTML (Head, Scripts, Layout)
-├─ style.css           Sitewide styles
-├─ build.ts            Bun script to compose fragments into index.html
-└─ index.html          Generated output (!committed · in .gitignore)
+├─ build.ts            Bun script to compose fragments and styles
+├─ index.html          Generated output (!committed · in .gitignore)
+└─ style.css           Generated output (!committed · in .gitignore)
 ```
 
 ## Toolchain
@@ -21,12 +25,12 @@ docs/site/
 - **Vanilla HTML/CSS**: No framework used for the docs site itself.
 
 ## Build Process
-The site is built by composing HTML fragments from `fragments/` into the `index.template.html` file.
+The site is built by composing HTML fragments into `index.template.html` and concatenating CSS files from `styles/` into `style.css`.
 ```bash
 # To build the site:
 bun run build.ts
 ```
-The generated `index.html` is ignored by Git. Always edit the `fragments/` or `style.css` directly.
+The generated `index.html` and `style.css` are ignored by Git. Always edit the `fragments/` or `styles/` directly.
 
 ## Guidelines
 - **No Emojis**: Do not use emojis in any documentation content.

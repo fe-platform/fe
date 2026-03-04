@@ -152,7 +152,7 @@ trigger: push→main | PR→main
 `sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app + toolkit/devtools
 
 ## docs
-documentation lives at https://deepwiki.com/fe-platform/fe
+documentation lives at https://fe.frustrated.dev
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
 ## ✗ agent conduct: cardinal rules
