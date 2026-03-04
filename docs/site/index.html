@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>fe platform · docs</title>
+        <link rel="icon" type="image/png" href="favicon.png" />
+        <meta
+            name="description"
+            content="fe platform: a source-first microfrontend system. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve dependencies in the browser at runtime."
+        />
+        <style>
+            :root {
+                --bg: #f4f3ef;
+                --ink: #111111;
+                --mid: #5a5a57;
+                --accent: #3535aa;
+                --rule: #d0cfc8;
+                --dot: #c8c7c0;
+                --card-a: #a07828;
+                --card-b: #3455a4;
+                --card-c: #2d7a4a;
+                --card-d: #8f3030;
+                --code-bg: #fffbe5;
+                --code-text: #222220;
+                --code-rule: #e8e6d0;
+                --header-height: 3.5rem;
+
+                @media (prefers-color-scheme: dark) {                    --bg: #131311;
+                    --ink: #e4e3df;
+                    --mid: #888880;
+                    --accent: #7878e0;
+                    --rule: #2e2e2b;
+                    --dot: #383835;
+                    --code-bg: #242220;
+                    --code-text: #b4b1aa;
+                    --code-rule: #2e2e2b;
+                    --card-a: #d4a840;
+                    --card-b: #6888e8;
+                    --card-c: #52c078;
+                    --card-d: #d06868;
+                }
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--ink);
+                font-family: system-ui, sans-serif;
+                font-size: 16px;
+                scroll-behavior: smooth;
+            }
+            .layout {
+                display: grid;
+                grid-template-columns: 220px 1fr;
+                max-width: 1200px;
+                margin: 0 auto;
+                min-height: 70vh;
+                scroll-margin-top: var(--header-height);
+
+                &:has(#nav-platform[open]) main {                    padding: 0;
+                }
+
+                &:has(#nav-arch[open]) main html-include[href*="03"] { display: block; }
+                &:has(#nav-product[open]) main html-include[href*="04"] {
+                    display: block;
+                }
+                &:has(#nav-platform[open]) main html-include[href*="05"] {
+                    display: block;
+                }
+                &:has(#nav-tutorials[open]) main html-include[href*="06"] {
+                    display: block;
+                }
+            }
+
+            #mobile-nav {
+                position: sticky;
+                top: var(--header-height);
+                align-self: start;
+
+                &::before {
+                    content: "";
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    bottom: -100vh;
+                    width: 1px;
+                    background: var(--rule);
+                    pointer-events: none;
+                }
+
+                > summary {
+                    display: none;
+                }
+
+                > aside {
+                    display: block !important;
+                }
+            }
+            aside {
+                counter-reset: page-counter;
+            }
+
+            details[name="page"] {
+                counter-increment: page-counter;
+                position: relative;
+                overflow: hidden;
+
+                > summary {
+                    padding: 0;
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    letter-spacing: 0.12em;
+                    text-transform: uppercase;
+                    cursor: pointer;
+                    border-bottom: 1px solid var(--rule);
+                    list-style: none;
+
+                    &::-webkit-details-marker {
+                        display: none;
+                    }
+
+                    a {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 1.25rem 1.5rem;
+                        color: inherit;
+                        text-decoration: none;
+                        width: 100%;
+                    }
+
+                    &::before {                        content: "0" counter(page-counter);
+                        font-family: monospace;
+                        font-size: 7rem;
+                        opacity: 0.06;
+                        position: absolute;
+                        right: 0.5rem;
+                        top: -0.5rem;
+                        font-weight: 900;
+                        pointer-events: none;
+                        line-height: 1;
+                    }
+
+                    .arr::before {
+                        content: "▸";
+                    }
+                }
+
+                &[open] > summary {
+                    color: var(--accent);
+                    border-bottom-color: var(--accent);
+
+                    .arr::before {
+                        content: "▾";
+                        color: var(--accent);
+                    }
+                }
+            }
+
+            main {
+                padding: 2.5rem;
+
+                html-include {
+                    display: none;
+                }
+            }
+
+            html-include:not(:defined) {
+                display: none;
+            }
+
+            html-include {
+                width: 100%;
+            }
+            @media (max-width: 999px) {
+                .layout {
+                    display: block;
+                }
+
+                #mobile-nav {
+                    border-right: none;
+                    border-bottom: 1px solid var(--rule);
+                    position: static;
+
+                    > summary {
+                        display: block;
+                        padding: 0.875rem 1.5rem;
+                        font-size: 0.7rem;
+                        font-weight: 700;
+                        letter-spacing: 0.12em;
+                        text-transform: uppercase;
+                        cursor: pointer;
+                        list-style: none;
+                        border-bottom: 1px solid var(--rule);
+
+                        &::-webkit-details-marker {
+                            display: none;
+                        }
+                    }
+                }
+                main {
+                    padding: 1.5rem;
+                }
+            }
+        </style>
+        <script>
+            customElements.define(
+                "html-include",
+                class extends HTMLElement {
+                    constructor() {
+                        super();
+                        this.attachShadow({ mode: "open" });
+                    }
+
+                    connectedCallback() {
+                        const href = this.getAttribute("href");
+                        if (!href) return;
+
+                        const observer = new IntersectionObserver(
+                            (entries) => {
+                                if (entries[0].isIntersecting) {
+                                    // Only load (and preload) when it's about to be rendered
+                                    this._preload(href);
+                                    this._load(href);
+                                    observer.disconnect();
+                                }
+                            },
+                            { rootMargin: "200px" },
+                        );
+                        observer.observe(this);
+                    }
+
+                    _preload(href) {
+                        const preload = document.createElement("link");
+                        preload.rel = "preload";
+                        preload.as = "fetch";
+                        preload.href = href;
+                        document.head.appendChild(preload);
+                    }
+
+                    async _load(href) {
+                        try {
+                            const response = await fetch(href);
+                            if (!response.ok)
+                                throw new Error(`HTTP ${response.status}`);
+                            const html = await response.text();
+                            this.shadowRoot.innerHTML = html;
+                        } catch (err) {
+                            console.error("html-include failed:", href, err);
+                        }
+                    }
+                },
+            );
+            //# sourceURL=html-include.js
+        </script>
+    </head>
+
+    <body id="top">
+        <html-include href="fragments/01-header.html"></html-include>
+        <html-include href="fragments/02-hero.html"></html-include>
+
+        <div id="main-content" class="layout">
+            <details id="mobile-nav" open>
+                <summary>▸ menu</summary>
+                <aside>
+                    <details name="page" id="nav-arch" open>
+                        <summary><a href="#nav-arch">Architecture <span class="arr"></span></a></summary>
+                    </details>
+                    <details name="page" id="nav-product">
+                        <summary><a href="#nav-product">For product engineers <span class="arr"></span></a></summary>
+                    </details>
+                    <details name="page" id="nav-platform">
+                        <summary><a href="#nav-platform">For platform engineers <span class="arr"></span></a></summary>
+                    </details>
+                    <details name="page" id="nav-tutorials">
+                        <summary><a href="#nav-tutorials">Tutorials <span class="arr"></span></a></summary>
+                    </details>
+                </aside>
+                </details>
+                <main>
+                <html-include href="fragments/03-architecture.html"></html-include>
+                <html-include href="fragments/04-product-eng.html"></html-include>
+                <html-include href="fragments/05-platform-eng.html"></html-include>
+                <html-include href="fragments/06-tutorials.html"></html-include>
+                </main>
+                </div>
+
+    <script>
+        (function() {
+            function getTarget(root, id) {
+                if (!root) return null;
+                const el = root.getElementById ? root.getElementById(id) : root.querySelector('[id="' + id + '"]');
+                if (el) return el;
+                
+                const includes = root.querySelectorAll ? root.querySelectorAll('html-include') : [];
+                for (const inc of includes) {
+                    if (inc.shadowRoot) {
+                        const found = getTarget(inc.shadowRoot, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+
+            function sync() {
+                const hash = window.location.hash;
+                if (!hash || hash.length < 2) return;
+                const id = hash.slice(1);
+
+                const target = getTarget(document, id);
+                if (target && target.tagName === 'DETAILS') {
+                    let current = target;
+                    while (current) {
+                        if (current.tagName === 'DETAILS') current.open = true;
+                        // Move up to parent or across shadow boundary
+                        const parent = current.parentElement;
+                        const host = current.getRootNode ? current.getRootNode().host : null;
+                        current = host || parent;
+                    }
+                    
+                    document.getElementById('main-content').scrollIntoView();
+                }
+            }
+
+            window.addEventListener('hashchange', sync);
+            // Handle initial load
+            if (window.location.hash) {
+                // Wait a bit for fragments to potentially instantiate
+                setTimeout(sync, 100);
+            }
+        })();
+    </script>
+                </body>
+</html>

@@ -46,5 +46,4 @@ uploads/
 # Nx
 .nx/
 # Docs
-docs/site/index.html
 docs/site/style.css
