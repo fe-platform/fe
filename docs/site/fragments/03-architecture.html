@@ -38,20 +38,16 @@ import { store } from "fe(acme/store)";
     any <code>tsconfig.paths</code> configuration.
   </p>
 
-  <h3>Two kinds of MFE</h3>
+  <h3>MFE exports</h3>
   <p>
-    A MFE can play two roles, and the role determines what it must export:
+    A MFE is a plain ES module. It can export functions, stores, API clients, or
+    anything else that makes sense for its purpose. The platform treats publish,
+    versioning, and import-map resolution the same regardless of what the module exports.
   </p>
-  <table>
-    <thead><tr><th>Role</th><th>Entry in platform.json</th><th>Must export</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Route MFE</strong></td><td><code>routes</code> — mapped to a URL path</td><td><code>render()</code></td></tr>
-      <tr><td><strong>Dependency MFE</strong></td><td><code>packages</code> only</td><td>Anything: functions, stores, API clients</td></tr>
-    </tbody>
-  </table>
   <p>
-    Route MFEs are mounted by the runtime when the URL matches. They must export a
-    <code>render()</code> function:
+    The one special case is a MFE registered under <code>routes</code> in
+    <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
+    the module and calls <code>render()</code> to mount the UI:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -64,11 +60,6 @@ import { store } from "fe(acme/store)";
     The contract is intentionally minimal: no framework lifecycle, no router coupling,
     no shared state requirement. The cleanup function is called on navigation away.
     React, Solid.js, and vanilla DOM all satisfy it without adaptation.
-  </p>
-  <p>
-    Dependency MFEs are plain ES modules imported by other MFEs. A shared store, a
-    network client, a suite of API helpers — any export shape works. The runtime loads
-    them through the import map and does nothing else.
   </p>
 
   <h3>Deployment model</h3>
