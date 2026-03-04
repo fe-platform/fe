@@ -7,7 +7,10 @@
         <link rel="icon" type="image/svg+xml" href="logo.svg" />
         <link rel="icon" type="image/png" href="favicon.png" />
         <link rel="preconnect" href="https://esm.sh" />
-        <link rel="modulepreload" href="https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?bundle" />
+        <link
+            rel="modulepreload"
+            href="https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?standalone"
+        />
         <meta
             name="description"
             content="fe platform: a source-first microfrontend system. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve dependencies in the browser at runtime."
@@ -90,11 +93,21 @@
                 min-height: 70vh;
                 scroll-margin-top: var(--header-height);
 
-                &:has(#nav-platform[open]) main { padding: 0; }
-                &:has(#nav-arch[open]) html-include[href*="03"] { display: block; }
-                &:has(#nav-product[open]) html-include[href*="04"] { display: block; }
-                &:has(#nav-platform[open]) html-include[href*="05"] { display: block; }
-                &:has(#nav-tutorials[open]) html-include[href*="06"] { display: block; }
+                &:has(#nav-platform[open]) main {
+                    padding: 0;
+                }
+                &:has(#nav-arch[open]) html-include[href*="03"] {
+                    display: block;
+                }
+                &:has(#nav-product[open]) html-include[href*="04"] {
+                    display: block;
+                }
+                &:has(#nav-platform[open]) html-include[href*="05"] {
+                    display: block;
+                }
+                &:has(#nav-tutorials[open]) html-include[href*="06"] {
+                    display: block;
+                }
             }
 
             #mobile-nav {
@@ -113,8 +126,13 @@
                     pointer-events: none;
                 }
 
-                > summary { display: none; }
-                aside { display: block !important; counter-reset: page-counter; }
+                > summary {
+                    display: none;
+                }
+                aside {
+                    display: block !important;
+                    counter-reset: page-counter;
+                }
             }
 
             details[name="page"] {
@@ -132,7 +150,9 @@
                     border-bottom: 1px solid var(--rule);
                     list-style: none;
 
-                    &::-webkit-details-marker { display: none; }
+                    &::-webkit-details-marker {
+                        display: none;
+                    }
 
                     a {
                         display: flex;
@@ -144,8 +164,15 @@
                         text-decoration: none;
                         width: 100%;
 
-                        .label { display: flex; align-items: center; gap: 0.5rem; }
-                        .icon { font-size: 1rem; vertical-align: middle; }
+                        .label {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                        }
+                        .icon {
+                            font-size: 1rem;
+                            vertical-align: middle;
+                        }
                     }
 
                     &::before {
@@ -161,24 +188,63 @@
                         line-height: 1;
                     }
 
-                    .arr::before { content: "▸"; }
+                    .arr::before {
+                        content: "▸";
+                    }
                 }
 
-                &#nav-arch > summary { a .icon { color: var(--card-c); } &::before { color: var(--card-c); opacity: 0.15; } }
-                &#nav-product > summary { a .icon { color: var(--card-a); } &::before { color: var(--card-a); opacity: 0.15; } }
-                &#nav-platform > summary { a .icon { color: var(--card-b); } &::before { color: var(--card-b); opacity: 0.15; } }
-                &#nav-tutorials > summary { a .icon { color: var(--card-d); } &::before { color: var(--card-d); opacity: 0.15; } }
+                &#nav-arch > summary {
+                    a .icon {
+                        color: var(--card-c);
+                    }
+                    &::before {
+                        color: var(--card-c);
+                        opacity: 0.15;
+                    }
+                }
+                &#nav-product > summary {
+                    a .icon {
+                        color: var(--card-a);
+                    }
+                    &::before {
+                        color: var(--card-a);
+                        opacity: 0.15;
+                    }
+                }
+                &#nav-platform > summary {
+                    a .icon {
+                        color: var(--card-b);
+                    }
+                    &::before {
+                        color: var(--card-b);
+                        opacity: 0.15;
+                    }
+                }
+                &#nav-tutorials > summary {
+                    a .icon {
+                        color: var(--card-d);
+                    }
+                    &::before {
+                        color: var(--card-d);
+                        opacity: 0.15;
+                    }
+                }
 
                 &[open] > summary {
                     color: var(--accent);
                     border-bottom-color: var(--accent);
-                    .arr::before { content: "▾"; color: var(--accent); }
+                    .arr::before {
+                        content: "▾";
+                        color: var(--accent);
+                    }
                 }
             }
 
             main {
                 padding: 2.5rem;
-                html-include { display: none; }
+                html-include {
+                    display: none;
+                }
             }
 
             .wip {
@@ -202,31 +268,59 @@
                     color: var(--mid);
                 }
 
-                h3, h4 { margin-top: 0 !important; color: var(--mid) !important; }
-                ul { margin-bottom: 0 !important; font-size: 0.85rem; }
+                h3,
+                h4 {
+                    margin-top: 0 !important;
+                    color: var(--mid) !important;
+                }
+                ul {
+                    margin-bottom: 0 !important;
+                    font-size: 0.85rem;
+                }
             }
 
-            html-include:not(:defined) { display: none; }
+            html-include:not(:defined) {
+                display: none;
+            }
             html-include {
                 width: 100%;
                 display: block;
                 content-visibility: auto;
                 contain-intrinsic-size: 1px 500px;
-                &[href*="header"] { position: sticky; top: 0; z-index: 100; min-height: var(--header-height); }
-                &[href*="hero"] { min-height: 440px; }
-                &[href*="architecture"] { min-height: 800px; }
-                &[href*="product-eng"] { min-height: 600px; }
-                &[href*="platform-eng"] { min-height: 1000px; }
-                &[href*="tutorials"] { min-height: 600px; }
+                &[href*="header"] {
+                    position: sticky;
+                    top: 0;
+                    z-index: 100;
+                    min-height: var(--header-height);
+                }
+                &[href*="hero"] {
+                    min-height: 440px;
+                }
+                &[href*="architecture"] {
+                    min-height: 800px;
+                }
+                &[href*="product-eng"] {
+                    min-height: 600px;
+                }
+                &[href*="platform-eng"] {
+                    min-height: 1000px;
+                }
+                &[href*="tutorials"] {
+                    min-height: 600px;
+                }
             }
 
             @media (max-width: 999px) {
-                .layout { display: block; }
+                .layout {
+                    display: block;
+                }
                 #mobile-nav {
                     border-right: none;
                     border-bottom: 1px solid var(--rule);
                     position: static;
-                    &::before { display: none; }
+                    &::before {
+                        display: none;
+                    }
                     > summary {
                         display: block;
                         padding: 0.875rem 1.5rem;
@@ -238,11 +332,17 @@
                         cursor: pointer;
                         list-style: none;
                         border-bottom: 1px solid var(--rule);
-                        &::-webkit-details-marker { display: none; }
+                        &::-webkit-details-marker {
+                            display: none;
+                        }
                     }
                 }
-                main { padding: 1.5rem; }
-                html-include[href*="hero"] { min-height: 800px; }
+                main {
+                    padding: 1.5rem;
+                }
+                html-include[href*="hero"] {
+                    min-height: 800px;
+                }
             }
         </style>
         <script>
@@ -250,7 +350,8 @@
                 let _hl;
                 async function hl(root) {
                     if (!_hl) {
-                        const mod = await import("https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?bundle");
+                        const mod =
+                            await import("https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?standalone");
                         _hl = mod.highlight;
                         mod.applyTheme({
                             keyword: "var(--accent)",
@@ -264,32 +365,41 @@
                     }
                     _hl(root);
                 }
-                customElements.define("html-include", class extends HTMLElement {
-                    connectedCallback() {
-                        const href = this.getAttribute("href");
-                        if (!href) return;
-                        if (this.getAttribute("loading") === "eager") {
-                            this._load(href);
-                        } else {
-                            new IntersectionObserver((entries, observer) => {
-                                if (entries[0].isIntersecting) {
-                                    this._load(href); observer.disconnect();
-                                }
-                            }, { rootMargin: "400px" }).observe(this);
-                        }
-                    }
-                    async _load(href) {
-                        try {
-                            const r = await fetch(href);
-                            this.innerHTML = await r.text();
-                            hl(this);
-                            if (window.location.hash) {
-                                // Re-run sync if the target might be in this new content
-                                setTimeout(window._fe_sync, 10);
+                customElements.define(
+                    "html-include",
+                    class extends HTMLElement {
+                        connectedCallback() {
+                            const href = this.getAttribute("href");
+                            if (!href) return;
+                            if (this.getAttribute("loading") === "eager") {
+                                this._load(href);
+                            } else {
+                                new IntersectionObserver(
+                                    (entries, observer) => {
+                                        if (entries[0].isIntersecting) {
+                                            this._load(href);
+                                            observer.disconnect();
+                                        }
+                                    },
+                                    { rootMargin: "400px" },
+                                ).observe(this);
                             }
-                        } catch (err) { console.error(err); }
-                    }
-                });
+                        }
+                        async _load(href) {
+                            try {
+                                const r = await fetch(href);
+                                this.innerHTML = await r.text();
+                                hl(this);
+                                if (window.location.hash) {
+                                    // Re-run sync if the target might be in this new content
+                                    setTimeout(window._fe_sync, 10);
+                                }
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        }
+                    },
+                );
                 hl(document);
             })();
             //# sourceURL=html-include.js
@@ -297,31 +407,74 @@
     </head>
 
     <body id="top">
-        <html-include loading="eager" href="fragments/01-header.html"></html-include>
-        <html-include loading="eager" href="fragments/02-hero.html"></html-include>
+        <html-include
+            loading="eager"
+            href="fragments/01-header.html"
+        ></html-include>
+        <html-include
+            loading="eager"
+            href="fragments/02-hero.html"
+        ></html-include>
 
         <div id="main-content" class="layout">
             <details id="mobile-nav" open>
                 <summary>▸ menu</summary>
                 <aside>
                     <details name="page" id="nav-arch" open>
-                        <summary><a href="#nav-arch"><span class="label"><span class="icon">⎔</span> Architecture</span> <span class="arr"></span></a></summary>
+                        <summary>
+                            <a href="#nav-arch"
+                                ><span class="label"
+                                    ><span class="icon">⎔</span>
+                                    Architecture</span
+                                >
+                                <span class="arr"></span
+                            ></a>
+                        </summary>
                     </details>
                     <details name="page" id="nav-product">
-                        <summary><a href="#nav-product"><span class="label"><span class="icon">⧉</span> For product engineers</span> <span class="arr"></span></a></summary>
+                        <summary>
+                            <a href="#nav-product"
+                                ><span class="label"
+                                    ><span class="icon">⧉</span> For product
+                                    engineers</span
+                                >
+                                <span class="arr"></span
+                            ></a>
+                        </summary>
                     </details>
                     <details name="page" id="nav-platform">
-                        <summary><a href="#nav-platform"><span class="label"><span class="icon">۞</span> For platform engineers</span> <span class="arr"></span></a></summary>
+                        <summary>
+                            <a href="#nav-platform"
+                                ><span class="label"
+                                    ><span class="icon">۞</span> For platform
+                                    engineers</span
+                                >
+                                <span class="arr"></span
+                            ></a>
+                        </summary>
                     </details>
                     <details name="page" id="nav-tutorials">
-                        <summary><a href="#nav-tutorials"><span class="label"><span class="icon">✺</span> Tutorials</span> <span class="arr"></span></a></summary>
+                        <summary>
+                            <a href="#nav-tutorials"
+                                ><span class="label"
+                                    ><span class="icon">✺</span> Tutorials</span
+                                >
+                                <span class="arr"></span
+                            ></a>
+                        </summary>
                     </details>
                 </aside>
             </details>
             <main>
-                <html-include href="fragments/03-architecture.html"></html-include>
-                <html-include href="fragments/04-product-eng.html"></html-include>
-                <html-include href="fragments/05-platform-eng.html"></html-include>
+                <html-include
+                    href="fragments/03-architecture.html"
+                ></html-include>
+                <html-include
+                    href="fragments/04-product-eng.html"
+                ></html-include>
+                <html-include
+                    href="fragments/05-platform-eng.html"
+                ></html-include>
                 <html-include href="fragments/06-tutorials.html"></html-include>
             </main>
         </div>

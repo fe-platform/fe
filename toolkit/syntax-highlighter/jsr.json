@@ -1,7 +1,31 @@
 {
   "name": "@fe-platform/syntax-highlighter",
-  "version": "0.0.3",
-  "description": "fe(#syntax-highlighter) - High-performance tokenization using the CSS Custom Highlight API with support for TypeScript, JSON, and Shell.",
+  "version": "0.0.6",
+  "description": "High-performance syntax highlighter using the CSS Custom Highlight API. Zero-DOM overhead, modular, and supporting TypeScript, JSON, and Shell.",
   "license": "MIT",
-  "exports": "./src/index.ts"
+  "exports": {
+    ".": "./src/core.ts",
+    "./languages/ts": "./src/languages/ts.ts",
+    "./languages/json": "./src/languages/json.ts",
+    "./languages/shell": "./src/languages/shell.ts",
+    "./themes/auto": "./src/themes/default.ts",
+    "./themes/light": "./src/themes/light.ts",
+    "./themes/dark": "./src/themes/dark.ts",
+    "./themes/dracula": "./src/themes/dracula.ts",
+    "./themes/github-light": "./src/themes/github-light.ts",
+    "./types": "./src/types.ts"
+  },
+  "publish": {
+    "include": [
+      "src/**/*.ts",
+      "README.md",
+      "jsr.json",
+      "LICENSE"
+    ]
+  },
+  "runtime": {
+    "browser": true,
+    "deno": true,
+    "bun": true
+  }
 }
