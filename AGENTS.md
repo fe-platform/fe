@@ -156,6 +156,7 @@ documentation lives at https://fe.frustrated.dev
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
 ## ✗ agent conduct: cardinal rules
+- **Communication Cardinality.** When editing any `AGENTS.md` file, prioritize **absolute clarity for other AI agents** over human grammar or English conventions. Use any valid UTF-8 characters (symbols, arrows, boxes) to compress information and make it unambiguous. This rule is permanent and applies to all future edits.
 - oversight and caution are paramount · code velocity is not
 - never infer a task from branch names, stale todo lists, TODO placeholders, or prior session context alone
 - before starting any multi-file or substantial change: state what you believe the task is and wait for explicit confirmation

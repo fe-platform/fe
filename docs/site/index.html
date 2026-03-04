@@ -11,12 +11,12 @@
         />
         <style>
             :root {
-                --bg: #f9f9f7;
-                --ink: #1a1a1a;
-                --mid: #666663;
-                --accent: #4f46e5;
-                --rule: #e5e5e0;
-                --dot: #e5e5e0;
+                --bg: #fcfcf9;
+                --ink: #0a0a0a;
+                --mid: #4a4a48;
+                --accent: #4338ca;
+                --rule: #d1d1cc;
+                --dot: #bdbdb8;
                 --card-a: #f59e0b; /* Amber */
                 --card-b: #3b82f6; /* Blue */
                 --card-c: #10b981; /* Emerald */
@@ -27,12 +27,12 @@
                 --header-height: 3.5rem;
 
                 @media (prefers-color-scheme: dark) {
-                    --bg: #0f0f0e;
-                    --ink: #f0f0ee;
+                    --bg: #0a0a09;
+                    --ink: #f5f5f3;
                     --mid: #a1a19a;
                     --accent: #818cf8;
-                    --rule: #262624;
-                    --dot: #262624;
+                    --rule: #333330;
+                    --dot: #2a2a28;
                     --card-a: #fbbf24;
                     --card-b: #60a5fa;
                     --card-c: #34d399;
@@ -56,6 +56,7 @@
                 font-size: 16px;
                 scroll-behavior: smooth;
             }
+
             .layout {
                 display: grid;
                 grid-template-columns: 220px 1fr;
@@ -64,7 +65,8 @@
                 min-height: 70vh;
                 scroll-margin-top: var(--header-height);
 
-                &:has(#nav-platform[open]) main {                    padding: 0;
+                &:has(#nav-platform[open]) main {
+                    padding: 0;
                 }
 
                 &:has(#nav-arch[open]) main html-include[href*="03"] { display: block; }
@@ -99,12 +101,10 @@
                     display: none;
                 }
 
-                > aside {
+                aside {
                     display: block !important;
+                    counter-reset: page-counter;
                 }
-            }
-            aside {
-                counter-reset: page-counter;
             }
 
             details[name="page"] {
@@ -152,14 +152,26 @@
                     .arr::before {
                         content: "▸";
                     }
-                    }
+                }
 
-                    &#nav-arch > summary::before { color: var(--card-c); opacity: 0.15; }
-                    &#nav-product > summary::before { color: var(--card-a); opacity: 0.15; }
-                    &#nav-platform > summary::before { color: var(--card-b); opacity: 0.15; }
-                    &#nav-tutorials > summary::before { color: var(--card-d); opacity: 0.15; }
+                &#nav-arch > summary::before {
+                    color: var(--card-c);
+                    opacity: 0.15;
+                }
+                &#nav-product > summary::before {
+                    color: var(--card-a);
+                    opacity: 0.15;
+                }
+                &#nav-platform > summary::before {
+                    color: var(--card-b);
+                    opacity: 0.15;
+                }
+                &#nav-tutorials > summary::before {
+                    color: var(--card-d);
+                    opacity: 0.15;
+                }
 
-                    &[open] > summary {
+                &[open] > summary {
                     color: var(--accent);
                     border-bottom-color: var(--accent);
 
@@ -184,7 +196,15 @@
 
             html-include {
                 width: 100%;
+                display: block;
+
+                &[href*="header"] {
+                    position: sticky;
+                    top: 0;
+                    z-index: 100;
+                }
             }
+
             @media (max-width: 999px) {
                 .layout {
                     display: block;
@@ -194,6 +214,10 @@
                     border-right: none;
                     border-bottom: 1px solid var(--rule);
                     position: static;
+
+                    &::before {
+                        display: none;
+                    }
 
                     > summary {
                         display: block;
@@ -232,7 +256,6 @@
                         const observer = new IntersectionObserver(
                             (entries) => {
                                 if (entries[0].isIntersecting) {
-                                    // Only load (and preload) when it's about to be rendered
                                     this._preload(href);
                                     this._load(href);
                                     observer.disconnect();
@@ -289,59 +312,74 @@
                         <summary><a href="#nav-tutorials">Tutorials <span class="arr"></span></a></summary>
                     </details>
                 </aside>
-                </details>
-                <main>
-                <html-include href="fragments/03-architecture.html"></html-include>
-                <html-include href="fragments/04-product-eng.html"></html-include>
-                <html-include href="fragments/05-platform-eng.html"></html-include>
+            </details>
+            <main>
+                <html-include
+                    href="fragments/03-architecture.html"
+                ></html-include>
+                <html-include
+                    href="fragments/04-product-eng.html"
+                ></html-include>
+                <html-include
+                    href="fragments/05-platform-eng.html"
+                ></html-include>
                 <html-include href="fragments/06-tutorials.html"></html-include>
-                </main>
-                </div>
+            </main>
+        </div>
 
-    <script>
-        (function() {
-            function getTarget(root, id) {
-                if (!root) return null;
-                const el = root.getElementById ? root.getElementById(id) : root.querySelector('[id="' + id + '"]');
-                if (el) return el;
-                
-                const includes = root.querySelectorAll ? root.querySelectorAll('html-include') : [];
-                for (const inc of includes) {
-                    if (inc.shadowRoot) {
-                        const found = getTarget(inc.shadowRoot, id);
-                        if (found) return found;
+        <script>
+            (function () {
+                function getTarget(root, id) {
+                    if (!root) return null;
+                    const el = root.getElementById
+                        ? root.getElementById(id)
+                        : root.querySelector('[id="' + id + '"]');
+                    if (el) return el;
+
+                    const includes = root.querySelectorAll
+                        ? root.querySelectorAll("html-include")
+                        : [];
+                    for (const inc of includes) {
+                        if (inc.shadowRoot) {
+                            const found = getTarget(inc.shadowRoot, id);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
+                }
+
+                function sync() {
+                    const hash = window.location.hash;
+                    if (!hash || hash.length < 2) return;
+                    const id = hash.slice(1);
+
+                    const target = getTarget(document, id);
+                    if (target && target.tagName === "DETAILS") {
+                        let current = target;
+                        while (current) {
+                            if (current.tagName === "DETAILS")
+                                current.open = true;
+                            // Move up to parent or across shadow boundary
+                            const parent = current.parentElement;
+                            const host = current.getRootNode
+                                ? current.getRootNode().host
+                                : null;
+                            current = host || parent;
+                        }
+
+                        document
+                            .getElementById("main-content")
+                            .scrollIntoView();
                     }
                 }
-                return null;
-            }
 
-            function sync() {
-                const hash = window.location.hash;
-                if (!hash || hash.length < 2) return;
-                const id = hash.slice(1);
-
-                const target = getTarget(document, id);
-                if (target && target.tagName === 'DETAILS') {
-                    let current = target;
-                    while (current) {
-                        if (current.tagName === 'DETAILS') current.open = true;
-                        // Move up to parent or across shadow boundary
-                        const parent = current.parentElement;
-                        const host = current.getRootNode ? current.getRootNode().host : null;
-                        current = host || parent;
-                    }
-                    
-                    document.getElementById('main-content').scrollIntoView();
+                window.addEventListener("hashchange", sync);
+                // Handle initial load
+                if (window.location.hash) {
+                    // Wait a bit for fragments to potentially instantiate
+                    setTimeout(sync, 100);
                 }
-            }
-
-            window.addEventListener('hashchange', sync);
-            // Handle initial load
-            if (window.location.hash) {
-                // Wait a bit for fragments to potentially instantiate
-                setTimeout(sync, 100);
-            }
-        })();
-    </script>
-                </body>
+            })();
+        </script>
+    </body>
 </html>

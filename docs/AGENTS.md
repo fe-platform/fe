@@ -1,41 +1,51 @@
 # ⚯ fe-platform · docs · agent-ref
 
-This guide defines the structure and build system for the documentation site.
-
-## Topology
+## topology
 ```
 docs/site/
-├─ fragments/          Content sections as HTML fragments
-│  ├─ 01-header.html   Header with version dropdown
-│  ├─ 02-hero.html     Hero section with tagline
+├─ fragments/          content sections loaded dynamically
+│  ├─ 01-header.html   sticky top bar · png logo · spring hover
+│  ├─ 02-hero.html     hero section · rotating png logo · nav cards
 │  ├─ 03-architecture.html
-│  └─ ...              Other content sections
-├─ styles/             Modular CSS files (concatenated by build.ts)
-│  ├─ 00-tokens.css    Color variables and dark mode
-│  ├─ 01-base.css      Resets and body styles
-│  └─ ...              Other style modules
-├─ index.template.html Skeleton HTML (Head, Scripts, Layout)
-├─ build.ts            Bun script to compose fragments and styles
-├─ index.html          Generated output (!committed · in .gitignore)
-└─ style.css           Generated output (!committed · in .gitignore)
+│  └─ ...              self-contained html + <style> blocks
+├─ index.html          shell · dynamic loader · global tokens · layout
+├─ favicon.png         logo asset (used as img src too)
+└─ build.ts            no-op · log-only · assembly happens in browser
 ```
 
-## Toolchain
-- **Bun**: Used for the build script.
-- **Vanilla HTML/CSS**: No framework used for the docs site itself.
+## dynamic assembly ⟿ `html-include`
+site uses zero build steps for assembly. browser handles everything via custom element.
 
-## Build Process
-The site is built by composing HTML fragments into `index.template.html` and concatenating CSS files from `styles/` into `style.css`.
-```bash
-# To build the site:
-bun run build.ts
-```
-The generated `index.html` and `style.css` are ignored by Git. Always edit the `fragments/` or `styles/` directly.
+### `html-include` web component (inline in `index.html`)
+- **instantiation** ⟿ `connectedCallback` sets up `IntersectionObserver`
+- **lazy load** ⟿ only preloads + fetches when element enters viewport (rootMargin: 200px)
+- **isolation** ⟿ renders into **Shadow DOM** (`mode: open`)
+- **slots** ⟿ supports standard `<slot>` distribution for children.
+- **styling** ⟿ fragments MUST contain their own `<style>` tags. global tokens (CSS variables) leak in, but layout/base styles do not.
 
-## Guidelines
-- **No Emojis**: Do not use emojis in any documentation content.
-- **TypeScript Foundation**: Always mention that the platform is TypeScript-based.
-- **Source-First**: Emphasize that MFEs are shipped as raw source, not bundles.
-- **ES Modules**: Highlight that MFEs can export anything; `render()` is only for routes.
-- **Branding**: The tagline "Ship independently. Compose natively." belongs in the Hero section.
-- **Versioning**: The version dropdown in the header points to `<version>/` routes.
+## navigation & deep linking
+- **sidebar** ⟿ nested `<details>` elements
+- **interaction** ⟿ `<a>` tags inside `<summary>` point to section IDs (e.g. `#nav-poc`)
+- **sync script** ⟿ handles `hashchange` + initial load
+  - traverses **Shadow DOM** to find target elements
+  - recursively sets `open=true` on all parent `<details>`
+  - scrolls `#main-content` into view (accounting for sticky header)
+
+## 🎨 CSS conventions
+- **nesting** ⟿ use native CSS nesting exclusively
+- **variables** ⟿ defined in `index.html :root` (colors, header-height, etc)
+- **sticky** ⟿ header is sticky (z-index: 100). sidebars use `position: sticky` + `::before` pseudo-element for full-height borders.
+- **responsive** ⟿ grid-to-block shift at `@media (max-width: 999px)`
+
+## 💡 fragment editing guidelines
+- **self-containment** ⟿ fragment must be valid HTML with its own `<style>` block
+- **width** ⟿ assume `width: 100%` from host
+- **keyframes** ⟿ `@keyframes` MUST be top-level in `<style>` (not nested)
+- **no emojis** ⟿ use descriptive text or technical UTF-8 symbols (✦, ❖, ◎, ➤, ⎔, ⧉, ۞, ✺)
+- **branding** ⟿ "Ship independently. Compose natively." belongs in hero
+- **rotation** ⟿ image rotation needs `transform-origin: center center` + `display: block`
+
+## maintenance rules
+- **index.html is SOURCE** ⟿ do not ignore it. do not overwrite it from fragments.
+- **build.ts is NO-OP** ⟿ assembly logic is browser-native now.
+- **communication** ⟿ follow root `AGENTS.md` cardinal rule for clarity over grammar.
