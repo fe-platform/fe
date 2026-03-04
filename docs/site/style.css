@@ -77,6 +77,23 @@ body {
   color: var(--accent);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.github-link {
+  color: var(--mid);
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.github-link:hover {
+  color: var(--ink);
+}
+
 .hero-tagline {
   font-size: 0.85rem;
   font-weight: 700;
