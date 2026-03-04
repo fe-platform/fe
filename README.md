@@ -5,18 +5,18 @@
 **Ship independently. Compose natively.**
 </div>
 
-**fe** is a source-first microfrontend platform built on native browser primitives. The intent is to provide a system where teams own their features from scaffold to production without the friction of shared build pipelines or version negotiations at deploy time.
+**fe** is a source-first microfrontend platform built on native browser primitives and **TypeScript**. The intent is to provide a system where teams own their features from scaffold to production without the friction of shared build pipelines or version negotiations at deploy time.
 
-Each team publishes TypeScript source. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime.
+Each team publishes raw **TypeScript source** code. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime.
 
 ## Core principles
 
 The platform makes choices that are genuinely unusual in the frontend world, and we hope to explore the benefits of these native browser capabilities together.
 
 *   **Independent Shipping**: Teams can publish new versions without requiring changes to the shell app or other codebases.
-*   **Native Composition**: The browser orchestrates the application loading. No proprietary loader is required; the system uses native `import` statements.
-*   **Source-First Pipeline**: Teams publish raw TypeScript. The JIT server compiles on demand, which ensures consistency and enables immutable caching.
-*   **Framework Agnostic**: The platform provides a minimal DOM-based interface. React, Solid, and other frameworks can be used as long as they satisfy the render contract.
+*   **Native Composition**: The browser orchestrates the application loading. No proprietary loader is required; the system uses native **ES modules** and `import` statements.
+*   **Source-First Pipeline**: Teams publish raw source code rather than bundled or compiled JavaScript. The JIT server compiles on demand, which ensures consistency and enables immutable caching.
+*   **Framework Agnostic**: The platform provides a minimal interface. React, Solid, and other frameworks can be used as long as they satisfy the render contract.
 
 ## Platform components
 
@@ -31,6 +31,8 @@ The platform makes choices that are genuinely unusual in the frontend world, and
 
 `fe(scope/name)` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime.
 
+Because MFEs are plain **ES modules**, they can export anything—functions, stores, API clients, or UI components.
+
 ```ts
 import { createStore } from "fe(acme/store)";
 import { Button } from "fe(shared/ui)";
@@ -38,7 +40,7 @@ import { Button } from "fe(shared/ui)";
 
 ## MFE contract
 
-Each microfrontend exports one function designed to mount into a container.
+In cases where a microfrontend is registered as a route, it is expected to export a `render` function to mount into a container. You can read more about the [render contract](https://fe.frustrated.dev) in the documentation.
 
 ```ts
 export function render(

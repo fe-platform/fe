@@ -6,13 +6,33 @@
     The platform is composed of five independent pieces that each do one thing:
   </p>
   <table>
-    <thead><tr><th>Package</th><th>What it does</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Package</th>
+        <th>What it does</th>
+      </tr>
+    </thead>
     <tbody>
-      <tr><td><code>@fe/cli</code></td><td>The <code>fe</code> binary. Scaffold, build, dev, publish, serve.</td></tr>
-      <tr><td><code>@fe/compiler</code></td><td>Houses <code>compileMfe</code> and <code>createJITBundler</code>. Used by <code>fe serve</code>.</td></tr>
-      <tr><td><code>@fe/runtime</code></td><td>Browser-side loader. Reads config, resolves deps, injects import maps, mounts MFEs.</td></tr>
-      <tr><td><code>@fe/core</code></td><td>Shared TypeScript types and interfaces. No runtime code.</td></tr>
-      <tr><td><code>platform.json</code></td><td>Authoritative registry of routes and package versions. Read by both runtime and server.</td></tr>
+      <tr>
+        <td><code>@fe/cli</code></td>
+        <td>The <code>fe</code> binary. Scaffold, build, dev, publish, serve.</td>
+      </tr>
+      <tr>
+        <td><code>@fe/compiler</code></td>
+        <td>Houses <code>compileMfe</code> and <code>createJITBundler</code>. Used by <code>fe serve</code>.</td>
+      </tr>
+      <tr>
+        <td><code>@fe/runtime</code></td>
+        <td>Browser-side loader. Reads config, resolves deps, injects import maps, mounts MFEs.</td>
+      </tr>
+      <tr>
+        <td><code>@fe/core</code></td>
+        <td>Shared TypeScript types and interfaces. No runtime code.</td>
+      </tr>
+      <tr>
+        <td><code>platform.json</code></td>
+        <td>Authoritative registry of routes and package versions. Read by both runtime and server.</td>
+      </tr>
     </tbody>
   </table>
 
@@ -40,7 +60,8 @@ import { store } from "fe(acme/store)";
 
   <h3>MFE exports</h3>
   <p>
-    A MFE is a plain ES module. It can export functions, stores, API clients, or
+    A MFE is a plain <strong>ES module</strong> and the platform is foundationally
+    <strong>TypeScript-based</strong>. It can export functions, stores, API clients, or
     anything else that makes sense for its purpose. The platform treats publish,
     versioning, and import-map resolution the same regardless of what the module exports.
   </p>
@@ -70,11 +91,16 @@ import { store } from "fe(acme/store)";
     <code>Cache-Control: immutable</code> headers.
   </p>
   <div class="lifecycle">
-    <div class="lc-step">fe publish<div class="sub">upload source</div></div>
-    <div class="lc-step">platform.json<div class="sub">new version registered</div></div>
-    <div class="lc-step">JIT server<div class="sub">compile on first request</div></div>
-    <div class="lc-step">CDN<div class="sub">immutable cache</div></div>
-    <div class="lc-step">browser<div class="sub">import map + render()</div></div>
+    <div class="lc-step">fe publish<div class="sub">upload source</div>
+    </div>
+    <div class="lc-step">platform.json<div class="sub">new version registered</div>
+    </div>
+    <div class="lc-step">JIT server<div class="sub">compile on first request</div>
+    </div>
+    <div class="lc-step">CDN<div class="sub">immutable cache</div>
+    </div>
+    <div class="lc-step">browser<div class="sub">import map + render()</div>
+    </div>
   </div>
   <p>
     Artifact URLs include the version, so the compiled output is stable forever. A new
