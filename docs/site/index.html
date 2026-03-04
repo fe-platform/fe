@@ -20,10 +20,10 @@
   --bg: #f4f3ef; --ink: #111111; --mid: #5a5a57;
   --accent: #3535aa; --rule: #d0cfc8; --dot: #c8c7c0;
   --card-a: #a07828; --card-b: #3455a4; --card-c: #2d7a4a; --card-d: #8f3030;
-  --code-bg: #111111; --code-text: #f4f3ef;
+  --code-bg: #2e2c28; --code-text: #c4c0b8;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; }
+body { background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; font-size: 16px; }
 .dot-grid {
   background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
   --dot-step: 20px; background-size: var(--dot-step) var(--dot-step);
@@ -54,7 +54,7 @@ body { background: var(--bg); color: var(--ink); font-family: system-ui, sans-se
   font-weight: 400; font-size: 0.62rem; color: var(--ink);
   margin-top: 0.2rem; text-transform: none; letter-spacing: 0;
 }
-.hero-right { padding: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; align-content: start; background: var(--bg); }
+.hero-right { padding: 2rem; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0.75rem; background: var(--bg); }
 .card { border: 1px solid var(--rule); padding: 1.25rem; text-decoration: none; color: var(--ink); display: block; }
 .card:hover { border-color: var(--accent); }
 .card-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; }
@@ -80,7 +80,7 @@ details[name="page"] > summary::-webkit-details-marker { display: none; }
 details[name="page"][open] > summary { color: var(--accent); border-bottom-color: var(--accent); }
 details[name="page"] > summary::before {
   content: "0" counter(page-counter);
-  font-size: 7rem; opacity: 0.06; position: absolute;
+  font-family: monospace; font-size: 7rem; opacity: 0.06; position: absolute;
   right: 0.5rem; top: -0.5rem; font-weight: 900; pointer-events: none; line-height: 1;
 }
 details[name="page"] > summary .arr::before { content: "▸"; }
@@ -107,14 +107,14 @@ details[name="plat-sub"][open] > summary { color: var(--accent); }
 #content-platform:has(#nav-enterprise[open]) #content-enterprise { display: block; }
 h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
 h3 { font-size: 0.8rem; font-weight: 700; margin: 1.75rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
-p { font-size: 0.875rem; line-height: 1.65; margin-bottom: 1rem; }
+p { font-size: 1rem; line-height: 1.65; margin-bottom: 1rem; }
 ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-li { font-size: 0.875rem; line-height: 1.65; margin-bottom: 0.2rem; }
+li { font-size: 1rem; line-height: 1.65; margin-bottom: 0.2rem; }
 pre {
   background: var(--code-bg); color: var(--code-text); padding: 1.25rem;
-  font-size: 0.78rem; line-height: 1.55; overflow-x: auto; margin: 1rem 0;
+  font-size: 85%; line-height: 1.55; overflow-x: auto; margin: 1rem 0;
 }
-:not(pre) > code { background: rgba(0,0,0,0.07); padding: 0.1em 0.35em; font-size: 0.85em; font-family: monospace; }
+:not(pre) > code { background: rgba(0,0,0,0.07); padding: 0.1em 0.35em; font-size: 85%; font-family: monospace; }
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 1rem 0; }
 th {
   text-align: left; font-weight: 700; text-transform: uppercase;
@@ -130,7 +130,7 @@ td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-ali
   :root {
     --bg: #131311; --ink: #e4e3df; --mid: #888880;
     --accent: #7878e0; --rule: #2e2e2b; --dot: #383835;
-    --code-bg: #1c1c1a; --code-text: #e4e3df;
+    --code-bg: #242220; --code-text: #b4b1aa;
     --card-a: #d4a840; --card-b: #6888e8; --card-c: #52c078; --card-d: #d06868;
   }
   :not(pre) > code { background: rgba(255,255,255,0.09); }
