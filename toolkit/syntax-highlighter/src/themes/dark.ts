@@ -1,3 +1,11 @@
+/**
+ * @module
+ * Dark theme for @fe-platform/syntax-highlighter.
+ */
+
+/**
+ * A modern dark theme for syntax highlighting.
+ */
 export const darkTheme: string = `
   ::highlight(hl-keyword) { color: var(--hl-keyword, #818cf8); font-weight: 700; }
   ::highlight(hl-string) { color: var(--hl-string, #34d399); }

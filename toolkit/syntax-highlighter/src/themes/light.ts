@@ -1,3 +1,11 @@
+/**
+ * @module
+ * Light theme for @fe-platform/syntax-highlighter.
+ */
+
+/**
+ * A modern light theme with high contrast.
+ */
 export const lightTheme: string = `
   ::highlight(hl-keyword) { color: var(--hl-keyword, #4338ca); font-weight: 700; }
   ::highlight(hl-string) { color: var(--hl-string, #10b981); }

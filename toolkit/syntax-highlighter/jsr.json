@@ -1,6 +1,6 @@
 {
   "name": "@fe-platform/syntax-highlighter",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "High-performance syntax highlighter using the CSS Custom Highlight API. Zero-DOM overhead, modular, and supporting TypeScript, JSON, and Shell.",
   "license": "MIT",
   "exports": {
@@ -22,10 +22,5 @@
       "jsr.json",
       "LICENSE"
     ]
-  },
-  "runtime": {
-    "browser": true,
-    "deno": true,
-    "bun": true
   }
 }
