@@ -9,12 +9,11 @@ docs/site/
 │  ├─ 03-architecture.html
 │  └─ ...              self-contained html + <style> blocks
 ├─ index.html          shell · dynamic loader · global tokens · layout
-├─ favicon.png         logo asset (used as img src too)
-└─ build.ts            no-op · log-only · assembly happens in browser
+└─ favicon.png         logo asset (used as img src too)
 ```
 
 ## dynamic assembly ⟿ `html-include`
-site uses zero build steps for assembly. browser handles everything via custom element.
+site uses zero build steps. browser handles everything via custom element.
 
 ### `html-include` web component (inline in `index.html`)
 - **instantiation** ⟿ `connectedCallback` sets up `IntersectionObserver`
@@ -47,5 +46,4 @@ site uses zero build steps for assembly. browser handles everything via custom e
 
 ## maintenance rules
 - **index.html is SOURCE** ⟿ do not ignore it. do not overwrite it from fragments.
-- **build.ts is NO-OP** ⟿ assembly logic is browser-native now.
 - **communication** ⟿ follow root `AGENTS.md` cardinal rule for clarity over grammar.
