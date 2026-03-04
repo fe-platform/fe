@@ -10,10 +10,11 @@
         <script type="importmap">
             {
                 "imports": {
-                    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.6?bundle"
+                    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.7?bundle"
                 }
             }
         </script>
+        <script type="module" src="main.js"></script>
         <meta
             name="description"
             content="fe platform: a source-first microfrontend system. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve dependencies in the browser at runtime."
@@ -340,70 +341,6 @@
                 }
             }
         </style>
-        <script>
-            (function () {
-                let _hl;
-                async function hl(root) {
-                    if (!_hl) {
-                        const mod = await import("@fe-platform/syntax-highlighter");
-                        _hl = mod.highlight;
-                        mod.applyTheme({
-                            keyword: "var(--accent)",
-                            argument: "var(--card-a)",
-                            string: "var(--card-c)",
-                            comment: "var(--mid)",
-                            "comment-style": "italic",
-                            type: "var(--card-b)",
-                            number: "var(--card-a)",
-                            operator: "var(--mid)",
-                            function: "var(--accent)",
-                            property: "var(--card-d)",
-                            variable: "var(--card-a)",
-                            boolean: "var(--accent)",
-                            constant: "var(--card-b)"
-                        });
-                    }
-                    _hl(root);
-                }
-                customElements.define(
-                    "html-include",
-                    class extends HTMLElement {
-                        connectedCallback() {
-                            const href = this.getAttribute("href");
-                            if (!href) return;
-                            if (this.getAttribute("loading") === "eager") {
-                                this._load(href);
-                            } else {
-                                new IntersectionObserver(
-                                    (entries, observer) => {
-                                        if (entries[0].isIntersecting) {
-                                            this._load(href);
-                                            observer.disconnect();
-                                        }
-                                    },
-                                    { rootMargin: "400px" },
-                                ).observe(this);
-                            }
-                        }
-                        async _load(href) {
-                            try {
-                                const r = await fetch(href);
-                                this.innerHTML = await r.text();
-                                hl(this);
-                                if (window.location.hash) {
-                                    // Re-run sync if the target might be in this new content
-                                    setTimeout(window._fe_sync, 10);
-                                }
-                            } catch (err) {
-                                console.error(err);
-                            }
-                        }
-                    },
-                );
-                hl(document);
-            })();
-            //# sourceURL=html-include.js
-        </script>
     </head>
 
     <body id="top">
@@ -478,50 +415,5 @@
                 <html-include href="fragments/06-tutorials.html"></html-include>
             </main>
         </div>
-
-        <script>
-            (function () {
-                function getTarget(root, id) {
-                    if (!root) return null;
-                    const el = root.getElementById
-                        ? root.getElementById(id)
-                        : root.querySelector('[id="' + id + '"]');
-                    if (el) return el;
-
-                    const includes = root.querySelectorAll("html-include");
-                    for (const inc of includes) {
-                        const found = getTarget(inc, id);
-                        if (found) return found;
-                    }
-                    return null;
-                }
-
-                function sync() {
-                    const hash = window.location.hash;
-                    if (!hash || hash.length < 2) return;
-                    const id = hash.slice(1);
-
-                    const target = getTarget(document, id);
-                    if (target && target.tagName === "DETAILS") {
-                        let current = target;
-                        while (current) {
-                            if (current.tagName === "DETAILS")
-                                current.open = true;
-                            current = current.parentElement;
-                        }
-
-                        document
-                            .getElementById("main-content")
-                            .scrollIntoView();
-                    }
-                }
-
-                window._fe_sync = sync;
-                window.addEventListener("hashchange", sync);
-                if (window.location.hash) {
-                    setTimeout(sync, 100);
-                }
-            })();
-        </script>
     </body>
 </html>
