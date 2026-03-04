@@ -1,4 +1,5 @@
 import { join } from "path";
+import { existsSync, mkdirSync, cpSync } from "fs";
 import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
 import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
 
@@ -21,11 +22,19 @@ import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
 async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<void> {
   const dir = join(ctx.root, target);
   const srcDir = join(dir, "src");
+  const pkgJsonPath = join(dir, "package.json");
 
   // --- Pre-flight: ensure the source compiles without errors ---
   console.log(`[fe publish] Pre-flight type-check for ${target}...`);
+
+  // Try .ts then .tsx for the entry point
+  let entryFile = join(srcDir, "index.ts");
+  if (!existsSync(entryFile)) {
+    entryFile = join(srcDir, "index.tsx");
+  }
+
   const dryRun = await ctx.adapters.builder.build({
-    entrypoints: [join(srcDir, "index.ts")],
+    entrypoints: [entryFile],
     outdir: "/dev/null",
     format: "esm",
     target: "browser",
@@ -42,12 +51,18 @@ async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<v
 
   await hooks.callHook("publish:before", target, { name, version });
 
-  // --- Upload raw source files ---
-  const storedBase = await ctx.adapters.sourceStorage.upload(slug, version, srcDir);
+  // --- Assemble source for upload (src/ content + package.json) ---
+  // We use a temporary directory to flatten the structure for the JIT bundler
+  const tmpDir = join(process.env.TEMP || "/tmp", `fe-publish-${slug}-${Date.now()}`);
+  mkdirSync(tmpDir, { recursive: true });
+  cpSync(srcDir, tmpDir, { recursive: true });
+  cpSync(pkgJsonPath, join(tmpDir, "package.json"));
+
+  const storedBase = await ctx.adapters.sourceStorage.upload(slug, version, tmpDir);
 
   // The URL registered in the manifest points to the JIT bundler route.
-  // The runtime builds an import map URL like: /bundle/<slug>/<version>/index.ts
-  const bundleUrl = `/bundle/${slug}/${version}/index.ts`;
+  const ext = entryFile.endsWith(".tsx") ? "tsx" : "ts";
+  const bundleUrl = `/bundle/${slug}/${version}/index.${ext}`;
 
   // --- Resolve fe() devDependencies for the manifest entry ---
   const rawFeDeps = readFeDeps(dir);

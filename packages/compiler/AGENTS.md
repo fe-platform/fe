@@ -54,7 +54,7 @@ The JIT bundler is framework-agnostic. Framework support requires a `JitPlugin`
 
 ## invariants
 - compileMfe: when plugins is undefined, auto-detect via rootDir/package.json
-- createJITBundler: source files only contain src/ contents (no package.json from publish)
-  → auto-detection always falls back to no-plugin for JIT unless jitPlugins are configured
+- createJITBundler: source storage contains src/ contents + package.json (uploaded by publish)
+  → auto-detection works if package.json is in source storage
 - compiled outputs are cached immutably (cache-control: max-age=31536000, immutable)
 - JIT compile errors return HTTP 500 with the error messages

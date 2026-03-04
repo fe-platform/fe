@@ -88,7 +88,7 @@ Plugins run after builtins so they can freely swap `ctx.adapters.*`.
   "manifestPath": "configs/platform.json",  // path to routes+packages registry
   "uploadsDir":   "uploads",                // artifact storage dir (local adapter)
   "sourcesDir":   "sources",               // raw source upload dir (fe publish)
-  "shellDir":     "shell"                  // host application directory
+  "shellDir":     "shell"                  // host application directory (sandbox: "host-app")
 }
 ```
 File lives at `configs/fe.config.json` (co-located with platform.json).
@@ -99,6 +99,7 @@ Plugins access config via `ctx.adapters.config.get()`, NOT by reading the file d
 ```json
 {
   "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
+  "devtools": "fe(acme/devtools)@1.0.0",
   "packages": {
     "fe(acme/mfe-a)": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
     "fe(acme/mfe-b)": { "versions": { "1.0.0": { "url": "...", "deps": { "fe(acme/mfe-a)": "^1.0.0" } } } }

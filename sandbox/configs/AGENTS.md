@@ -20,7 +20,7 @@ Accessed at runtime via `ctx.adapters.config.get()`, not read directly by plugin
 }
 ```
 All fields optional. Defaults: plugins=[] jitPlugins=[] manifestPath="configs/platform.json" uploadsDir="uploads" sourcesDir="sources" shellDir="shell".
-The sandbox omits `sourcesDir` and `jitPlugins` (defaults apply).
+The sandbox omits `sourcesDir` and `jitPlugins` (defaults apply), and overrides shellDir="host-app".
 To add a CLI plugin: add its npm package name to `plugins[]` and install it in the workspace.
 To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` to `jitPlugins[]`.
 

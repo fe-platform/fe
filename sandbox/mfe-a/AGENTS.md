@@ -49,9 +49,10 @@ output: sandbox/mfe-a/dist/index.js
 ## publish (from repo root)
 ```
 fe publish sandbox/mfe-a
-  copies src/ → sources/mfe-a/1.0.0/ (via SourceStorage)
+  copies src/ + package.json → sources/mfe-a/1.0.0/ (via SourceStorage)
   registers package version in sandbox/configs/platform.json (URL points to JIT bundler + deps)
 ```
+Note: `fe publish` now supports `.tsx` fallback. However, the sandbox `platform.json` currently uses the legacy `./uploads/` path because the server does not have `jitPlugins` configured.
 
 ## dev (from repo root)
 ```

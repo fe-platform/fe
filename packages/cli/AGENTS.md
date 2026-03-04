@@ -141,16 +141,15 @@ fe link <consumer> <dep>
 ### publish (plugins/publish.ts)
 ```
 fe publish <target>
-  runs pre-flight check (build simulation to /dev/null via index.ts)
+  runs pre-flight check (build simulation to /dev/null via index.ts or index.tsx)
   reads name + version from target/package.json
-  slug = slugFromSpecifier(name)  // strips "fe(" prefix/suffix chars
-  sourceStorage.upload(slug, version, srcDir)   // uploads src/ directory
+  slug = slugFromSpecifier(name)
+  sourceStorage.upload(slug, version, tmpDir)  // uploads src/ content + package.json
   reads fe() devDeps → resolves dep versions from local package.json files
-  url = `/bundle/${slug}/${version}/index.ts`
+  url = `/bundle/${slug}/${version}/index.{ts|tsx}`
   manifest.registerPackage(name, version, {url, deps})
 ```
-Never touches "routes" — only "packages" in platform.json. Legacy `admin.ts` provides artifact uploads but `publish` handles source code for JIT.
-Note: pre-flight hardcodes `src/index.ts` — use `fe admin upload` for MFEs with `src/index.tsx` entrypoints.
+Never touches "routes": only "packages" in platform.json. Legacy `admin.ts` provides artifact uploads but `publish` handles source code for JIT.
 
 ### new (plugins/new.ts)
 ```

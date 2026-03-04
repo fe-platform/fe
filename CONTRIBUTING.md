@@ -23,7 +23,7 @@ fe build shell
 fe serve
 ```
 
-`fe publish` uploads raw source and registers a JIT bundle URL. `fe build` is not required
+`fe publish` uploads raw source and `package.json` and registers a JIT bundle URL. `fe build` is not required
 before `fe publish`; the pre-flight check inside `publish` is sufficient.
 
 Devtools uses the legacy artifact path (`fe build + fe admin upload`) because the sandbox

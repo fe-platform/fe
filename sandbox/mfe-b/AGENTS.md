@@ -61,9 +61,10 @@ fe link sandbox/mfe-b <new-dep>  (from repo root)
 ## publish (from repo root)
 ```
 fe publish sandbox/mfe-b
-  copies src/ → sources/mfe-b/1.0.0/ (via SourceStorage)
+  copies src/ + package.json → sources/mfe-b/1.0.0/ (via SourceStorage)
   registers package version in sandbox/configs/platform.json (URL points to JIT + deps)
 ```
+Note: `fe publish` now supports `.tsx` fallback. However, the sandbox `platform.json` currently uses the legacy `./uploads/` path because the server does not have `jitPlugins` configured for SolidJS JIT translation.
 
 ## dev (from repo root)
 ```
