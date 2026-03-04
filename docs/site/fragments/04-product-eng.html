@@ -66,9 +66,11 @@ sessionStorage.setItem(
     to a colleague and they open the same environment in their browser.
   </p>
 
-  <h3>What your MFE must export</h3>
+  <h3>What your MFE exports</h3>
   <p>
-    Your <code>src/index.ts</code> must export one function with this signature:
+    The answer depends on how your MFE is used. If it is listed under
+    <code>routes</code> in <code>platform.json</code>, it is a <strong>route MFE</strong>
+    and must export <code>render()</code>:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -78,9 +80,14 @@ sessionStorage.setItem(
   // return cleanup: remove your DOM, stop timers, unsubscribe listeners
 }</pre>
   <p>
-    Any framework works. The platform calls <code>render</code> on mount and calls the
-    returned function on unmount. The contract does not prescribe how you build the UI
-    inside that boundary.
+    The runtime calls <code>render</code> on mount and the returned function on unmount.
+    Any framework satisfies this contract without adaptation.
+  </p>
+  <p>
+    If your MFE exists as a dependency rather than a route — a shared store, an API
+    client, a collection of utilities — export whatever makes sense. No
+    <code>render</code> required. Other MFEs import it like any ES module; the platform
+    treats publish, versioning, and resolution the same either way.
   </p>
 
   <h3>Using toolkit packages</h3>

@@ -311,9 +311,20 @@ import { store } from "fe(acme/store)";
     any <code>tsconfig.paths</code> configuration.
   </p>
 
-  <h3>MFE contract</h3>
+  <h3>Two kinds of MFE</h3>
   <p>
-    Every MFE exports one function. Nothing else is required:
+    A MFE can play two roles, and the role determines what it must export:
+  </p>
+  <table>
+    <thead><tr><th>Role</th><th>Entry in platform.json</th><th>Must export</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Route MFE</strong></td><td><code>routes</code> — mapped to a URL path</td><td><code>render()</code></td></tr>
+      <tr><td><strong>Dependency MFE</strong></td><td><code>packages</code> only</td><td>Anything: functions, stores, API clients</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Route MFEs are mounted by the runtime when the URL matches. They must export a
+    <code>render()</code> function:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -323,9 +334,14 @@ import { store } from "fe(acme/store)";
   // return a cleanup function that removes your DOM nodes
 }</pre>
   <p>
-    The contract is intentionally minimal. No framework lifecycle, no router coupling,
-    no shared state requirement. The cleanup function is called by the runtime when
-    navigating away. React, Solid.js, and vanilla DOM all satisfy it without adaptation.
+    The contract is intentionally minimal: no framework lifecycle, no router coupling,
+    no shared state requirement. The cleanup function is called on navigation away.
+    React, Solid.js, and vanilla DOM all satisfy it without adaptation.
+  </p>
+  <p>
+    Dependency MFEs are plain ES modules imported by other MFEs. A shared store, a
+    network client, a suite of API helpers — any export shape works. The runtime loads
+    them through the import map and does nothing else.
   </p>
 
   <h3>Deployment model</h3>
@@ -475,9 +491,11 @@ sessionStorage.setItem(
     to a colleague and they open the same environment in their browser.
   </p>
 
-  <h3>What your MFE must export</h3>
+  <h3>What your MFE exports</h3>
   <p>
-    Your <code>src/index.ts</code> must export one function with this signature:
+    The answer depends on how your MFE is used. If it is listed under
+    <code>routes</code> in <code>platform.json</code>, it is a <strong>route MFE</strong>
+    and must export <code>render()</code>:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -487,9 +505,14 @@ sessionStorage.setItem(
   // return cleanup: remove your DOM, stop timers, unsubscribe listeners
 }</pre>
   <p>
-    Any framework works. The platform calls <code>render</code> on mount and calls the
-    returned function on unmount. The contract does not prescribe how you build the UI
-    inside that boundary.
+    The runtime calls <code>render</code> on mount and the returned function on unmount.
+    Any framework satisfies this contract without adaptation.
+  </p>
+  <p>
+    If your MFE exists as a dependency rather than a route — a shared store, an API
+    client, a collection of utilities — export whatever makes sense. No
+    <code>render</code> required. Other MFEs import it like any ES module; the platform
+    treats publish, versioning, and resolution the same either way.
   </p>
 
   <h3>Using toolkit packages</h3>
