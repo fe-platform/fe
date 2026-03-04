@@ -4,7 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>fe platform · docs</title>
+        <link rel="icon" type="image/svg+xml" href="logo.svg" />
         <link rel="icon" type="image/png" href="favicon.png" />
+        <link rel="preconnect" href="https://esm.sh" />
+        <link rel="modulepreload" href="https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?bundle" />
         <meta
             name="description"
             content="fe platform: a source-first microfrontend system. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve dependencies in the browser at runtime."
@@ -194,7 +197,14 @@
             html-include {
                 width: 100%;
                 display: block;
-                &[href*="header"] { position: sticky; top: 0; z-index: 100; }
+                content-visibility: auto;
+                contain-intrinsic-size: 1px 500px;
+                &[href*="header"] { position: sticky; top: 0; z-index: 100; min-height: var(--header-height); }
+                &[href*="hero"] { min-height: 440px; }
+                &[href*="architecture"] { min-height: 800px; }
+                &[href*="product-eng"] { min-height: 600px; }
+                &[href*="platform-eng"] { min-height: 1000px; }
+                &[href*="tutorials"] { min-height: 600px; }
             }
 
             @media (max-width: 999px) {
@@ -218,6 +228,7 @@
                     }
                 }
                 main { padding: 1.5rem; }
+                html-include[href*="hero"] { min-height: 800px; }
             }
         </style>
         <script>
@@ -243,17 +254,25 @@
                     connectedCallback() {
                         const href = this.getAttribute("href");
                         if (!href) return;
-                        new IntersectionObserver((entries, observer) => {
-                            if (entries[0].isIntersecting) {
-                                this._load(href); observer.disconnect();
-                            }
-                        }, { rootMargin: "200px" }).observe(this);
+                        if (this.getAttribute("loading") === "eager") {
+                            this._load(href);
+                        } else {
+                            new IntersectionObserver((entries, observer) => {
+                                if (entries[0].isIntersecting) {
+                                    this._load(href); observer.disconnect();
+                                }
+                            }, { rootMargin: "400px" }).observe(this);
+                        }
                     }
                     async _load(href) {
                         try {
                             const r = await fetch(href);
                             this.innerHTML = await r.text();
                             hl(this);
+                            if (window.location.hash) {
+                                // Re-run sync if the target might be in this new content
+                                setTimeout(window._fe_sync, 10);
+                            }
                         } catch (err) { console.error(err); }
                     }
                 });
@@ -264,8 +283,8 @@
     </head>
 
     <body id="top">
-        <html-include href="fragments/01-header.html"></html-include>
-        <html-include href="fragments/02-hero.html"></html-include>
+        <html-include loading="eager" href="fragments/01-header.html"></html-include>
+        <html-include loading="eager" href="fragments/02-hero.html"></html-include>
 
         <div id="main-content" class="layout">
             <details id="mobile-nav" open>
@@ -330,6 +349,7 @@
                     }
                 }
 
+                window._fe_sync = sync;
                 window.addEventListener("hashchange", sync);
                 if (window.location.hash) {
                     setTimeout(sync, 100);
