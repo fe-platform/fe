@@ -107,7 +107,7 @@ table {
 }
 </style>
 <article id="content-arch">
-  <h2>◆ Architecture and conventions</h2>
+  <h2><span style="color:var(--card-c)">⎔</span> Architecture and conventions</h2>
 
   <h3>Moving parts</h3>
   <p>
@@ -151,13 +151,13 @@ table {
     a bare specifier that the browser resolves through injected import maps. There is no
     special URL scheme.
   </p>
-  <pre>// package.json
-{ "name": "fe(acme/my-mfe)" }
+  <pre class="lang-json">// package.json
+{ "name": "fe(acme/my-mfe)" }</pre>
 
-// source
-import { store } from "fe(acme/store)";
+  <pre class="lang-ts">// source
+import { store } from "fe(acme/store)";</pre>
 
-// platform.json
+  <pre class="lang-json">// platform.json
 "fe(acme/store)": { "versions": { "1.0.0": { "url": "..." } } }</pre>
   <p>
     During build, <code>fe(*)</code> entries in <code>devDependencies</code> are treated as
@@ -178,7 +178,7 @@ import { store } from "fe(acme/store)";
     <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
     the module and calls <code>render()</code> to mount the UI:
   </p>
-  <pre>export function render(
+  <pre class="lang-ts">export function render(
   container: HTMLElement,
   props: Record&lt;string, unknown&gt;
 ): () => void {
@@ -223,7 +223,7 @@ import { store } from "fe(acme/store)";
     <code>fe(scope/name)</code> specifier to a local dev URL via sessionStorage. This
     override affects only the current browser tab and can be shared as a URL parameter.
   </p>
-  <pre>fe dev mfe-a          # start dev server at localhost:3001
+  <pre class="lang-shell">fe dev mfe-a          # start dev server at localhost:3001
 # in devtools panel: override fe(acme/mfe-a) → http://localhost:3001/</pre>
   <p>
     <code>fe check &lt;target&gt;</code> runs typecheck and simulates a build without writing
@@ -234,7 +234,7 @@ import { store } from "fe(acme/store)";
   <p>
     When a MFE depends on another, declare it in <code>devDependencies</code>:
   </p>
-  <pre>// mfe-b/package.json
+  <pre class="lang-json">// mfe-b/package.json
 {
   "name": "fe(acme/mfe-b)",
   "devDependencies": { "fe(acme/mfe-a)": "^1.0.0" }
@@ -266,11 +266,11 @@ import { store } from "fe(acme/store)";
   </ul>
 
   <h3>CLI quick reference</h3>
-  <pre>fe new &lt;scope/name&gt;   scaffold a new MFE project
-fe dev &lt;target&gt;       live-reload dev server
-fe check &lt;target&gt;     typecheck + build simulation (CI)
-fe publish &lt;target&gt;   upload source + register version
-fe link &lt;mfe&gt; &lt;dep&gt;   wire a local fe() dependency
-fe build shell        compile the host shell
-fe serve              run the JIT server</pre>
+  <pre class="lang-shell">fe new &lt;scope/name&gt;   # scaffold a new MFE project
+fe dev &lt;target&gt;       # live-reload dev server
+fe check &lt;target&gt;     # typecheck + build simulation (CI)
+fe publish &lt;target&gt;   # upload source + register version
+fe link &lt;mfe&gt; &lt;dep&gt;   # wire a local fe() dependency
+fe build shell        # compile the host shell
+fe serve              # run the JIT server</pre>
 </article>

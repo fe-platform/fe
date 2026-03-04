@@ -54,7 +54,7 @@ pre {
 }
 </style>
 <article id="content-tutorials">
-  <h2>◆ Tutorials</h2>
+  <h2><span style="color:var(--card-d)">✺</span> Tutorials</h2>
   <p>
     Each tutorial builds on the previous one. Start with hello world to verify
     your setup, then progress to multi-team composition and toolkit integration.
@@ -65,7 +65,7 @@ pre {
     The shortest path to a running platform. By the end you will have one MFE
     mounting in a shell via <code>fe serve</code>.
   </p>
-  <pre>bun add -d @fe/cli @fe/jit-plugin-react
+  <pre class="lang-shell">bun add -d @fe/cli @fe/jit-plugin-react
 
 # scaffold the MFE
 fe new acme/hello
@@ -87,7 +87,7 @@ fe serve</pre>
     Add a second MFE that imports a component from the first. This demonstrates
     cross-team dependency resolution through import maps.
   </p>
-  <pre>fe new acme/mfe-a   # React MFE, no deps
+  <pre class="lang-shell">fe new acme/mfe-a   # React MFE, no deps
 fe new acme/mfe-b   # Solid.js MFE, depends on mfe-a
 
 fe link mfe-b mfe-a  # adds mfe-a as devDependency of mfe-b
@@ -109,9 +109,9 @@ fe publish mfe-b</pre>
     <code>fe(acme/store)</code> provides a typed pub/sub store that persists across
     MFE mounts and unmounts.
   </p>
-  <pre>// in both mfe-a and mfe-b package.json
+  <pre class="lang-json">// in both mfe-a and mfe-b package.json
 "devDependencies": { "fe(acme/store)": "^1.0.0" }</pre>
-  <pre>// mfe-a/src/index.ts
+  <pre class="lang-ts">// mfe-a/src/index.ts
 import { createStore } from "fe(acme/store)";
 
 const counter = createStore("app:counter", 0);
@@ -123,7 +123,7 @@ export function render(container, props) {
   container.appendChild(btn);
   return () => container.removeChild(btn);
 }</pre>
-  <pre>// mfe-b/src/index.ts
+  <pre class="lang-ts">// mfe-b/src/index.ts
 import { createStore } from "fe(acme/store)";
 
 const counter = createStore("app:counter", 0);
@@ -144,7 +144,7 @@ export function render(container, props) {
     If you need a JSX transform that is not covered by the built-in React and
     Solid.js plugins, you can write your own:
   </p>
-  <pre>// @acme/fe-jit-plugin-preact/src/index.ts
+  <pre class="lang-ts">// @acme/fe-jit-plugin-preact/src/index.ts
 import type { JitPlugin } from "@fe/core";
 
 export default {
@@ -157,7 +157,7 @@ export default {
     };
   },
 } satisfies JitPlugin;</pre>
-  <pre>// configs/fe.config.json
+  <pre class="lang-json">// configs/fe.config.json
 { "jitPlugins": ["@acme/fe-jit-plugin-preact"] }</pre>
   <p>
     The <code>build:options</code> hook receives <code>Bun.BuildOptions</code> and
@@ -165,4 +165,19 @@ export default {
     override earlier settings. The platform team declares the plugin on the server;
     MFE teams do not need to configure anything.
   </p>
+  <h3>5 · Using MFEs from public registries</h3>
+  <p>
+    The platform supports consuming MFEs directly from public registries like JSR or npm, 
+    either via the JIT compilation server or through direct ESM CDNs like <code>esm.sh</code>.
+  </p>
+
+  <div class="wip">
+    <h4>Documentation TODOs</h4>
+    <ul>
+      <li>Explain the <code>fe()</code> to <code>@jsr/</code> specifier resolution logic.</li>
+      <li>Document how to use <code>fe link</code> with JSR scopes.</li>
+      <li>Provide examples of lazy-loading MFEs from esm.sh in standard HTML pages.</li>
+      <li>Detail the JSR discovery mechanism (using description tags for visual identity).</li>
+    </ul>
+  </div>
 </article>

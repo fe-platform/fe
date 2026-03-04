@@ -171,16 +171,16 @@ table {
 <article id="content-platform">
 <div class="sub-nav">
   <details name="plat-sub" id="nav-poc" open>
-    <summary><a href="#nav-poc">◆ POC</a></summary>
+    <summary><a href="#nav-poc"><span style="color:var(--card-b)">۞</span> POC</a></summary>
   </details>
   <details name="plat-sub" id="nav-cloud">
-    <summary><a href="#nav-cloud">◆ Cloud</a></summary>
+    <summary><a href="#nav-cloud"><span style="color:var(--card-b)">۞</span> Cloud</a></summary>
   </details>
   <details name="plat-sub" id="nav-enterprise">
-    <summary><a href="#nav-enterprise">◆ Enterprise</a></summary>
+    <summary><a href="#nav-enterprise"><span style="color:var(--card-b)">۞</span> Enterprise</a></summary>
   </details>
 </div>  <section id="content-poc" class="dot-grid dense">
-    <h2>◆ Proof of concept</h2>
+    <h2><span style="color:var(--card-b)">۞</span> Proof of concept</h2>
     <p>
       The fastest path to a running platform: two MFEs, one shell, everything local.
       No CDN, no CI/CD, no cloud setup required. This walkthrough takes you from a
@@ -188,7 +188,7 @@ table {
     </p>
 
     <h3>1 · Install and scaffold</h3>
-    <pre>bun add -d @fe/cli
+    <pre class="lang-shell">bun add -d @fe/cli
 fe new acme/mfe-a
 fe new acme/mfe-b</pre>
     <p>
@@ -197,19 +197,19 @@ fe new acme/mfe-b</pre>
       <code>render()</code> stub. Give <code>mfe-b</code> a dependency on
       <code>mfe-a</code>:
     </p>
-    <pre>fe link mfe-b mfe-a</pre>
+    <pre class="lang-shell">fe link mfe-b mfe-a</pre>
 
     <h3>2 · Write a minimal shell</h3>
     <p>
       Create <code>host-app/index.html</code> with the platform config embedded and
       <code>host-app/src/index.ts</code> that loads the runtime:
     </p>
-    <pre>&lt;!-- host-app/index.html --&gt;
+    <pre class="lang-json">&lt;!-- host-app/index.html --&gt;
 &lt;script type="application/json" id="platform-config"&gt;
   { "routes": {}, "packages": {} }
 &lt;/script&gt;
 &lt;script type="module" src="./src/index.ts"&gt;&lt;/script&gt;</pre>
-    <pre>// host-app/src/index.ts
+    <pre class="lang-ts">// host-app/src/index.ts
 import { load, loadDevtools } from "@fe/runtime";
 await loadDevtools();
 await load(location.pathname);</pre>
@@ -218,7 +218,7 @@ await load(location.pathname);</pre>
     <p>
       Create <code>configs/fe.config.json</code> at the workspace root:
     </p>
-    <pre>{
+    <pre class="lang-json">{
   "shellDir": "host-app",
   "manifestPath": "configs/platform.json",
   "jitPlugins": ["@fe/jit-plugin-react"]
@@ -226,13 +226,13 @@ await load(location.pathname);</pre>
     <p>
       Create <code>configs/platform.json</code> with empty routes and packages:
     </p>
-    <pre>{
+    <pre class="lang-json">{
   "routes": {},
   "packages": {}
 }</pre>
 
     <h3>4 · Publish both MFEs</h3>
-    <pre>fe publish mfe-a
+    <pre class="lang-shell">fe publish mfe-a
 fe publish mfe-b</pre>
     <p>
       Each command uploads source to <code>sources/</code> and adds an entry to
@@ -243,11 +243,11 @@ fe publish mfe-b</pre>
     <p>
       Edit <code>configs/platform.json</code> to map a route:
     </p>
-    <pre>{
+    <pre class="lang-json">{
   "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
   "packages": { ... }
 }</pre>
-    <pre>fe build shell
+    <pre class="lang-shell">fe build shell
 fe serve</pre>
     <p>
       Open <code>http://localhost:3000</code>. The runtime resolves the route, injects
@@ -266,7 +266,7 @@ fe serve</pre>
   </section>
 
   <section id="content-cloud">
-    <h2>◆ Cloud deployment</h2>
+    <h2><span style="color:var(--card-b)">۞</span> Cloud deployment</h2>
 
     <h3>CDN and caching</h3>
     <p>
@@ -284,7 +284,7 @@ fe serve</pre>
     <p>
       The minimum required CSP for a fe-based shell:
     </p>
-    <pre>Content-Security-Policy:
+    <pre class="lang-shell"># Content-Security-Policy:
   script-src 'self' https://cdn.your-domain.com;
   script-src-elem 'self' https://cdn.your-domain.com;</pre>
     <p>
@@ -332,7 +332,7 @@ fe serve</pre>
       Because artifact URLs are versioned and immutable, rollback is a config
       change, not a deploy:
     </p>
-    <pre>// platform.json: change this
+    <pre class="lang-json">// platform.json: change this
 "routes": { "/": "fe(acme/my-feature)@2.0.0" }
 
 // to this
@@ -344,7 +344,7 @@ fe serve</pre>
   </section>
 
   <section id="content-enterprise">
-    <h2>◆ Enterprise and ecosystem</h2>
+    <h2><span style="color:var(--card-b)">۞</span> Enterprise and ecosystem</h2>
 
     <h3>Toolkit packages shipped</h3>
     <p>
@@ -388,12 +388,12 @@ fe serve</pre>
       <code>render</code> function. Create it with <code>fe new</code> and give it
       a meaningful scope:
     </p>
-    <pre>fe new acme/i18n</pre>
+    <pre class="lang-shell">fe new acme/i18n</pre>
     <p>
       For packages that adapt a specific framework, use dynamic imports to defer the
       framework load until the function is called:
     </p>
-    <pre>// toolkit/react-glue/src/index.ts
+    <pre class="lang-ts">// toolkit/react-glue/src/index.ts
 export async function useStore&lt;T&gt;(key: string, init: T) {
   const { useState, useEffect } = await import("react");
   // build and return the React hook

@@ -1,0 +1,7 @@
+{
+  "name": "@fe-platform/syntax-highlighter",
+  "version": "0.0.3",
+  "description": "fe(#syntax-highlighter) - High-performance tokenization using the CSS Custom Highlight API with support for TypeScript, JSON, and Shell.",
+  "license": "MIT",
+  "exports": "./src/index.ts"
+}

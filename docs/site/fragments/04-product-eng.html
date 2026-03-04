@@ -78,7 +78,7 @@ table {
 }
 </style>
 <article id="content-product">
-  <h2>◆ For product engineers</h2>
+  <h2><span style="color:var(--card-a)">⧉</span> For product engineers</h2>
 
   <h3>What you own independently</h3>
   <p>
@@ -134,7 +134,7 @@ table {
     live in <code>sessionStorage</code> and affect only your current tab. No redeployment,
     no asking anyone for access.
   </p>
-  <pre>// manual sessionStorage override (without devtools)
+  <pre class="lang-ts">// manual sessionStorage override (without devtools)
 sessionStorage.setItem(
   "fe:override:fe(acme/my-feature)",
   "http://localhost:3001/"
@@ -156,7 +156,7 @@ sessionStorage.setItem(
     <code>platform.json</code>. In that case the runtime calls <code>render()</code>
     on navigation to mount your UI, so you must export it:
   </p>
-  <pre>export function render(
+  <pre class="lang-ts">export function render(
   container: HTMLElement,
   props: Record&lt;string, unknown&gt;
 ): () => void {
@@ -173,7 +173,7 @@ sessionStorage.setItem(
     Toolkit packages are resolved at runtime through import maps. Declare them in
     <code>devDependencies</code>:
   </p>
-  <pre>// package.json
+  <pre class="lang-json">// package.json
 {
   "name": "fe(acme/my-feature)",
   "devDependencies": {
@@ -181,7 +181,7 @@ sessionStorage.setItem(
     "fe(acme/network)": "^1.0.0"
   }
 }</pre>
-  <pre>// src/index.ts
+  <pre class="lang-ts">// src/index.ts
 import { createStore } from "fe(acme/store)";
 
 const count = createStore("my-feature:count", 0);
