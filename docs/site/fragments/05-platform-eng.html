@@ -1,0 +1,263 @@
+<article id="content-platform">
+  <div class="sub-nav">
+    <details name="plat-sub" id="nav-poc" open>
+      <summary>◆ POC</summary>
+    </details>
+    <details name="plat-sub" id="nav-cloud">
+      <summary>◆ Cloud</summary>
+    </details>
+    <details name="plat-sub" id="nav-enterprise">
+      <summary>◆ Enterprise</summary>
+    </details>
+  </div>
+
+  <section id="content-poc" class="dot-grid dense">
+    <h2>◆ Proof of concept</h2>
+    <p>
+      The fastest path to a running platform: two MFEs, one shell, everything local.
+      No CDN, no CI/CD, no cloud setup required. This walkthrough takes you from a
+      fresh workspace to a working browser demo.
+    </p>
+
+    <h3>1 · Install and scaffold</h3>
+    <pre>bun add -d @fe/cli
+fe new acme/mfe-a
+fe new acme/mfe-b</pre>
+    <p>
+      Each <code>fe new</code> creates a directory with <code>package.json</code>,
+      <code>tsconfig.json</code>, and a <code>src/index.ts</code> with a
+      <code>render()</code> stub. Give <code>mfe-b</code> a dependency on
+      <code>mfe-a</code>:
+    </p>
+    <pre>fe link mfe-b mfe-a</pre>
+
+    <h3>2 · Write a minimal shell</h3>
+    <p>
+      Create <code>host-app/index.html</code> with the platform config embedded and
+      <code>host-app/src/index.ts</code> that loads the runtime:
+    </p>
+    <pre>&lt;!-- host-app/index.html --&gt;
+&lt;script type="application/json" id="platform-config"&gt;
+  { "routes": {}, "packages": {} }
+&lt;/script&gt;
+&lt;script type="module" src="./src/index.ts"&gt;&lt;/script&gt;</pre>
+    <pre>// host-app/src/index.ts
+import { load, loadDevtools } from "@fe/runtime";
+await loadDevtools();
+await load(location.pathname);</pre>
+
+    <h3>3 · Configure</h3>
+    <p>
+      Create <code>configs/fe.config.json</code> at the workspace root:
+    </p>
+    <pre>{
+  "shellDir": "host-app",
+  "manifestPath": "configs/platform.json",
+  "jitPlugins": ["@fe/jit-plugin-react"]
+}</pre>
+    <p>
+      Create <code>configs/platform.json</code> with empty routes and packages:
+    </p>
+    <pre>{
+  "routes": {},
+  "packages": {}
+}</pre>
+
+    <h3>4 · Publish both MFEs</h3>
+    <pre>fe publish mfe-a
+fe publish mfe-b</pre>
+    <p>
+      Each command uploads source to <code>sources/</code> and adds an entry to
+      <code>platform.json</code>. You will see version numbers printed to stdout.
+    </p>
+
+    <h3>5 · Add a route and serve</h3>
+    <p>
+      Edit <code>configs/platform.json</code> to map a route:
+    </p>
+    <pre>{
+  "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
+  "packages": { ... }
+}</pre>
+    <pre>fe build shell
+fe serve</pre>
+    <p>
+      Open <code>http://localhost:3000</code>. The runtime resolves the route, injects
+      import maps for both <code>mfe-b</code> and its dep <code>mfe-a</code>, and
+      calls <code>render()</code>. The JIT server compiles each MFE on first request
+      and caches the result.
+    </p>
+
+    <h3>What CI/CD automates from here</h3>
+    <p>
+      The manual steps above map directly to CI jobs: run <code>fe check</code> on
+      every push, run <code>fe publish</code> on merge to main, and update the route
+      in <code>platform.json</code> via a CD step. Each team does this independently
+      for their own MFE.
+    </p>
+  </section>
+
+  <section id="content-cloud">
+    <h2>◆ Cloud deployment</h2>
+
+    <h3>CDN and caching</h3>
+    <p>
+      JIT-compiled artifacts are served with <code>Cache-Control: immutable</code>
+      because the URL includes the version. Put a CDN in front of <code>fe serve</code>
+      with the following origin configuration:
+    </p>
+    <ul>
+      <li>Forward all <code>/bundle/</code> requests to the JIT server origin.</li>
+      <li>Cache responses that include <code>Cache-Control: immutable</code> at the edge.</li>
+      <li>The first request per version compiles; every subsequent request serves the CDN copy.</li>
+    </ul>
+
+    <h3>Content Security Policy</h3>
+    <p>
+      The minimum required CSP for a fe-based shell:
+    </p>
+    <pre>Content-Security-Policy:
+  script-src 'self' https://cdn.your-domain.com;
+  script-src-elem 'self' https://cdn.your-domain.com;</pre>
+    <p>
+      Import maps require no special directives beyond <code>script-src</code>. If
+      any MFE uses WebAssembly, add <code>'wasm-unsafe-eval'</code> to
+      <code>script-src</code>.
+    </p>
+
+    <h3>Config management</h3>
+    <p>
+      Two config files serve different audiences:
+    </p>
+    <table>
+      <thead><tr><th>File</th><th>Who reads it</th><th>What it controls</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>platform.json</code></td>
+          <td>Runtime (browser) + JIT server</td>
+          <td>Routes, package versions, artifact URLs</td>
+        </tr>
+        <tr>
+          <td><code>fe.config.json</code></td>
+          <td>CLI + JIT server bootstrap</td>
+          <td>Plugin list, storage paths, shell dir</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      In production, <code>platform.json</code> is often hosted on its own CDN URL
+      so the shell can fetch the latest version without a redeploy. The runtime
+      falls back to the embedded inline config if the fetch fails.
+    </p>
+
+    <h3>The JIT server</h3>
+    <p>
+      <code>fe serve</code> runs a stateless HTTP server. Every request is
+      independent. Scale horizontally behind a load balancer with no session
+      affinity required. The current implementation is Bun-native; a Rust or Go
+      implementation is a future possibility when Bun is not available in the
+      target environment.
+    </p>
+
+    <h3>Rolling back and promoting</h3>
+    <p>
+      Because artifact URLs are versioned and immutable, rollback is a config
+      change, not a deploy:
+    </p>
+    <pre>// platform.json: change this
+"routes": { "/": "fe(acme/my-feature)@2.0.0" }
+
+// to this
+"routes": { "/": "fe(acme/my-feature)@1.0.0" }</pre>
+    <p>
+      No redeployment of <code>fe serve</code> is required. The JIT server
+      already has the compiled artifact for v1.0.0 in source storage.
+    </p>
+  </section>
+
+  <section id="content-enterprise">
+    <h2>◆ Enterprise and ecosystem</h2>
+
+    <h3>Toolkit packages shipped</h3>
+    <p>
+      Three reusable packages ship with the platform and are available to all MFEs
+      as <code>devDependencies</code>:
+    </p>
+    <table>
+      <thead><tr><th>Package</th><th>What it provides</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>fe(acme/store)</code></td>
+          <td>Framework-agnostic cross-MFE state. Pub/sub store with typed keys. Zero dependencies.</td>
+        </tr>
+        <tr>
+          <td><code>fe(acme/network)</code></td>
+          <td>Shared <code>fetch</code> with request deduplication, response caching, and interceptor hooks.</td>
+        </tr>
+        <tr>
+          <td><code>fe(acme/devtools)</code></td>
+          <td>Developer overlay for managing import map overrides. Solid.js, bundled.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>The composable toolkit pattern</h3>
+    <p>
+      Toolkit packages follow the <code>fe()</code> convention and are deployed like
+      any other MFE. MFEs declare them in <code>devDependencies</code>; the runtime
+      resolves them through import maps. Likely future additions to the toolkit:
+    </p>
+    <ul>
+      <li>Framework glue packages (<code>react-glue</code>, <code>solid-glue</code>) wrapping store and network into framework-native hooks.</li>
+      <li>An auth primitive providing shared identity context across MFEs.</li>
+      <li>A feature-flag primitive backed by <code>fe(acme/store)</code>.</li>
+      <li>i18n, telemetry, service worker, and testing utilities.</li>
+    </ul>
+
+    <h3>Building your own toolkit package</h3>
+    <p>
+      A toolkit package is a standard MFE that exports utilities instead of a
+      <code>render</code> function. Create it with <code>fe new</code> and give it
+      a meaningful scope:
+    </p>
+    <pre>fe new acme/i18n</pre>
+    <p>
+      For packages that adapt a specific framework, use dynamic imports to defer the
+      framework load until the function is called:
+    </p>
+    <pre>// toolkit/react-glue/src/index.ts
+export async function useStore&lt;T&gt;(key: string, init: T) {
+  const { useState, useEffect } = await import("react");
+  // build and return the React hook
+}</pre>
+    <p>
+      This keeps the framework module out of the initial parse cost. The glue is
+      loaded lazily by the MFE that calls it, not at import-map injection time.
+    </p>
+
+    <h3>Marketplace potential</h3>
+    <p>
+      The current manifest is a hand-maintained JSON file. A natural evolution is a
+      central registry where <code>fe publish</code> pushes to a versioned store
+      (analogous to JSR or npm) and the runtime fetches the manifest from a
+      well-known URL. Publishing to a shared registry opens the door to discovery:
+      an organisation's MFE catalogue becomes queryable, and dependency graphs
+      become visible across teams.
+    </p>
+
+    <h3>Plugin management</h3>
+    <p>
+      Add CLI plugins to <code>configs/fe.config.json</code>:
+    </p>
+    <pre>{
+  "plugins": ["@acme/fe-plugin-s3"],
+  "jitPlugins": ["@acme/fe-jit-plugin-vue"]
+}</pre>
+    <p>
+      Plugins that declare <code>updatePolicy.onOutdated = "block"</code> abort CLI
+      commands until the plugin is updated. Use <code>"warn"</code> to allow commands
+      to proceed with a notice. Check each plugin's changelog for when updates are
+      required.
+    </p>
+  </section>
+</article>

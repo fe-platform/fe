@@ -1,0 +1,113 @@
+<article id="content-tutorials">
+  <h2>◆ Tutorials</h2>
+  <p>
+    Each tutorial builds on the previous one. Start with hello world to verify
+    your setup, then progress to multi-team composition and toolkit integration.
+  </p>
+
+  <h3>1 · Hello world: one MFE, one shell</h3>
+  <p>
+    The shortest path to a running platform. By the end you will have one MFE
+    mounting in a shell via <code>fe serve</code>.
+  </p>
+  <pre>bun add -d @fe/cli @fe/jit-plugin-react
+
+# scaffold the MFE
+fe new acme/hello
+
+# scaffold the shell (or use sandbox/host-app as a template)
+# edit configs/fe.config.json and configs/platform.json
+
+fe publish hello
+# add route "/" : "fe(acme/hello)@1.0.0" to platform.json
+fe build shell
+fe serve</pre>
+  <p>
+    Open <code>http://localhost:3000</code>. You should see your <code>render()</code>
+    function mount into the shell container. Source: <code>sandbox/</code>.
+  </p>
+
+  <h3>2 · Two teams, one shell</h3>
+  <p>
+    Add a second MFE that imports a component from the first. This demonstrates
+    cross-team dependency resolution through import maps.
+  </p>
+  <pre>fe new acme/mfe-a   # React MFE, no deps
+fe new acme/mfe-b   # Solid.js MFE, depends on mfe-a
+
+fe link mfe-b mfe-a  # adds mfe-a as devDependency of mfe-b
+
+fe publish mfe-a
+fe publish mfe-b</pre>
+  <p>
+    In <code>mfe-b/src/index.ts</code>, import from <code>fe(acme/mfe-a)</code>.
+    The runtime will resolve both specifiers via the injected import map. The JIT
+    server compiles each independently using the appropriate JIT plugin.
+  </p>
+  <p>
+    Source: <code>sandbox/mfe-a</code> and <code>sandbox/mfe-b</code>.
+  </p>
+
+  <h3>3 · Using toolkit/store across MFEs</h3>
+  <p>
+    Share state between two MFEs without prop drilling or a global window variable.
+    <code>fe(acme/store)</code> provides a typed pub/sub store that persists across
+    MFE mounts and unmounts.
+  </p>
+  <pre>// in both mfe-a and mfe-b package.json
+"devDependencies": { "fe(acme/store)": "^1.0.0" }</pre>
+  <pre>// mfe-a/src/index.ts
+import { createStore } from "fe(acme/store)";
+
+const counter = createStore("app:counter", 0);
+
+export function render(container, props) {
+  const btn = document.createElement("button");
+  btn.textContent = "increment";
+  btn.onclick = () => counter.set(counter.get() + 1);
+  container.appendChild(btn);
+  return () => container.removeChild(btn);
+}</pre>
+  <pre>// mfe-b/src/index.ts
+import { createStore } from "fe(acme/store)";
+
+const counter = createStore("app:counter", 0);
+
+export function render(container, props) {
+  const span = document.createElement("span");
+  const unsub = counter.subscribe(v => { span.textContent = String(v); });
+  container.appendChild(span);
+  return () => { unsub(); container.removeChild(span); };
+}</pre>
+  <p>
+    Both MFEs resolve to the same <code>fe(acme/store)</code> version through the
+    import map. The store instance is shared because the module is loaded once.
+  </p>
+
+  <h3>4 · Adding a JIT plugin for a custom JSX transform</h3>
+  <p>
+    If you need a JSX transform that is not covered by the built-in React and
+    Solid.js plugins, you can write your own:
+  </p>
+  <pre>// @acme/fe-jit-plugin-preact/src/index.ts
+import type { JitPlugin } from "@fe/core";
+
+export default {
+  name: "acme-preact",
+  "build:options"(options) {
+    return {
+      ...options,
+      jsx: "automatic",
+      jsxImportSource: "preact",
+    };
+  },
+} satisfies JitPlugin;</pre>
+  <pre>// configs/fe.config.json
+{ "jitPlugins": ["@acme/fe-jit-plugin-preact"] }</pre>
+  <p>
+    The <code>build:options</code> hook receives <code>Bun.BuildOptions</code> and
+    returns a modified copy. Plugins run in declaration order; later plugins can
+    override earlier settings. The platform team declares the plugin on the server;
+    MFE teams do not need to configure anything.
+  </p>
+</article>

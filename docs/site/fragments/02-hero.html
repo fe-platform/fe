@@ -1,0 +1,74 @@
+<section class="hero dot-grid">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <h1>
+        <span class="light">a platform for</span>
+        <strong>microfrontends ✦</strong>
+      </h1>
+      <p class="hero-intro">
+        Each team publishes TypeScript source. The JIT server compiles it on first
+        request. The browser resolves every <code>fe(scope/name)</code> specifier
+        through import maps at runtime. No shared build pipeline. No version
+        negotiations at deploy time.
+      </p>
+      <div class="diagram">
+        <div class="diagram-grid">
+          <div class="diagram-cell">
+            ◆ MFE teams
+            <div class="sub"><code>fe publish</code> · <code>fe dev</code> · <code>fe new</code></div>
+          </div>
+          <div class="diagram-cell">
+            ◆ JIT server
+            <div class="sub"><code>fe serve</code> · compiles on demand</div>
+          </div>
+          <div class="diagram-cell">
+            ◆ platform config
+            <div class="sub"><code>platform.json</code> · routes + packages</div>
+          </div>
+          <div class="diagram-cell">
+            ◆ browser runtime
+            <div class="sub">import maps · <code>@fe/runtime</code> · <code>render()</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <a href="#nav-product" class="card card-a">
+        <div class="card-label">I build features</div>
+        <div class="card-desc">How to scaffold, develop, and publish a MFE independently.</div>
+      </a>
+      <a href="#nav-platform" class="card card-b">
+        <div class="card-label">I run the platform</div>
+        <div class="card-desc">How to operate the JIT server, shell, and manifest.</div>
+      </a>
+      <a href="#nav-arch" class="card card-c">
+        <div class="card-label">Understand the design</div>
+        <div class="card-desc">The fe() convention, import map lifecycle, and plugin system.</div>
+      </a>
+      <a href="#nav-tutorials" class="card card-d">
+        <div class="card-label">Show me code</div>
+        <div class="card-desc">Step-by-step tutorials from hello world to toolkit integration.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+  <details id="mobile-nav">
+    <summary>▸ menu</summary>
+    <aside>
+      <details name="page" id="nav-arch" open>
+        <summary>Architecture <span class="arr"></span></summary>
+      </details>
+      <details name="page" id="nav-product">
+        <summary>For product engineers <span class="arr"></span></summary>
+      </details>
+      <details name="page" id="nav-platform">
+        <summary>For platform engineers <span class="arr"></span></summary>
+      </details>
+      <details name="page" id="nav-tutorials">
+        <summary>Tutorials <span class="arr"></span></summary>
+      </details>
+    </aside>
+  </details>
+  <main>

@@ -5,85 +5,49 @@
 **Ship independently. Compose natively.**
 </div>
 
-A microfrontend platform built on native browser primitives — ES modules, import maps, and dynamic `import()`. MFEs deploy independently and compose at runtime. Nothing bundles across MFE boundaries.
+A microfrontend platform built on native browser primitives. Each team publishes TypeScript source. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime. No shared build pipeline. No version negotiations at deploy time.
 
-## Mental Model
-
-At its core, `fe` embraces the browser rather than fighting it. The platform rejects the complexity of distributed bundling in favor of native ES modules and import maps.
-
-1. **Convention over Configuration**: The `fe(scope/name)` specifier is the universal contract. It's a package name, a bare import specifier, and a registry key.
-2. **Build-Time Externalization**: Any `fe()` import is automatically externalized by the bundler. MFEs are built in true isolation.
-3. **Just-In-Time Compilation**: Source code is published to the registry and compiled on-demand at the edge.
-4. **Lazy Resolution**: The browser runtime dynamically resolves dependencies, dedupes versions, and injects import maps exactly when needed.
-
-## The `fe()` specifier scheme
-
-Cross-MFE imports use the `fe(scope/name)` package name convention:
-
-```ts
-import { render } from "fe(acme/mfe-a)";
-```
-
-`fe(...)` is a plain package name — not a URL scheme. It is the `name` in `package.json`, a bare specifier in `import` statements, and the key in the platform's lookup service. Any `fe(...)` import is immediately recognizable as a cross-MFE boundary.
-
-At build time, `fe(...)` imports are externalized — never bundled. At runtime, the browser resolves them via injected import maps.
-
-## MFE interface
-
-Every MFE exports one function:
-
-```ts
-export function render(container: HTMLElement, props: Record<string, unknown>): () => void
-```
-
-The return value unmounts and cleans up. Any framework is supported — React, SolidJS, Svelte, or plain DOM. The contract is framework-agnostic; the host never knows what rendered into the container.
-
-## Packages
+## How it works
 
 | | |
 |---|---|
-| `packages/core/` | Shared types and interfaces (`@fe/core`) |
-| `packages/runtime/` | Browser runtime — import map injection, semver resolution (`@fe/runtime`) |
-| `packages/compiler/` | Framework-aware MFE bundler + JIT bundler (`@fe/compiler`) |
-| `packages/cli/` | `fe` binary — build, serve, dev, link, publish, check (`@fe/cli`) |
-| `packages/jit-plugin-react/` | JIT plugin for React JSX — disables Solid auto-detection (`@fe/jit-plugin-react`) |
-| `packages/jit-plugin-solid/` | JIT plugin for Solid.js JSX — appends `bun-plugin-solid` to the build pipeline (`@fe/jit-plugin-solid`) |
-| `sandbox/mfe-a/` | React MFE (`fe(acme/mfe-a)`) |
-| `sandbox/mfe-b/` | SolidJS MFE that composes mfe-a (`fe(acme/mfe-b)`) |
-| `sandbox/host-app/` | Host app — resolves routes, injects import maps, mounts MFEs |
-| `toolkit/devtools/` | Developer overlay for per-tab import map overrides (`fe(acme/devtools)`) |
-| `sandbox/configs/platform.json` | Routes + package version registry |
-| `sandbox/configs/fe.config.json` | CLI config — plugins, artifact paths, shell directory |
+| **MFE teams** | `fe new` · `fe dev` · `fe publish` — full lifecycle, no platform knowledge required |
+| **JIT server** | `fe serve` compiles source on demand, serves with `Cache-Control: immutable` |
+| **Platform config** | `platform.json` maps routes to `specifier@version` and versions to artifact URLs |
+| **Browser runtime** | `@fe/runtime` resolves the dep graph, injects import maps, calls `render()` |
+
+## The `fe()` convention
+
+`fe(scope/name)` is a plain package name — the `name` in `package.json`, a bare specifier in imports, and the key in the platform registry. At build time it is externalized. At runtime the browser resolves it via an injected import map.
+
+```ts
+import { createStore } from "fe(acme/store)";
+```
+
+## MFE contract
+
+Every MFE exports one function. Any framework works.
+
+```ts
+export function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): () => void
+```
+
+The return value unmounts and cleans up. The host never knows what rendered into the container.
 
 ## CLI
 
-All commands run from the repo root:
-
-| Command | What it does |
-|---|---|
-| `fe build <target>` | Bundle an MFE or the shell |
-| `fe serve` | Serve the built shell |
-| `fe dev <target>` | Isolated sandbox with hot module replacement |
-| `fe link <consumer> <dep>` | Wire a `fe()` devDependency between packages |
-| `fe publish <target>` | Publish MFE source code for JIT compilation |
-
-## Developer experience
-
-**Isolated development.** `dev` mode runs a standalone sandbox per MFE. Edit `src/` — Bun rebuilds, an SSE message triggers the browser to unmount the old render, import the new module under a cache-busting URL, and call `render()` again in the same container. No page reload. MFE authors have zero awareness of the HMR mechanism.
-
-**Independent deployment (JIT compilation).** `publish` runs a pre-flight typecheck, uploads the raw source code of an MFE, and registers its bundle URL in the CDN configuration. The system uses a **Just-In-Time (JIT) bundler** that compiles the source code on-the-fly when the browser first requests it, caching the result.
-
-**Cross-ecosystem composition.** The CDN lookup process accepts full URLs alongside `fe(...)` specifiers, so MFEs hosted on external CDNs compose the same way as local packages. The JIT bundler can be pushed to edge CDNs for production scale.
-
-## Runtime model
-
-1. Shell HTML loads with the full platform config embedded as JSON — no static import map
-2. `platform.js` reads the config and resolves the current route to a `specifier@version`
-3. Transitive `fe()` deps are resolved via semver from the packages registry
-4. A `<script type="importmap">` is injected covering all resolved deps
-5. `import(specifier)` — the browser resolves via the injected map and mounts the MFE
-
-Multiple import maps are injected lazily and deduped across navigations.
+```
+fe new <scope/name>   scaffold a new MFE
+fe dev <target>       live-reload dev server
+fe check <target>     typecheck + build simulation (CI)
+fe publish <target>   upload source + register version
+fe link <mfe> <dep>   wire a local fe() dependency
+fe build shell        compile the host shell
+fe serve              run the JIT server
+```
 
 ## Attributions
 
@@ -91,4 +55,4 @@ This project uses icons from [Streamline](https://streamlinehq.com). Some icons 
 
 ---
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup and development workflows, or the [full documentation](https://deepwiki.com/fe-platform/fe) for architecture and guides.
+[Full documentation](https://fe.frustrated.dev) · [CONTRIBUTING.md](./CONTRIBUTING.md)

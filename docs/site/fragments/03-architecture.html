@@ -1,0 +1,135 @@
+<article id="content-arch">
+  <h2>◆ Architecture and conventions</h2>
+
+  <h3>Moving parts</h3>
+  <p>
+    The platform is composed of five independent pieces that each do one thing:
+  </p>
+  <table>
+    <thead><tr><th>Package</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>@fe/cli</code></td><td>The <code>fe</code> binary. Scaffold, build, dev, publish, serve.</td></tr>
+      <tr><td><code>@fe/compiler</code></td><td>Houses <code>compileMfe</code> and <code>createJITBundler</code>. Used by <code>fe serve</code>.</td></tr>
+      <tr><td><code>@fe/runtime</code></td><td>Browser-side loader. Reads config, resolves deps, injects import maps, mounts MFEs.</td></tr>
+      <tr><td><code>@fe/core</code></td><td>Shared TypeScript types and interfaces. No runtime code.</td></tr>
+      <tr><td><code>platform.json</code></td><td>Authoritative registry of routes and package versions. Read by both runtime and server.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The fe() convention</h3>
+  <p>
+    <code>fe(scope/name)</code> is a plain string used as a package name everywhere: in
+    <code>package.json</code>, in import statements, and in the platform manifest. It is
+    a bare specifier that the browser resolves through injected import maps. There is no
+    special URL scheme.
+  </p>
+  <pre>// package.json
+{ "name": "fe(acme/my-mfe)" }
+
+// source
+import { store } from "fe(acme/store)";
+
+// platform.json
+"fe(acme/store)": { "versions": { "1.0.0": { "url": "..." } } }</pre>
+  <p>
+    During build, <code>fe(*)</code> entries in <code>devDependencies</code> are treated as
+    externals. At runtime, the browser resolves each specifier to a URL via the injected
+    import map. The symlinks created by <code>bun install</code> satisfy TypeScript without
+    any <code>tsconfig.paths</code> configuration.
+  </p>
+
+  <h3>MFE contract</h3>
+  <p>
+    Every MFE exports one function. Nothing else is required:
+  </p>
+  <pre>export function render(
+  container: HTMLElement,
+  props: Record&lt;string, unknown&gt;
+): () => void {
+  // mount into container
+  // return a cleanup function that removes your DOM nodes
+}</pre>
+  <p>
+    The contract is intentionally minimal. No framework lifecycle, no router coupling,
+    no shared state requirement. The cleanup function is called by the runtime when
+    navigating away. React, Solid.js, and vanilla DOM all satisfy it without adaptation.
+  </p>
+
+  <h3>Deployment model</h3>
+  <p>
+    MFEs are deployed as raw TypeScript source, not as bundles. <code>fe publish</code>
+    uploads source files and registers a new version in <code>platform.json</code>. The
+    JIT server compiles source on first request and responds with
+    <code>Cache-Control: immutable</code> headers.
+  </p>
+  <div class="lifecycle">
+    <div class="lc-step">fe publish<div class="sub">upload source</div></div>
+    <div class="lc-step">platform.json<div class="sub">new version registered</div></div>
+    <div class="lc-step">JIT server<div class="sub">compile on first request</div></div>
+    <div class="lc-step">CDN<div class="sub">immutable cache</div></div>
+    <div class="lc-step">browser<div class="sub">import map + render()</div></div>
+  </div>
+  <p>
+    Artifact URLs include the version, so the compiled output is stable forever. A new
+    publish creates a new URL; old versions remain available at their original addresses.
+    Rollback is a one-line edit to <code>platform.json</code>.
+  </p>
+
+  <h3>Local development</h3>
+  <p>
+    <code>fe dev &lt;target&gt;</code> starts a dev server for one MFE with SSE-based hot module
+    reload. The devtools overlay (if installed) lets you redirect any
+    <code>fe(scope/name)</code> specifier to a local dev URL via sessionStorage. This
+    override affects only the current browser tab and can be shared as a URL parameter.
+  </p>
+  <pre>fe dev mfe-a          # start dev server at localhost:3001
+# in devtools panel: override fe(acme/mfe-a) → http://localhost:3001/</pre>
+  <p>
+    <code>fe check &lt;target&gt;</code> runs typecheck and simulates a build without writing
+    output. Use it in CI to catch errors early without running the full JIT pipeline.
+  </p>
+
+  <h3>Cross-MFE dependencies</h3>
+  <p>
+    When a MFE depends on another, declare it in <code>devDependencies</code>:
+  </p>
+  <pre>// mfe-b/package.json
+{
+  "name": "fe(acme/mfe-b)",
+  "devDependencies": { "fe(acme/mfe-a)": "^1.0.0" }
+}</pre>
+  <p>
+    The runtime reads the dep graph from <code>platform.json</code> and resolves the
+    highest compatible version using semver. All resolved specifiers are injected into
+    a single <code>&lt;script type="importmap"&gt;</code> before the MFE is imported.
+    Subsequent navigations skip specifiers already injected, so shared deps load once.
+  </p>
+
+  <h3>Extension points</h3>
+  <p>
+    Two plugin systems let organisations extend the platform without forking it:
+  </p>
+  <ul>
+    <li>
+      <strong>CLI plugins</strong> — swap adapters at bootstrap time. Replace artifact
+      storage with S3, replace config reading with an environment-variable provider,
+      or add new CLI commands. Declare in <code>fe.config.json</code> under
+      <code>"plugins"</code>.
+    </li>
+    <li>
+      <strong>JIT plugins</strong> — transform <code>BuildOptions</code> before each
+      compilation. <code>@fe/jit-plugin-react</code> and
+      <code>@fe/jit-plugin-solid</code> ship out of the box. Declare in
+      <code>fe.config.json</code> under <code>"jitPlugins"</code>.
+    </li>
+  </ul>
+
+  <h3>CLI quick reference</h3>
+  <pre>fe new &lt;scope/name&gt;   scaffold a new MFE project
+fe dev &lt;target&gt;       live-reload dev server
+fe check &lt;target&gt;     typecheck + build simulation (CI)
+fe publish &lt;target&gt;   upload source + register version
+fe link &lt;mfe&gt; &lt;dep&gt;   wire a local fe() dependency
+fe build shell        compile the host shell
+fe serve              run the JIT server</pre>
+</article>
