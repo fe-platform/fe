@@ -19,7 +19,7 @@ via the import map, giving them a common cache and interceptor chain.
 ```ts
 network.fetch(input, init?): Promise<Response>
   Same signature as global fetch. GET/HEAD responses are cached (30 s default) and
-  deduplicated — concurrent requests for the same URL share one in-flight Promise.
+  deduplicated; concurrent requests for the same URL share one in-flight Promise.
 
 network.addRequestInterceptor(fn): () => void   // returns remove fn
 network.addResponseInterceptor(fn): () => void  // returns remove fn
@@ -52,7 +52,7 @@ const remove = network.addRequestInterceptor(async (req) => {
   return new Request(req, { headers: { ...Object.fromEntries(req.headers), Authorization: `Bearer ${token}` } });
 });
 
-// Later — remove the interceptor
+// Later: remove the interceptor
 remove();
 
 const res = await network.fetch("/api/user");

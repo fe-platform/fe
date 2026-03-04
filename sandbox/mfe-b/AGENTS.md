@@ -17,7 +17,7 @@ devDependencies:
 target=ES2022 module=ESNext moduleResolution=bundler strict=true skipLibCheck=true
 jsx=preserve jsxImportSource=solid-js lib=[ES2022,DOM] include=[src]
 
-## src/index.tsx — full behaviour
+## src/index.tsx: full behaviour
 ```tsx
 import { render as renderA } from "fe(acme/mfe-a)"  // external · resolved via importmap
 import { render as solidRender } from "solid-js/web"
@@ -30,9 +30,9 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
   dispose = solidRender(()=><Wrapper name={props.name} container={container}/>, container)
   return ()=>dispose()
 ```
-composition: mfe-b (Solid) renders chrome, mfe-a (React) renders inside — frameworks coexist
+composition: mfe-b (Solid) renders chrome, mfe-a (React) renders inside, so frameworks coexist
 
-## index.d.ts — public type contract
+## index.d.ts: public type contract
 ```ts
 export declare function render(container:HTMLElement,props:Record<string,unknown>):()=>void
 ```

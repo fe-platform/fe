@@ -14,7 +14,7 @@ fe()-deps: ∅  (no cross-MFE imports)
 target=ES2022 module=ESNext moduleResolution=bundler strict=true skipLibCheck=true
 jsx=react-jsx lib=[ES2022,DOM] include=[src]
 
-## src/index.tsx — full behaviour
+## src/index.tsx: full behaviour
 ```tsx
 import React from "react"
 import { createRoot } from "react-dom/client"
@@ -26,7 +26,7 @@ export function render(container:HTMLElement,props:Record<string,unknown>):()=>v
   return ()=>{ root.unmount(); el.remove() }
 ```
 
-## index.d.ts — public type contract
+## index.d.ts: public type contract
 ```ts
 export declare function render(container:HTMLElement,props:Record<string,unknown>):()=>void
 ```

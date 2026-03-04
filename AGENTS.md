@@ -93,7 +93,7 @@ Plugins run after builtins so they can freely swap `ctx.adapters.*`.
 ```
 File lives at `configs/fe.config.json` (co-located with platform.json).
 All fields optional; defaults apply when file is absent.
-Plugins access config via `ctx.adapters.config.get()` — NOT by reading the file directly.
+Plugins access config via `ctx.adapters.config.get()`, NOT by reading the file directly.
 
 ## platform.json config
 ```json
@@ -106,7 +106,7 @@ Plugins access config via `ctx.adapters.config.get()` — NOT by reading the fil
 }
 ```
 
-## deployment model — source-first, JIT on server
+## deployment model: source-first, JIT on server
 
 MFEs are deployed as **source files**, not bundles.
 
@@ -154,7 +154,7 @@ trigger: push→main | PR→main
 documentation lives at https://deepwiki.com/fe-platform/fe
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
-## ✗ agent conduct — cardinal rules
+## ✗ agent conduct: cardinal rules
 - oversight and caution are paramount · code velocity is not
 - never infer a task from branch names, stale todo lists, TODO placeholders, or prior session context alone
 - before starting any multi-file or substantial change: state what you believe the task is and wait for explicit confirmation
@@ -163,12 +163,12 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 - for any GitHub operation (issues, PRs, comments, labels): use `gh` CLI · install if missing: `which gh || (sudo apt-get update -qq && sudo apt-get install -y gh)` · then use as: `gh issue view 22`, `gh pr list` · `GITHUB_TOKEN` is always present in the environment via the connected GitHub App and `gh` picks it up automatically · do not curl internal proxy endpoints or the git remote URL for API access
 - never read credential or token files (e.g. `~/.claude/remote/.session_ingress_token`, `~/.ssh/*`, `~/.netrc`) and never scan environment variables for secrets (e.g. `env | grep -i token`) · if a tool requires authentication and the credential is not already available via `gh auth status` or standard git config, stop and ask the user
 
-## ✗ agent conduct — voice and tone
+## ✗ agent conduct: voice and tone
 - **The cardinal rule.** Every sentence must satisfy six criteria simultaneously: concise, clear and unambiguous, complete, correct, confident yet humble, and use common and simple language. If a sentence fails any one of those, rewrite it.
 - **Prose style.** Write as though you and the reader are discovering something together for the first time. The platform makes choices that are genuinely unusual in the frontend world, and the prose should honour that sense of exploration. Aim for a flowing, high-level rhythm. When a design decision pays off in an interesting way, let the writing linger on that moment rather than rushing past it.
 - **Wholesome phrasing and tone.** Maintain a positive, collaborative, and wholesome tone at all times. Language must never be severely critical of other approaches (e.g., "instead of faking it"). Do not use harsh words like "strict" or "never" when a softer, inclusive alternative works.
 - **Earnest and honest language (No Self-Certification).** Do not self-certify the platform's merits (e.g., "this platform is an honorable return to simple code"). Instead of stating what the platform *is*, speak in terms of intent and capability. Use phrases like: "what the intent is", "what specifically this does", "what I prescribe", "what I know", "what I don't know", "what I predict", and "what I hope". This ensures transparent, earnest, and honest communication.
-- **Wit — exactly 10%.** A well-placed pun, a precise turn of phrase, or a moment of dry observation is welcome and expected. Wit must come from wordplay, irony, or clever observation—never at the expense of a person, a technology, or the reader.
+- **Wit: exactly 10%.** A well-placed pun, a precise turn of phrase, or a moment of dry observation is welcome and expected. Wit must come from wordplay, irony, or clever observation; never at the expense of a person, a technology, or the reader.
 - **Assertive without arrogance.** The platform has opinions. Express them plainly. Replace hedging language ("you might want to consider") with direct statements ("use `devDependencies`"). Equally, never overclaim: "the only correct approach" is a promise you will eventually fail to keep. Always be humble.
 - **No emojis.** Not in headings, not inline, not anywhere in content files.
 - **Em dashes.** Use at most one per page. Prefer a comma, a colon, or a new sentence instead.
@@ -183,7 +183,7 @@ pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
 ## lazy import convention (toolkit and glue packages)
 Toolkit packages are loaded via import map; their module load is the first real cost the browser
-pays. Static top-level framework imports run at that moment — before any user interaction.
+pays. Static top-level framework imports run at that moment, before any user interaction.
 
 For toolkit packages that adapt a framework (glue packages), defer framework imports inside each
 exported function using dynamic `import()`:
@@ -197,7 +197,7 @@ export async function createReactStore<T>(key: string, init: T) {
 This way, the framework module is not loaded until the glue is actually called.
 
 Exceptions:
-- `toolkit/devtools` bundles Solid.js directly into its output — lazy import would not help.
+- `toolkit/devtools` bundles Solid.js directly into its output; lazy import would not help.
 - Published packages (`packages/*`) contain no framework imports; the rule does not apply.
 - MFE entry files (`src/index.ts`) are themselves the bundle root; static imports are correct.
 

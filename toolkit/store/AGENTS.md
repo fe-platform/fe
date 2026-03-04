@@ -57,6 +57,6 @@ fe link <mfe-dir> toolkit/store
 
 ## invariants
 - no framework dependencies; zero runtime deps
-- module-level registry — all stores are global to the page
+- module-level registry: all stores are global to the page
 - set() is a no-op when the new value is reference-equal to the previous
 - subscribe() listeners are called synchronously after set()

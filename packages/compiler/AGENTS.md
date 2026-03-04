@@ -3,7 +3,7 @@
 ↑ packages/core/AGENTS.md for all types/interfaces
 
 ## purpose
-`@fe/compiler` v1.0.0 — framework-aware MFE bundler and server-side JIT bundler.
+`@fe/compiler` v1.0.0: framework-aware MFE bundler and server-side JIT bundler.
 Published. Used by `@fe/cli` (via `createBunBuilder`) and `fe serve` (via `createJITBundler`).
 
 ## src/ file map

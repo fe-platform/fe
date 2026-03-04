@@ -165,7 +165,7 @@ fe new <scope/name>
 ### check (plugins/check.ts)
 ```
 fe check <target|shell>
-  tsc --noEmit (via bunx tsc --project <dir>/tsconfig.json)
+  tsc --noEmit (via bun x tsc --project <dir>/tsconfig.json)
   Bun.build simulation (tries src/index.ts first, falls back to src/index.tsx)
   applies build:options waterfall (same as real build)
   exits 0 on pass · exits 1 on first failure

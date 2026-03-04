@@ -31,7 +31,7 @@ The platform makes choices that are genuinely unusual in the frontend world, and
 
 `fe(scope/name)` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime.
 
-Because MFEs are plain **ES modules**, they can export anything—functions, stores, API clients, or UI components.
+Because MFEs are plain **ES modules**, they can export anything: functions, stores, API clients, or UI components.
 
 ```ts
 import { createStore } from "fe(acme/store)";

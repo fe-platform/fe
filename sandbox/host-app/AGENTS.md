@@ -104,7 +104,7 @@ fe serve
 ```
 # from sandbox/host-app/:
 bun run test           # runs playwright test (uses existing server if port 3000 is up)
-npx playwright test    # equivalent
+bun x playwright test  # equivalent
 
 # CI (port must not be in use; webServer starts its own):
 CI=true bun run test
@@ -130,9 +130,9 @@ The tests use the legacy artifact path (`fe build + fe admin upload`) because th
 (`fe build toolkit/devtools`) since its entry is `src/index.tsx`, not `src/index.ts`.
 
 ### test coverage (tests/host.spec.ts)
-1. platform config is embedded in HTML — reads `#__platform__` JSON, checks routes + packages structure
-2. runtime injects import maps for route dependencies — waits for `#app > *`, reads all importmap scripts
-3. mfe-b renders and composes mfe-a in #app — checks rendered text content
-4. devtools overlay is mounted with toggle button — checks `#__devtools__` attached + button visible
-5. platform:overrides URL param stores in sessionStorage and is stripped — sets `?platform:overrides=`
-6. platform:clear-overrides strips sessionStorage and removes URL param — sets item then navigates
+1. platform config is embedded in HTML: reads `#__platform__` JSON, checks routes + packages structure
+2. runtime injects import maps for route dependencies: waits for `#app > *`, reads all importmap scripts
+3. mfe-b renders and composes mfe-a in #app: checks rendered text content
+4. devtools overlay is mounted with toggle button: checks `#__devtools__` attached + button visible
+5. platform:overrides URL param stores in sessionStorage and is stripped: sets `?platform:overrides=`
+6. platform:clear-overrides strips sessionStorage and removes URL param: sets item then navigates

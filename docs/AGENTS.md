@@ -24,7 +24,7 @@ docs/site/
 The site is built by composing HTML fragments from `fragments/` into the `index.template.html` file.
 ```bash
 # To build the site:
-npx bun run build.ts
+bun run build.ts
 ```
 The generated `index.html` is ignored by Git. Always edit the `fragments/` or `style.css` directly.
 

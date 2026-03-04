@@ -3,7 +3,7 @@
 ↑ packages/core/AGENTS.md for PlatformConfig and related types
 
 ## purpose
-`@fe/runtime` v0.1.0 — browser-side platform loader.
+`@fe/runtime` v0.1.0: browser-side platform loader.
 Published. Consumed by `sandbox/host-app` (and any host application).
 Reads the embedded platform config, resolves the dep graph, injects import maps, and mounts MFEs.
 
@@ -16,7 +16,7 @@ src/
   overrides.ts  readOverrides · processUrlParams
 ```
 
-## platform.ts — full behaviour
+## platform.ts: full behaviour
 
 ### readConfig()
 Reads `<script id="__platform__" type="application/json">` from DOM → `PlatformConfig`.

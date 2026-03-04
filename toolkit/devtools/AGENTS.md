@@ -31,7 +31,7 @@ dist/           build output (gitignored)
   index.js      bundled devtools (includes solid-js)
 ```
 
-## src/index.tsx — full behaviour
+## src/index.tsx: full behaviour
 ```ts
 export function render(container: HTMLElement, _props): () => void
   mounts <DevTools /> via solid-js · returns unmount fn
@@ -73,7 +73,7 @@ bun run build   (calls fe build toolkit/devtools via package.json script)
 output: toolkit/devtools/dist/index.js
 ```
 
-`fe build` checks for `src/index.tsx` first — devtools uses `.tsx` so this works correctly.
+`fe build` checks for `src/index.tsx` first; devtools uses `.tsx` so this works correctly.
 `solid-js` is listed in `dependencies` (not devDependencies), so it is bundled into the output.
 
 ## upload + activation (legacy artifact path)
@@ -89,7 +89,7 @@ fe admin upload toolkit/devtools
   copies dist/ → uploads/devtools/1.0.0/
   registers in platform.json packages section
 
-# 3. Activate — add to platform.json manually:
+# 3. Activate: add to platform.json manually:
 {
   "devtools": "fe(acme/devtools)@1.0.0",
   "routes": { ... },
