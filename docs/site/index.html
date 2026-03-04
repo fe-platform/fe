@@ -7,10 +7,13 @@
         <link rel="icon" type="image/svg+xml" href="logo.svg" />
         <link rel="icon" type="image/png" href="favicon.png" />
         <link rel="preconnect" href="https://esm.sh" />
-        <link
-            rel="modulepreload"
-            href="https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?standalone"
-        />
+        <script type="importmap">
+            {
+                "imports": {
+                    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.6?bundle"
+                }
+            }
+        </script>
         <meta
             name="description"
             content="fe platform: a source-first microfrontend system. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve dependencies in the browser at runtime."
@@ -31,14 +34,6 @@
                 --code-text: #222220;
                 --code-rule: #f0eee0;
                 --header-height: 3.5rem;
-
-                /* Syntax Highlighter Theme Mapping */
-                --hl-k: var(--accent);
-                --hl-a: var(--card-a);
-                --hl-s: var(--card-c);
-                --hl-c: var(--mid);
-                --hl-t: var(--card-b);
-                --hl-n: var(--card-a);
             }
 
             @media (prefers-color-scheme: dark) {
@@ -350,8 +345,7 @@
                 let _hl;
                 async function hl(root) {
                     if (!_hl) {
-                        const mod =
-                            await import("https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.3?standalone");
+                        const mod = await import("@fe-platform/syntax-highlighter");
                         _hl = mod.highlight;
                         mod.applyTheme({
                             keyword: "var(--accent)",
@@ -361,6 +355,12 @@
                             "comment-style": "italic",
                             type: "var(--card-b)",
                             number: "var(--card-a)",
+                            operator: "var(--mid)",
+                            function: "var(--accent)",
+                            property: "var(--card-d)",
+                            variable: "var(--card-a)",
+                            boolean: "var(--accent)",
+                            constant: "var(--card-b)"
                         });
                     }
                     _hl(root);
