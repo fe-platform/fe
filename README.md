@@ -1,53 +1,52 @@
 <div align="center">
-  <img src="./assets/logo.png" width="128" height="128" alt="⚯ (UNMARRIED PARTNERSHIP SYMBOL) - representing independent yet connected microfrontends" />
+  <img src="./assets/logo.png" width="128" height="128" alt="Symbol representing independent yet connected microfrontends" />
 
 # fe
 **Ship independently. Compose natively.**
 </div>
 
-**fe** is a source-first microfrontend platform built on native browser primitives. It eliminates the friction of shared build pipelines and version negotiations, allowing teams to own their features from scaffold to production.
+**fe** is a source-first microfrontend platform built on native browser primitives. The intent is to provide a system where teams own their features from scaffold to production without the friction of shared build pipelines or version negotiations at deploy time.
 
-Each team publishes TypeScript source. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime. No shared build pipeline. No version negotiations at deploy time.
+Each team publishes TypeScript source. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime.
 
-## Why fe?
+## Core principles
 
-The traditional microfrontend approach often leads to "distributed monolith" hell: shared webpack configs, complex DLLs, or fragile federation rules. **fe** changes the game by leveraging **ES Modules** and **Import Maps** as its core foundation.
+The platform makes choices that are genuinely unusual in the frontend world, and we hope to explore the benefits of these native browser capabilities together.
 
-- 🚀 **Independent Shipping**: Publish a new version without touching the shell app or any other team's codebase.
-- ⚯ **Native Composition**: The browser is the orchestrator. No proprietary loader bloat; just native `import` statements.
-- 🛠️ **Source-First Pipeline**: Teams publish raw TypeScript. The JIT server compiles on demand, ensuring perfect consistency and immutable caching.
-- 🏗️ **Framework Agnostic**: React, Solid, Vue, or Vanilla—if it can render into a DOM node, it works on **fe**.
+*   **Independent Shipping**: Teams can publish new versions without requiring changes to the shell app or other codebases.
+*   **Native Composition**: The browser orchestrates the application loading. No proprietary loader is required; the system uses native `import` statements.
+*   **Source-First Pipeline**: Teams publish raw TypeScript. The JIT server compiles on demand, which ensures consistency and enables immutable caching.
+*   **Framework Agnostic**: The platform provides a minimal DOM-based interface. React, Solid, and other frameworks can be used as long as they satisfy the render contract.
 
-## Moving parts
+## Platform components
 
 | Component | Responsibility |
 |---|---|
 | **MFE Teams** | Own the lifecycle with `fe new`, `fe dev`, and `fe publish`. |
 | **JIT Server** | Compiles TypeScript source on demand with `Cache-Control: immutable`. |
-| **Platform Config** | A single `platform.json` manifest that maps routes and versions. |
+| **Platform Config** | A `platform.json` manifest that maps routes and versions. |
 | **Browser Runtime** | Resolves the dependency graph and injects native import maps. |
 
 ## The `fe()` convention
 
-`fe(scope/name)` is a bare specifier that works as a package name, an import key, and a manifest identifier. It's externalized during your local build and resolved by the browser at runtime.
+`fe(scope/name)` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime.
 
 ```ts
-// Clean, declarative dependencies
 import { createStore } from "fe(acme/store)";
 import { Button } from "fe(shared/ui)";
 ```
 
 ## MFE contract
 
-Every MFE exports one function. Any framework works.
+Each microfrontend exports one function designed to mount into a container.
 
 ```ts
 export function render(
   container: HTMLElement,
   props: Record<string, unknown>
 ): () => void {
-  // 1. Mount your application into the 'container'
-  // 2. Return a cleanup function to unmount when navigation occurs
+  // Mount the application into the container
+  // Return a cleanup function for unmounting
 }
 ```
 
