@@ -11,34 +11,35 @@
         />
         <style>
             :root {
-                --bg: #f4f3ef;
-                --ink: #111111;
-                --mid: #5a5a57;
-                --accent: #3535aa;
-                --rule: #d0cfc8;
-                --dot: #c8c7c0;
-                --card-a: #a07828;
-                --card-b: #3455a4;
-                --card-c: #2d7a4a;
-                --card-d: #8f3030;
-                --code-bg: #fffbe5;
+                --bg: #f9f9f7;
+                --ink: #1a1a1a;
+                --mid: #666663;
+                --accent: #4f46e5;
+                --rule: #e5e5e0;
+                --dot: #e5e5e0;
+                --card-a: #f59e0b; /* Amber */
+                --card-b: #3b82f6; /* Blue */
+                --card-c: #10b981; /* Emerald */
+                --card-d: #f43f5e; /* Rose */
+                --code-bg: #fffcf0;
                 --code-text: #222220;
-                --code-rule: #e8e6d0;
+                --code-rule: #f0eee0;
                 --header-height: 3.5rem;
 
-                @media (prefers-color-scheme: dark) {                    --bg: #131311;
-                    --ink: #e4e3df;
-                    --mid: #888880;
-                    --accent: #7878e0;
-                    --rule: #2e2e2b;
-                    --dot: #383835;
-                    --code-bg: #242220;
-                    --code-text: #b4b1aa;
-                    --code-rule: #2e2e2b;
-                    --card-a: #d4a840;
-                    --card-b: #6888e8;
-                    --card-c: #52c078;
-                    --card-d: #d06868;
+                @media (prefers-color-scheme: dark) {
+                    --bg: #0f0f0e;
+                    --ink: #f0f0ee;
+                    --mid: #a1a19a;
+                    --accent: #818cf8;
+                    --rule: #262624;
+                    --dot: #262624;
+                    --card-a: #fbbf24;
+                    --card-b: #60a5fa;
+                    --card-c: #34d399;
+                    --card-d: #fb7185;
+                    --code-bg: #1a1917;
+                    --code-text: #d1d1cc;
+                    --code-rule: #262624;
                 }
             }
 
@@ -135,10 +136,11 @@
                         width: 100%;
                     }
 
-                    &::before {                        content: "0" counter(page-counter);
+                    &::before {
+                        content: "0" counter(page-counter);
                         font-family: monospace;
                         font-size: 7rem;
-                        opacity: 0.06;
+                        opacity: 0.08;
                         position: absolute;
                         right: 0.5rem;
                         top: -0.5rem;
@@ -150,9 +152,14 @@
                     .arr::before {
                         content: "▸";
                     }
-                }
+                    }
 
-                &[open] > summary {
+                    &#nav-arch > summary::before { color: var(--card-c); opacity: 0.15; }
+                    &#nav-product > summary::before { color: var(--card-a); opacity: 0.15; }
+                    &#nav-platform > summary::before { color: var(--card-b); opacity: 0.15; }
+                    &#nav-tutorials > summary::before { color: var(--card-d); opacity: 0.15; }
+
+                    &[open] > summary {
                     color: var(--accent);
                     border-bottom-color: var(--accent);
 
