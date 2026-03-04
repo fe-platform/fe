@@ -122,7 +122,7 @@ body {
 .hero-inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -235,13 +235,17 @@ body {
 .layout {
   display: grid;
   grid-template-columns: 220px 1fr;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   min-height: 70vh;
 }
 
 #mobile-nav {
   border-right: 1px solid var(--rule);
+  position: sticky;
+  top: 0;
+  height: fit-content;
+  align-self: start;
 }
 
 #mobile-nav>summary {
@@ -518,6 +522,7 @@ td {
   #mobile-nav {
     border-right: none;
     border-bottom: 1px solid var(--rule);
+    position: static;
   }
 
   #mobile-nav>summary {
