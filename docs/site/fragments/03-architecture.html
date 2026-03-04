@@ -38,9 +38,16 @@ import { store } from "fe(acme/store)";
     any <code>tsconfig.paths</code> configuration.
   </p>
 
-  <h3>MFE contract</h3>
+  <h3>MFE exports</h3>
   <p>
-    Every MFE exports one function. Nothing else is required:
+    A MFE is a plain ES module. It can export functions, stores, API clients, or
+    anything else that makes sense for its purpose. The platform treats publish,
+    versioning, and import-map resolution the same regardless of what the module exports.
+  </p>
+  <p>
+    The one special case is a MFE registered under <code>routes</code> in
+    <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
+    the module and calls <code>render()</code> to mount the UI:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -50,9 +57,9 @@ import { store } from "fe(acme/store)";
   // return a cleanup function that removes your DOM nodes
 }</pre>
   <p>
-    The contract is intentionally minimal. No framework lifecycle, no router coupling,
-    no shared state requirement. The cleanup function is called by the runtime when
-    navigating away. React, Solid.js, and vanilla DOM all satisfy it without adaptation.
+    The contract is intentionally minimal: no framework lifecycle, no router coupling,
+    no shared state requirement. The cleanup function is called on navigation away.
+    React, Solid.js, and vanilla DOM all satisfy it without adaptation.
   </p>
 
   <h3>Deployment model</h3>

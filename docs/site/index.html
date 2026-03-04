@@ -4,11 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>fe platform · docs</title>
+<meta name="description" content="fe platform: a source-first microfrontend system. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve dependencies in the browser at runtime.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="fe platform">
+<meta property="og:title" content="fe platform · docs">
+<meta property="og:description" content="A source-first microfrontend platform. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve fe() dependencies in the browser at runtime.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="fe platform · docs">
+<meta name="twitter:description" content="A source-first microfrontend platform. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve fe() dependencies in the browser at runtime.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"fe platform","applicationCategory":"DeveloperApplication","description":"A source-first microfrontend platform. Teams publish TypeScript source; the JIT server compiles on demand. Import maps resolve fe() dependencies in the browser at runtime.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
 <style>
 :root {
-  --bg: #f4f3ef; --ink: #111111; --mid: #888880;
+  --bg: #f4f3ef; --ink: #111111; --mid: #5a5a57;
   --accent: #3535aa; --rule: #d0cfc8; --dot: #c8c7c0;
-  --card-a: #e8e4d4; --card-b: #d4dce8; --card-c: #d4e8d8; --card-d: #e8d4d4;
+  --card-a: #a07828; --card-b: #3455a4; --card-c: #2d7a4a; --card-d: #8f3030;
   --code-bg: #111111; --code-text: #f4f3ef;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,8 +59,8 @@ body { background: var(--bg); color: var(--ink); font-family: system-ui, sans-se
 .card:hover { border-color: var(--accent); }
 .card-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .card-desc { font-size: 0.78rem; color: var(--mid); line-height: 1.4; }
-.card-a { background: var(--card-a); } .card-b { background: var(--card-b); }
-.card-c { background: var(--card-c); } .card-d { background: var(--card-d); }
+.card-a { border: 2px solid var(--card-a); } .card-b { border: 2px solid var(--card-b); }
+.card-c { border: 2px solid var(--card-c); } .card-d { border: 2px solid var(--card-d); }
 .layout {
   display: grid; grid-template-columns: 220px 1fr;
   max-width: 1000px; margin: 0 auto; min-height: 70vh;
@@ -117,10 +128,10 @@ td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-ali
 .lc-step .sub { font-weight: 400; font-size: 0.62rem; color: var(--mid); text-transform: none; margin-top: 0.2rem; }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #131311; --ink: #e4e3df; --mid: #6a6a62;
-    --accent: #7878e0; --rule: #2e2e2b; --dot: #1f1f1c;
+    --bg: #131311; --ink: #e4e3df; --mid: #888880;
+    --accent: #7878e0; --rule: #2e2e2b; --dot: #383835;
     --code-bg: #1c1c1a; --code-text: #e4e3df;
-    --card-a: #1e1b14; --card-b: #131720; --card-c: #131b15; --card-d: #1e1414;
+    --card-a: #d4a840; --card-b: #6888e8; --card-c: #52c078; --card-d: #d06868;
   }
   :not(pre) > code { background: rgba(255,255,255,0.09); }
 }
@@ -241,7 +252,7 @@ td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-ali
 </section>
 
 <div class="layout">
-  <details id="mobile-nav">
+  <details id="mobile-nav" open>
     <summary>▸ menu</summary>
     <aside>
       <details name="page" id="nav-arch" open>
@@ -300,9 +311,16 @@ import { store } from "fe(acme/store)";
     any <code>tsconfig.paths</code> configuration.
   </p>
 
-  <h3>MFE contract</h3>
+  <h3>MFE exports</h3>
   <p>
-    Every MFE exports one function. Nothing else is required:
+    A MFE is a plain ES module. It can export functions, stores, API clients, or
+    anything else that makes sense for its purpose. The platform treats publish,
+    versioning, and import-map resolution the same regardless of what the module exports.
+  </p>
+  <p>
+    The one special case is a MFE registered under <code>routes</code> in
+    <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
+    the module and calls <code>render()</code> to mount the UI:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -312,9 +330,9 @@ import { store } from "fe(acme/store)";
   // return a cleanup function that removes your DOM nodes
 }</pre>
   <p>
-    The contract is intentionally minimal. No framework lifecycle, no router coupling,
-    no shared state requirement. The cleanup function is called by the runtime when
-    navigating away. React, Solid.js, and vanilla DOM all satisfy it without adaptation.
+    The contract is intentionally minimal: no framework lifecycle, no router coupling,
+    no shared state requirement. The cleanup function is called on navigation away.
+    React, Solid.js, and vanilla DOM all satisfy it without adaptation.
   </p>
 
   <h3>Deployment model</h3>
@@ -464,9 +482,16 @@ sessionStorage.setItem(
     to a colleague and they open the same environment in their browser.
   </p>
 
-  <h3>What your MFE must export</h3>
+  <h3>What your MFE exports</h3>
   <p>
-    Your <code>src/index.ts</code> must export one function with this signature:
+    A MFE is a plain ES module and can export whatever its purpose calls for: functions,
+    a store instance, an API client, a collection of utilities. No particular shape is
+    required by the platform.
+  </p>
+  <p>
+    The exception is when your MFE is listed under <code>routes</code> in
+    <code>platform.json</code>. In that case the runtime calls <code>render()</code>
+    on navigation to mount your UI, so you must export it:
   </p>
   <pre>export function render(
   container: HTMLElement,
@@ -476,9 +501,8 @@ sessionStorage.setItem(
   // return cleanup: remove your DOM, stop timers, unsubscribe listeners
 }</pre>
   <p>
-    Any framework works. The platform calls <code>render</code> on mount and calls the
-    returned function on unmount. The contract does not prescribe how you build the UI
-    inside that boundary.
+    The runtime calls <code>render</code> on mount and the returned function on unmount.
+    Any framework satisfies this contract without adaptation.
   </p>
 
   <h3>Using toolkit packages</h3>
