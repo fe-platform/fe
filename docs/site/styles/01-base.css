@@ -1,0 +1,22 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, sans-serif;
+    font-size: 16px;
+}
+
+.dot-grid {
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+    --dot-step: 20px;
+    background-size: var(--dot-step) var(--dot-step);
+}
+
+.dot-grid.dense {
+    --dot-step: 12px;
+}

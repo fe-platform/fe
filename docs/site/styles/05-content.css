@@ -1,0 +1,111 @@
+h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin: 1.75rem 0 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+}
+
+p {
+    font-size: 1rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+}
+
+ul,
+ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+li {
+    font-size: 1rem;
+    line-height: 1.65;
+    margin-bottom: 0.2rem;
+}
+
+pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 1.25rem;
+    font-size: 85%;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--code-rule, transparent);
+    border-radius: 4px;
+    max-width: 100%;
+}
+
+:not(pre)>code {
+    background: rgba(0, 0, 0, 0.07);
+    padding: 0.1em 0.35em;
+    font-size: 85%;
+    font-family: monospace;
+}
+
+:not(pre)>code {
+    background: rgba(255, 255, 255, 0.09);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    margin: 1rem 0;
+}
+
+th {
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.68rem;
+    padding: 0.6rem;
+    border-bottom: 2px solid var(--ink);
+}
+
+td {
+    padding: 0.55rem 0.6rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.lifecycle {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--ink);
+    margin: 1.5rem 0;
+}
+
+.lc-step {
+    padding: 0.75rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-right: 1px solid var(--rule);
+    flex: 1;
+}
+
+.lc-step:last-child {
+    border-right: none;
+}
+
+.lc-step .sub {
+    font-weight: 400;
+    font-size: 0.62rem;
+    color: var(--mid);
+    text-transform: none;
+    margin-top: 0.2rem;
+}
