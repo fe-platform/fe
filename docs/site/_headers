@@ -1,0 +1,18 @@
+# Cache-Control for main HTML and fragments
+# We want them to check for updates (revalidate) but allow edge caching
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/fragments/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Cache-Control for static assets (images, icons)
+# These are safe to cache for a long time
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
