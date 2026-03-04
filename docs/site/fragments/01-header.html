@@ -126,7 +126,9 @@
                 </svg>
             </a>
             <div class="version-container">
+                <label for="version-select" class="visually-hidden">Select version</label>
                 <select
+                    id="version-select"
                     class="version-select"
                     onchange="
                         if (this.value) location.href = '/' + this.value + '/';
