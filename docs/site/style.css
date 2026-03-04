@@ -295,6 +295,10 @@ main>article {
   padding: 2.5rem;
 }
 
+section {
+  overflow: hidden;
+}
+
 .layout:has(#nav-arch[open]) #content-arch {
   display: block;
 }
