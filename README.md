@@ -5,23 +5,36 @@
 **Ship independently. Compose natively.**
 </div>
 
-A microfrontend platform built on native browser primitives. Each team publishes TypeScript source. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime. No shared build pipeline. No version negotiations at deploy time.
+**fe** is a source-first microfrontend platform built on native browser primitives. It eliminates the friction of shared build pipelines and version negotiations, allowing teams to own their features from scaffold to production.
 
-## How it works
+Each team publishes TypeScript source. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime. No shared build pipeline. No version negotiations at deploy time.
 
-| | |
+## Why fe?
+
+The traditional microfrontend approach often leads to "distributed monolith" hell: shared webpack configs, complex DLLs, or fragile federation rules. **fe** changes the game by leveraging **ES Modules** and **Import Maps** as its core foundation.
+
+- 🚀 **Independent Shipping**: Publish a new version without touching the shell app or any other team's codebase.
+- ⚯ **Native Composition**: The browser is the orchestrator. No proprietary loader bloat; just native `import` statements.
+- 🛠️ **Source-First Pipeline**: Teams publish raw TypeScript. The JIT server compiles on demand, ensuring perfect consistency and immutable caching.
+- 🏗️ **Framework Agnostic**: React, Solid, Vue, or Vanilla—if it can render into a DOM node, it works on **fe**.
+
+## Moving parts
+
+| Component | Responsibility |
 |---|---|
-| **MFE teams** | `fe new` · `fe dev` · `fe publish` — full lifecycle, no platform knowledge required |
-| **JIT server** | `fe serve` compiles source on demand, serves with `Cache-Control: immutable` |
-| **Platform config** | `platform.json` maps routes to `specifier@version` and versions to artifact URLs |
-| **Browser runtime** | `@fe/runtime` resolves the dep graph, injects import maps, calls `render()` |
+| **MFE Teams** | Own the lifecycle with `fe new`, `fe dev`, and `fe publish`. |
+| **JIT Server** | Compiles TypeScript source on demand with `Cache-Control: immutable`. |
+| **Platform Config** | A single `platform.json` manifest that maps routes and versions. |
+| **Browser Runtime** | Resolves the dependency graph and injects native import maps. |
 
 ## The `fe()` convention
 
-`fe(scope/name)` is a plain package name — the `name` in `package.json`, a bare specifier in imports, and the key in the platform registry. At build time it is externalized. At runtime the browser resolves it via an injected import map.
+`fe(scope/name)` is a bare specifier that works as a package name, an import key, and a manifest identifier. It's externalized during your local build and resolved by the browser at runtime.
 
 ```ts
+// Clean, declarative dependencies
 import { createStore } from "fe(acme/store)";
+import { Button } from "fe(shared/ui)";
 ```
 
 ## MFE contract
@@ -32,14 +45,15 @@ Every MFE exports one function. Any framework works.
 export function render(
   container: HTMLElement,
   props: Record<string, unknown>
-): () => void
+): () => void {
+  // 1. Mount your application into the 'container'
+  // 2. Return a cleanup function to unmount when navigation occurs
+}
 ```
 
-The return value unmounts and cleans up. The host never knows what rendered into the container.
+## CLI quick reference
 
-## CLI
-
-```
+```bash
 fe new <scope/name>   scaffold a new MFE
 fe dev <target>       live-reload dev server
 fe check <target>     typecheck + build simulation (CI)
@@ -56,3 +70,4 @@ This project uses icons from [Streamline](https://streamlinehq.com). Some icons 
 ---
 
 [Full documentation](https://fe.frustrated.dev) · [CONTRIBUTING.md](./CONTRIBUTING.md)
+

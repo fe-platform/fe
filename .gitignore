@@ -45,3 +45,5 @@ uploads/
 
 # Nx
 .nx/
+# Docs
+docs/site/index.html
