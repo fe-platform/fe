@@ -10,7 +10,7 @@
         <script type="importmap">
             {
                 "imports": {
-                    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.7?bundle"
+                    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter@0.0.7?bundle=true&standalone"
                 }
             }
         </script>
@@ -341,7 +341,10 @@
             }
         </style>
         <script type="module">
-            import { highlight, applyTheme } from "@fe-platform/syntax-highlighter";
+            import {
+                highlight,
+                applyTheme,
+            } from "@fe-platform/syntax-highlighter";
 
             // 1. Configure and apply syntax highlighting
             applyTheme({
@@ -357,7 +360,7 @@
                 property: "var(--card-d)",
                 variable: "var(--card-a)",
                 boolean: "var(--accent)",
-                constant: "var(--card-b)"
+                constant: "var(--card-b)",
             });
 
             highlight(document);
