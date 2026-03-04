@@ -519,6 +519,20 @@ td {
     display: block;
   }
 
+  .site-header {
+    padding: 0.875rem 1rem;
+    flex-wrap: nowrap;
+  }
+
+  .header-right {
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+  }
+
+  .site-title {
+    font-size: 0.6rem;
+  }
+
   #mobile-nav {
     border-right: none;
     border-bottom: 1px solid var(--rule);
