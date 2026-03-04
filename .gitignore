@@ -46,4 +46,4 @@ uploads/
 # Nx
 .nx/
 # Docs
-docs/site/style.css
+# (style.css removed from ignore)
