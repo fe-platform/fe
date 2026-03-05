@@ -6,6 +6,7 @@ import { Category, Rule } from './types.ts';
 import { ts } from './languages/ts.ts';
 import { json } from './languages/json.ts';
 import { shell } from './languages/shell.ts';
+import { html } from './languages/html.ts';
 import { autoTheme } from './themes/default.ts';
 
 const sheet = new CSSStyleSheet();
@@ -39,7 +40,8 @@ if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
 const languages: Record<string, Rule[]> = {
     ts,
     json,
-    shell
+    shell,
+    html
 };
 
 /**
@@ -83,6 +85,33 @@ export function highlight(root: Document | Element): void {
         while (node = walker.nextNode() as Text | null) {
             const text = node.textContent || "";
             const matches: Array<{ category: Category; start: number; end: number; text: string }> = [];
+
+            // Handle sub-languages for HTML
+            if (lang === 'html') {
+                const subLangs = [
+                    { pattern: /<style\b[^>]*>([\s\S]*?)<\/style>/gi, lang: 'ts' }, // Using TS for CSS-like is better than nothing
+                    { pattern: /<script\b[^>]*>([\s\S]*?)<\/script>/gi, lang: 'ts' }
+                ];
+
+                subLangs.forEach(({ pattern, lang: subLangName }) => {
+                    pattern.lastIndex = 0;
+                    let m: RegExpExecArray | null;
+                    while (m = pattern.exec(text)) {
+                        const content = m[1];
+                        const offset = m.index + m[0].indexOf(content);
+                        const subRules = languages[subLangName];
+                        if (subRules) {
+                            subRules.forEach(({ category, pattern: p }) => {
+                                p.lastIndex = 0;
+                                let sm: RegExpExecArray | null;
+                                while (sm = p.exec(content)) {
+                                    matches.push({ category, start: offset + sm.index, end: offset + sm.index + sm[0].length, text: sm[0] });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
 
             rules.forEach(({ category, pattern }) => {
                 pattern.lastIndex = 0;

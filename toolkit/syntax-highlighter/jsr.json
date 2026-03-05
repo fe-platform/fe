@@ -8,6 +8,7 @@
     "./languages/ts": "./src/languages/ts.ts",
     "./languages/json": "./src/languages/json.ts",
     "./languages/shell": "./src/languages/shell.ts",
+    "./languages/html": "./src/languages/html.ts",
     "./themes/auto": "./src/themes/default.ts",
     "./themes/light": "./src/themes/light.ts",
     "./themes/dark": "./src/themes/dark.ts",
