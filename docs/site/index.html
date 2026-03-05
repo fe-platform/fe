@@ -329,7 +329,7 @@
                         if (!href) return;
 
                         if (this.getAttribute("loading") === "eager") {
-                            HTMLElement.prototype.constructor._eagerPending.add(this);
+                            this.constructor._eagerPending.add(this);
                             this._load(href);
                         } else {
                             new IntersectionObserver(
