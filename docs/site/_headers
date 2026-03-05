@@ -1,9 +1,12 @@
-# Cache-Control for main HTML and fragments
+# Cache-Control for main HTML and fragments (including extension-less URLs)
 # Browser cache for 1 hour, Edge cache for 1 day, background refresh for up to a year
-/*.html
+
+# Match all fragments (which are extension-less in our fetches)
+/fragments/*
   Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000
 
-/fragments/*.html
+# Match .html files explicitly
+/*.html
   Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000
 
 # Cache-Control for static assets (images, icons)
