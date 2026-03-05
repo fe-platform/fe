@@ -80,6 +80,12 @@
                 font-family: system-ui, sans-serif;
                 font-size: 16px;
                 scroll-behavior: smooth;
+                opacity: 0;
+                transition: opacity 0.25s ease-out;
+
+                &.ready {
+                    opacity: 1;
+                }
             }
 
             .layout {
@@ -90,21 +96,11 @@
                 min-height: 70vh;
                 scroll-margin-top: var(--header-height);
 
-                &:has(#nav-platform[open]) main {
-                    padding: 0;
-                }
-                &:has(#nav-arch[open]) html-include[href*="03"] {
-                    display: block;
-                }
-                &:has(#nav-product[open]) html-include[href*="04"] {
-                    display: block;
-                }
-                &:has(#nav-platform[open]) html-include[href*="05"] {
-                    display: block;
-                }
-                &:has(#nav-tutorials[open]) html-include[href*="06"] {
-                    display: block;
-                }
+                &:has(#nav-platform[open]) main { padding: 0; }
+                &:has(#nav-arch[open]) html-include[href*="03"] { display: block; }
+                &:has(#nav-product[open]) html-include[href*="04"] { display: block; }
+                &:has(#nav-platform[open]) html-include[href*="05"] { display: block; }
+                &:has(#nav-tutorials[open]) html-include[href*="06"] { display: block; }
             }
 
             #mobile-nav {
@@ -123,13 +119,8 @@
                     pointer-events: none;
                 }
 
-                > summary {
-                    display: none;
-                }
-                aside {
-                    display: block !important;
-                    counter-reset: page-counter;
-                }
+                > summary { display: none; }
+                aside { display: block !important; counter-reset: page-counter; }
             }
 
             details[name="page"] {
@@ -147,9 +138,7 @@
                     border-bottom: 1px solid var(--rule);
                     list-style: none;
 
-                    &::-webkit-details-marker {
-                        display: none;
-                    }
+                    &::-webkit-details-marker { display: none; }
 
                     a {
                         display: flex;
@@ -161,15 +150,8 @@
                         text-decoration: none;
                         width: 100%;
 
-                        .label {
-                            display: flex;
-                            align-items: center;
-                            gap: 0.5rem;
-                        }
-                        .icon {
-                            font-size: 1rem;
-                            vertical-align: middle;
-                        }
+                        .label { display: flex; align-items: center; gap: 0.5rem; }
+                        .icon { font-size: 1rem; vertical-align: middle; }
                     }
 
                     &::before {
@@ -185,63 +167,24 @@
                         line-height: 1;
                     }
 
-                    .arr::before {
-                        content: "▸";
-                    }
+                    .arr::before { content: "▸"; }
                 }
 
-                &#nav-arch > summary {
-                    a .icon {
-                        color: var(--card-c);
-                    }
-                    &::before {
-                        color: var(--card-c);
-                        opacity: 0.15;
-                    }
-                }
-                &#nav-product > summary {
-                    a .icon {
-                        color: var(--card-a);
-                    }
-                    &::before {
-                        color: var(--card-a);
-                        opacity: 0.15;
-                    }
-                }
-                &#nav-platform > summary {
-                    a .icon {
-                        color: var(--card-b);
-                    }
-                    &::before {
-                        color: var(--card-b);
-                        opacity: 0.15;
-                    }
-                }
-                &#nav-tutorials > summary {
-                    a .icon {
-                        color: var(--card-d);
-                    }
-                    &::before {
-                        color: var(--card-d);
-                        opacity: 0.15;
-                    }
-                }
+                &#nav-arch > summary { a .icon { color: var(--card-c); } &::before { color: var(--card-c); opacity: 0.15; } }
+                &#nav-product > summary { a .icon { color: var(--card-a); } &::before { color: var(--card-a); opacity: 0.15; } }
+                &#nav-platform > summary { a .icon { color: var(--card-b); } &::before { color: var(--card-b); opacity: 0.15; } }
+                &#nav-tutorials > summary { a .icon { color: var(--card-d); } &::before { color: var(--card-d); opacity: 0.15; } }
 
                 &[open] > summary {
                     color: var(--accent);
                     border-bottom-color: var(--accent);
-                    .arr::before {
-                        content: "▾";
-                        color: var(--accent);
-                    }
+                    .arr::before { content: "▾"; color: var(--accent); }
                 }
             }
 
             main {
                 padding: 2.5rem;
-                html-include {
-                    display: none;
-                }
+                html-include { display: none; }
             }
 
             .wip {
@@ -265,65 +208,40 @@
                     color: var(--mid);
                 }
 
-                h3,
-                h4 {
-                    margin-top: 0 !important;
-                    color: var(--mid) !important;
-                }
-                ul {
-                    margin-bottom: 0 !important;
-                    font-size: 0.85rem;
-                }
+                h3, h4 { margin-top: 0 !important; color: var(--mid) !important; }
+                ul { margin-bottom: 0 !important; font-size: 0.85rem; }
             }
 
-            html-include:not(:defined) {
-                display: none;
-            }
+            html-include:not(:defined) { display: none; }
             html-include {
                 width: 100%;
                 display: block;
                 content-visibility: auto;
                 contain-intrinsic-size: 1px 500px;
-                transition: opacity 0.2s ease-in;
-
-                &:not([state="loaded"]) {
-                    opacity: 0;
-                }
 
                 &[href*="header"] {
                     position: sticky;
                     top: 0;
                     z-index: 100;
-                    min-height: var(--header-height);
+                    min-height: 3.5rem;
                 }
                 &[href*="hero"] {
                     min-height: 440px;
+                    @media (max-width: 999px) { min-height: 800px; }
                 }
-                &[href*="architecture"] {
-                    min-height: 800px;
-                }
-                &[href*="product-eng"] {
-                    min-height: 600px;
-                }
-                &[href*="platform-eng"] {
-                    min-height: 1000px;
-                }
-                &[href*="tutorials"] {
-                    min-height: 600px;
-                }
+                &[href*="architecture"] { min-height: 800px; }
+                &[href*="product-eng"] { min-height: 600px; }
+                &[href*="platform-eng"] { min-height: 1000px; }
+                &[href*="tutorials"] { min-height: 600px; }
             }
 
             @media (max-width: 999px) {
-                .layout {
-                    display: block;
-                }
+                .layout { display: block; }
                 #mobile-nav {
                     border-right: none;
                     border-bottom: 1px solid var(--rule);
                     position: static;
-                    &::before {
-                        display: none;
-                    }
+                    &::before { display: none; }
                     > summary {
                         display: block;
                         padding: 0.875rem 1.5rem;
@@ -335,17 +253,10 @@
                         cursor: pointer;
                         list-style: none;
                         border-bottom: 1px solid var(--rule);
-                        &::-webkit-details-marker {
-                            display: none;
-                        }
+                        &::-webkit-details-marker { display: none; }
                     }
                 }
-                main {
-                    padding: 1.5rem;
-                }
-                html-include[href*="hero"] {
-                    min-height: 800px;
-                }
+                main { padding: 1.5rem; }
             }
         </style>
         <script type="module">
@@ -411,18 +322,14 @@
             customElements.define(
                 "html-include",
                 class extends HTMLElement {
-                    connectedCallback() {
-                        // If already stitched by the server, just highlight
-                        if (this.hasAttribute("server-stitched")) {
-                            this.setAttribute("state", "loaded");
-                            highlight(this);
-                            return;
-                        }
+                    static _eagerPending = new Set();
 
+                    connectedCallback() {
                         const href = this.getAttribute("href");
                         if (!href) return;
 
                         if (this.getAttribute("loading") === "eager") {
+                            HTMLElement.prototype.constructor._eagerPending.add(this);
                             this._load(href);
                         } else {
                             new IntersectionObserver(
@@ -436,16 +343,26 @@
                             ).observe(this);
                         }
                     }
+
                     async _load(href) {
                         try {
-                            // Strip .html extension to avoid 308 redirects
                             const url = href.replace(/\.html$/, "");
                             const r = await fetch(url);
                             this.innerHTML = await r.text();
                             this.setAttribute("state", "loaded");
                             highlight(this);
-                            if (window.location.hash) {
-                                setTimeout(sync, 10);
+                            
+                            // Re-sync navigation if needed
+                            if (window.location.hash) setTimeout(sync, 10);
+
+                            // Handle Coordinated Reveal
+                            const Class = this.constructor;
+                            if (Class._eagerPending.has(this)) {
+                                Class._eagerPending.delete(this);
+                                if (Class._eagerPending.size === 0) {
+                                    document.body.classList.add('ready');
+                                    sync(); // Final sync once critical content is in
+                                }
                             }
                         } catch (err) {
                             console.error(err);
@@ -453,9 +370,6 @@
                     }
                 },
             );
-
-            // Initial sync
-            sync();
         </script>
     </head>
 
