@@ -284,6 +284,12 @@
                 display: block;
                 content-visibility: auto;
                 contain-intrinsic-size: 1px 500px;
+                transition: opacity 0.2s ease-in;
+
+                &:not([state="loaded"]) {
+                    opacity: 0;
+                }
+
                 &[href*="header"] {
                     position: sticky;
                     top: 0;
@@ -406,8 +412,16 @@
                 "html-include",
                 class extends HTMLElement {
                     connectedCallback() {
+                        // If already stitched by the server, just highlight
+                        if (this.hasAttribute("server-stitched")) {
+                            this.setAttribute("state", "loaded");
+                            highlight(this);
+                            return;
+                        }
+
                         const href = this.getAttribute("href");
                         if (!href) return;
+
                         if (this.getAttribute("loading") === "eager") {
                             this._load(href);
                         } else {
@@ -428,6 +442,7 @@
                             const url = href.replace(/\.html$/, "");
                             const r = await fetch(url);
                             this.innerHTML = await r.text();
+                            this.setAttribute("state", "loaded");
                             highlight(this);
                             if (window.location.hash) {
                                 setTimeout(sync, 10);
