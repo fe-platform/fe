@@ -1,10 +1,10 @@
 # Cache-Control for main HTML and fragments
-# We want them to check for updates (revalidate) but allow edge caching
+# Browser cache for 1 hour, Edge cache for 1 day, background refresh for up to a year
 /*.html
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000
 
 /fragments/*.html
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000
 
 # Cache-Control for static assets (images, icons)
 # These are safe to cache for a long time
