@@ -1,6 +1,6 @@
 {
   "name": "@fe-platform/web-components",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose, fe-code.",
   "license": "MIT",
   "compilerOptions": {
