@@ -1,5 +1,5 @@
 export class HTMLInclude extends HTMLElement {
-    static readonly _eagerPending = new Set<HTMLInclude>();
+    static readonly _eagerPending: Set<HTMLInclude> = new Set<HTMLInclude>();
 
     private _observer: IntersectionObserver | null = null;
     private _fetching = false;

@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose, fe-code.",
   "license": "MIT",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
   "imports": {
-    "@fe-platform/syntax-highlighter": "jsr:@fe-platform/syntax-highlighter"
+    "@fe-platform/syntax-highlighter": "jsr:@fe-platform/syntax-highlighter@^0.0.8"
   },
   "exports": {
     ".": "./src/index.ts",
