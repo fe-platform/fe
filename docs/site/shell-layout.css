@@ -51,8 +51,6 @@ article td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); vert
 .wip h3, .wip h4 { margin-top: 0 !important; color: var(--mid) !important; }
 .wip ul { margin-bottom: 0 !important; font-size: 0.85rem; }
 
-html-include:not(:defined) { display: none; }
-html-include { width: 100%; display: block; content-visibility: auto; contain-intrinsic-size: 1px 500px; }
 html-include[href*="header"] { position: sticky; top: 0; z-index: 100; min-height: 3.5rem; }
 html-include[href*="hero"] { min-height: 440px; }
 

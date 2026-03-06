@@ -1,6 +1,14 @@
 import type { FEComponent } from "./fe-component.ts";
 
 export class FECompose extends HTMLElement {
+    static {
+        if (!document.getElementById('fe-compose-styles')) {
+            const s = document.createElement('style');
+            s.id = 'fe-compose-styles';
+            s.textContent = 'fe-compose{display:contents}';
+            document.head.appendChild(s);
+        }
+    }
     connectedCallback() {
         const name = this.getAttribute("name");
         if (!name) return;

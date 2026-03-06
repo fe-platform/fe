@@ -1,6 +1,15 @@
 export class FEComponent extends HTMLElement {
     private _snapshot: Node[] = [];
 
+    static {
+        if (!document.getElementById('fe-component-styles')) {
+            const s = document.createElement('style');
+            s.id = 'fe-component-styles';
+            s.textContent = 'fe-component{display:none}';
+            document.head.appendChild(s);
+        }
+    }
+
     connectedCallback() {
         const name = this.getAttribute("name");
         if (!name) return;

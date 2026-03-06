@@ -42,6 +42,14 @@
 
             class HTMLInclude extends HTMLElement {
                 static _eagerPending = new Set();
+                static {
+                    if (!document.getElementById('html-include-styles')) {
+                        const s = document.createElement('style');
+                        s.id = 'html-include-styles';
+                        s.textContent = 'html-include:not(:defined){display:none}html-include{display:block;width:100%;content-visibility:auto;contain-intrinsic-size:1px 500px}body{opacity:0;transition:opacity .25s}body.ready{opacity:1}';
+                        document.head.appendChild(s);
+                    }
+                }
                 connectedCallback() {
                     const href = this.getAttribute("href");
                     if (!href) return;
@@ -77,6 +85,14 @@
             }
 
             class FEComponent extends HTMLElement {
+                static {
+                    if (!document.getElementById('fe-component-styles')) {
+                        const s = document.createElement('style');
+                        s.id = 'fe-component-styles';
+                        s.textContent = 'fe-component{display:none}';
+                        document.head.appendChild(s);
+                    }
+                }
                 connectedCallback() {
                     const name = this.getAttribute("name");
                     if (!name) return;
@@ -117,6 +133,14 @@
             }
 
             class FECompose extends HTMLElement {
+                static {
+                    if (!document.getElementById('fe-compose-styles')) {
+                        const s = document.createElement('style');
+                        s.id = 'fe-compose-styles';
+                        s.textContent = 'fe-compose{display:contents}';
+                        document.head.appendChild(s);
+                    }
+                }
                 connectedCallback() {
                     const name = this.getAttribute("name");
                     const target = document.querySelector(`fe-component[name="${name}"]`);

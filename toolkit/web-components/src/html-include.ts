@@ -1,6 +1,15 @@
 export class HTMLInclude extends HTMLElement {
     static readonly _eagerPending: Set<HTMLInclude> = new Set<HTMLInclude>();
 
+    static {
+        if (!document.getElementById('html-include-styles')) {
+            const s = document.createElement('style');
+            s.id = 'html-include-styles';
+            s.textContent = 'html-include:not(:defined){display:none}html-include{display:block;width:100%;content-visibility:auto;contain-intrinsic-size:1px 500px}body{opacity:0;transition:opacity .25s}body.ready{opacity:1}';
+            document.head.appendChild(s);
+        }
+    }
+
     private _observer: IntersectionObserver | null = null;
     private _fetching = false;
 
