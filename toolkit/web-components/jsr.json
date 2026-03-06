@@ -1,0 +1,24 @@
+{
+  "name": "@fe-platform/web-components",
+  "version": "0.1.0",
+  "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose, fe-code.",
+  "license": "MIT",
+  "imports": {
+    "@fe-platform/syntax-highlighter": "jsr:@fe-platform/syntax-highlighter"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./html-include": "./src/html-include.ts",
+    "./fe-component": "./src/fe-component.ts",
+    "./fe-compose": "./src/fe-compose.ts",
+    "./fe-code": "./src/fe-code.ts"
+  },
+  "publish": {
+    "include": [
+      "src/**/*.ts",
+      "README.md",
+      "jsr.json",
+      "LICENSE"
+    ]
+  }
+}
