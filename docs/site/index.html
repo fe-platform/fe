@@ -89,6 +89,9 @@
                         }
                         document.head.appendChild(s);
                     });
+                    this.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+                        document.head.appendChild(l);
+                    });
                     this._snapshot = Array.from(this.childNodes).map(n => n.cloneNode(true));
                     this.innerHTML = "";
                 }
@@ -147,70 +150,7 @@
     </head>
     <body id="top">
         <fe-component name="ShellLayout">
-            <style>
-                .layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1200px; margin: 0 auto; min-height: 70vh; scroll-margin-top: var(--header-height); }
-                .layout:has(#nav-platform[open]) main { padding: 0; }
-                .layout:has(#nav-arch[open]) html-include[href*="architecture"],
-                .layout:has(#nav-product[open]) html-include[href*="product-eng"],
-                .layout:has(#nav-platform[open]) html-include[href*="platform-eng"],
-                .layout:has(#nav-tutorials[open]) html-include[href*="tutorials"] { display: block; }
-
-                #mobile-nav { position: sticky; top: var(--header-height); align-self: start; }
-                #mobile-nav::before { content: ""; position: absolute; right: 0; top: 0; bottom: -100vh; width: 1px; background: var(--rule); pointer-events: none; }
-                #mobile-nav > summary { display: none; }
-                #mobile-nav aside { display: block !important; counter-reset: page-counter; }
-
-                details[name="page"] { counter-increment: page-counter; position: relative; overflow: hidden; display: block; }
-                details[name="page"] > summary { padding: 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-bottom: 1px solid var(--rule); list-style: none; }
-                details[name="page"] > summary::-webkit-details-marker { display: none; }
-                details[name="page"] > summary a { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; color: inherit; text-decoration: none; width: 100%; }
-                details[name="page"] > summary a .label { display: flex; align-items: center; gap: 0.5rem; }
-                details[name="page"] > summary a .icon { font-size: 1rem; vertical-align: middle; }
-                details[name="page"] > summary::before { content: "0" counter(page-counter); font-family: monospace; font-size: 7rem; opacity: 0.08; position: absolute; right: 0.5rem; top: -0.5rem; font-weight: 900; pointer-events: none; line-height: 1; }
-                details[name="page"] > summary .arr::before { content: "▸"; }
-
-                #nav-arch > summary a .icon { color: var(--card-c); } #nav-arch > summary::before { color: var(--card-c); opacity: 0.15; }
-                #nav-product > summary a .icon { color: var(--card-a); } #nav-product > summary::before { color: var(--card-a); opacity: 0.15; }
-                #nav-platform > summary a .icon { color: var(--card-b); } #nav-platform > summary::before { color: var(--card-b); opacity: 0.15; }
-                #nav-tutorials > summary a .icon { color: var(--card-d); } #nav-tutorials > summary::before { color: var(--card-d); opacity: 0.15; }
-
-                details[name="page"][open] > summary { color: var(--accent); border-bottom-color: var(--accent); }
-                details[name="page"][open] > summary .arr::before { content: "▾"; color: var(--accent); }
-
-                main { padding: 2.5rem; }
-                main html-include { display: none; }
-
-                article section { background: var(--article-bg); color: var(--article-text); }
-                article h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
-                article h3 { font-size: 0.8rem; font-weight: 700; margin: 1.75rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
-                article p { font-size: 1rem; line-height: 1.65; margin-bottom: 1rem; }
-                article ul, article ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-                article li { font-size: 1rem; line-height: 1.65; margin-bottom: 0.2rem; }
-                article pre { background: var(--code-bg); color: var(--code-text); padding: 1.25rem; font-size: 85%; line-height: 1.55; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--code-rule, transparent); border-radius: 4px; max-width: 100%; }
-                article :not(pre) > code { background: rgba(0, 0, 0, 0.07); padding: 0.1em 0.35em; font-size: 85%; font-family: monospace; }
-                article table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 1rem 0; }
-                article th { text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.68rem; padding: 0.6rem; border-bottom: 2px solid var(--ink); }
-                article td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; }
-
-                .wip { border: 2px dashed var(--rule); padding: 1.5rem; background: rgba(0, 0, 0, 0.02); border-radius: 8px; position: relative; margin: 2rem 0; }
-                .wip::before { content: "🚧 WORK IN PROGRESS"; position: absolute; top: -0.6rem; left: 1rem; background: var(--bg); padding: 0 0.5rem; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1em; color: var(--mid); }
-                .wip h3, .wip h4 { margin-top: 0 !important; color: var(--mid) !important; }
-                .wip ul { margin-bottom: 0 !important; font-size: 0.85rem; }
-
-                html-include:not(:defined) { display: none; }
-                html-include { width: 100%; display: block; content-visibility: auto; contain-intrinsic-size: 1px 500px; }
-                html-include[href*="header"] { position: sticky; top: 0; z-index: 100; min-height: 3.5rem; }
-                html-include[href*="hero"] { min-height: 440px; }
-                @media (max-width: 999px) {
-                    .layout { display: block; }
-                    html-include[href*="hero"] { min-height: 800px; }
-                    #mobile-nav { border-right: none; border-bottom: 1px solid var(--rule); position: static; }
-                    #mobile-nav::before { display: none; }
-                    #mobile-nav > summary { display: block; padding: 0.875rem 1.5rem; min-height: 3rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; list-style: none; border-bottom: 1px solid var(--rule); }
-                    #mobile-nav > summary::-webkit-details-marker { display: none; }
-                    main { padding: 1.5rem; }
-                }
-            </style>
+            <link rel="stylesheet" href="shell-layout.css" />
             <slot name="header"></slot>
             <slot name="hero"></slot>
             <div id="main-content" class="layout">

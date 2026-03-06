@@ -13,6 +13,9 @@ export class FEComponent extends HTMLElement {
             }
             document.head.appendChild(s);
         });
+        this.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+            document.head.appendChild(l);
+        });
         this._snapshot = Array.from(this.childNodes).map(n => n.cloneNode(true));
         this.innerHTML = "";
     }
