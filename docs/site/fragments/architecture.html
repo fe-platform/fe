@@ -1,112 +1,10 @@
-<style>
-h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-h3 {
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin: 1.75rem 0 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-}
-
-p {
-    font-size: 1rem;
-    line-height: 1.65;
-    margin-bottom: 1rem;
-}
-
-ul, ol {
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-
-    li {
-        font-size: 1rem;
-        line-height: 1.65;
-        margin-bottom: 0.2rem;
-    }
-}
-
-pre {
-    background: var(--code-bg);
-    color: var(--code-text);
-    padding: 1.25rem;
-    font-size: 85%;
-    line-height: 1.55;
-    overflow-x: auto;
-    margin: 1rem 0;
-    border: 1px solid var(--code-rule, transparent);
-    border-radius: 4px;
-    max-width: 100%;
-}
-
-:not(pre)>code {
-    background: rgba(0, 0, 0, 0.07);
-    padding: 0.1em 0.35em;
-    font-size: 85%;
-    font-family: monospace;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-    margin: 1rem 0;
-
-    th {
-        text-align: left;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-size: 0.68rem;
-        padding: 0.6rem;
-        border-bottom: 2px solid var(--ink);
-    }
-
-    td {
-        padding: 0.55rem 0.6rem;
-        border-bottom: 1px solid var(--rule);
-        vertical-align: top;
-        line-height: 1.5;
-    }
-}
-
-.lifecycle {
-    display: flex;
-    flex-wrap: wrap;
-    border: 1px solid var(--ink);
-    margin: 1.5rem 0;
-}
-
-.lc-step {
-    padding: 0.75rem 1rem;
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    border-right: 1px solid var(--rule);
-    flex: 1;
-
-    &:last-child {
-        border-right: none;
-    }
-
-    .sub {
-        font-weight: 400;
-        font-size: 0.62rem;
-        color: var(--mid);
-        text-transform: none;
-        margin-top: 0.2rem;
-    }
-}
-</style>
+<fe-component name="ArchitecturePage">
 <article id="content-arch">
+  <slot></slot>
+</article>
+</fe-component>
+
+<fe-compose name="ArchitecturePage">
   <h2><span style="color:var(--card-c)">⎔</span> Architecture and conventions</h2>
 
   <h3>Moving parts</h3>
@@ -151,19 +49,31 @@ table {
     a bare specifier that the browser resolves through injected import maps. There is no
     special URL scheme.
   </p>
-  <pre class="lang-json">// package.json
-{ "name": "fe(acme/my-mfe)" }</pre>
+  <fe-code lang="json">
+<template>
+// package.json
+{ "name": "fe(acme/my-mfe)" }
+</template>
+  </fe-code>
 
-  <pre class="lang-ts">// source
-import { store } from "fe(acme/store)";</pre>
+  <fe-code lang="ts">
+<template>
+// source
+import { store } from "fe(acme/store)";
+</template>
+  </fe-code>
 
-  <pre class="lang-json">// platform.json
-"fe(acme/store)": { "versions": { "1.0.0": { "url": "..." } } }</pre>
+  <fe-code lang="json">
+<template>
+// platform.json
+"fe(acme/store)": { "versions": { "1.0.0": { "url": "..." } } }
+</template>
+  </fe-code>
   <p>
     During build, <code>fe(*)</code> entries in <code>devDependencies</code> are treated as
     externals. At runtime, the browser resolves each specifier to a URL via the injected
-    import map. The symlinks created by <code>bun install</code> satisfy TypeScript without
-    any <code>tsconfig.paths</code> configuration.
+    import map. The symlinks created by <code>bun install</code> satisfy TypeScript
+    without any <code>tsconfig.paths</code> configuration.
   </p>
 
   <h3>MFE exports</h3>
@@ -178,13 +88,17 @@ import { store } from "fe(acme/store)";</pre>
     <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
     the module and calls <code>render()</code> to mount the UI:
   </p>
-  <pre class="lang-ts">export function render(
+  <fe-code lang="ts">
+<template>
+export function render(
   container: HTMLElement,
-  props: Record&lt;string, unknown&gt;
+  props: Record<string, unknown>
 ): () => void {
   // mount into container
   // return a cleanup function that removes your DOM nodes
-}</pre>
+}
+</template>
+  </fe-code>
   <p>
     The contract is intentionally minimal: no framework lifecycle, no router coupling,
     no shared state requirement. The cleanup function is called on navigation away.
@@ -198,6 +112,36 @@ import { store } from "fe(acme/store)";</pre>
     JIT server compiles source on first request and responds with
     <code>Cache-Control: immutable</code> headers.
   </p>
+  <style>
+  .lifecycle {
+      display: flex;
+      flex-wrap: wrap;
+      border: 1px solid var(--ink);
+      margin: 1.5rem 0;
+  }
+  
+  .lc-step {
+      padding: 0.75rem 1rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-right: 1px solid var(--rule);
+      flex: 1;
+  }
+  
+  .lc-step:last-child {
+      border-right: none;
+  }
+  
+  .lc-step .sub {
+      font-weight: 400;
+      font-size: 0.62rem;
+      color: var(--mid);
+      text-transform: none;
+      margin-top: 0.2rem;
+  }
+  </style>
   <div class="lifecycle">
     <div class="lc-step">fe publish<div class="sub">upload source</div>
     </div>
@@ -223,8 +167,12 @@ import { store } from "fe(acme/store)";</pre>
     <code>fe(scope/name)</code> specifier to a local dev URL via sessionStorage. This
     override affects only the current browser tab and can be shared as a URL parameter.
   </p>
-  <pre class="lang-shell">fe dev mfe-a          # start dev server at localhost:3001
-# in devtools panel: override fe(acme/mfe-a) → http://localhost:3001/</pre>
+  <fe-code lang="shell">
+<template>
+fe dev mfe-a          # start dev server at localhost:3001
+# in devtools panel: override fe(acme/mfe-a) → http://localhost:3001/
+</template>
+  </fe-code>
   <p>
     <code>fe check &lt;target&gt;</code> runs typecheck and simulates a build without writing
     output. Use it in CI to catch errors early without running the full JIT pipeline.
@@ -234,11 +182,15 @@ import { store } from "fe(acme/store)";</pre>
   <p>
     When a MFE depends on another, declare it in <code>devDependencies</code>:
   </p>
-  <pre class="lang-json">// mfe-b/package.json
+  <fe-code lang="json">
+<template>
+// mfe-b/package.json
 {
   "name": "fe(acme/mfe-b)",
   "devDependencies": { "fe(acme/mfe-a)": "^1.0.0" }
-}</pre>
+}
+</template>
+  </fe-code>
   <p>
     The runtime reads the dep graph from <code>platform.json</code> and resolves the
     highest compatible version using semver. All resolved specifiers are injected into
@@ -266,11 +218,15 @@ import { store } from "fe(acme/store)";</pre>
   </ul>
 
   <h3>CLI quick reference</h3>
-  <pre class="lang-shell">fe new &lt;scope/name&gt;   # scaffold a new MFE project
-fe dev &lt;target&gt;       # live-reload dev server
-fe check &lt;target&gt;     # typecheck + build simulation (CI)
-fe publish &lt;target&gt;   # upload source + register version
-fe link &lt;mfe&gt; &lt;dep&gt;   # wire a local fe() dependency
+  <fe-code lang="shell">
+<template>
+fe new <scope/name>   # scaffold a new MFE project
+fe dev <target>       # live-reload dev server
+fe check <target>     # typecheck + build simulation (CI)
+fe publish <target>   # upload source + register version
+fe link <mfe> <dep>   # wire a local fe() dependency
 fe build shell        # compile the host shell
-fe serve              # run the JIT server</pre>
-</article>
+fe serve              # run the JIT server
+</template>
+  </fe-code>
+</fe-compose>

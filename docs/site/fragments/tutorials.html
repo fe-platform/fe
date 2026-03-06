@@ -1,59 +1,10 @@
-<style>
-h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-h3 {
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin: 1.75rem 0 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-}
-
-p {
-    font-size: 1rem;
-    line-height: 1.65;
-    margin-bottom: 1rem;
-}
-
-ul {
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-
-    li {
-        font-size: 1rem;
-        line-height: 1.65;
-        margin-bottom: 0.2rem;
-    }
-}
-
-pre {
-    background: var(--code-bg);
-    color: var(--code-text);
-    padding: 1.25rem;
-    font-size: 85%;
-    line-height: 1.55;
-    overflow-x: auto;
-    margin: 1rem 0;
-    border: 1px solid var(--code-rule, transparent);
-    border-radius: 4px;
-    max-width: 100%;
-}
-
-:not(pre)>code {
-    background: rgba(0, 0, 0, 0.07);
-    padding: 0.1em 0.35em;
-    font-size: 85%;
-    font-family: monospace;
-}
-</style>
+<fe-component name="TutorialsPage">
 <article id="content-tutorials">
+  <slot></slot>
+</article>
+</fe-component>
+
+<fe-compose name="TutorialsPage">
   <h2><span style="color:var(--card-d)">✺</span> Tutorials</h2>
   <p>
     Each tutorial builds on the previous one. Start with hello world to verify
@@ -65,7 +16,9 @@ pre {
     The shortest path to a running platform. By the end you will have one MFE
     mounting in a shell via <code>fe serve</code>.
   </p>
-  <pre class="lang-shell">bun add -d @fe/cli @fe/jit-plugin-react
+  <fe-code lang="shell">
+<template>
+bun add -d @fe/cli @fe/jit-plugin-react
 
 # scaffold the MFE
 fe new acme/hello
@@ -76,7 +29,9 @@ fe new acme/hello
 fe publish hello
 # add route "/" : "fe(acme/hello)@1.0.0" to platform.json
 fe build shell
-fe serve</pre>
+fe serve
+</template>
+  </fe-code>
   <p>
     Open <code>http://localhost:3000</code>. You should see your <code>render()</code>
     function mount into the shell container. Source: <code>sandbox/</code>.
@@ -87,13 +42,17 @@ fe serve</pre>
     Add a second MFE that imports a component from the first. This demonstrates
     cross-team dependency resolution through import maps.
   </p>
-  <pre class="lang-shell">fe new acme/mfe-a   # React MFE, no deps
+  <fe-code lang="shell">
+<template>
+fe new acme/mfe-a   # React MFE, no deps
 fe new acme/mfe-b   # Solid.js MFE, depends on mfe-a
 
 fe link mfe-b mfe-a  # adds mfe-a as devDependency of mfe-b
 
 fe publish mfe-a
-fe publish mfe-b</pre>
+fe publish mfe-b
+</template>
+  </fe-code>
   <p>
     In <code>mfe-b/src/index.ts</code>, import from <code>fe(acme/mfe-a)</code>.
     The runtime will resolve both specifiers via the injected import map. The JIT
@@ -109,9 +68,15 @@ fe publish mfe-b</pre>
     <code>fe(acme/store)</code> provides a typed pub/sub store that persists across
     MFE mounts and unmounts.
   </p>
-  <pre class="lang-json">// in both mfe-a and mfe-b package.json
-"devDependencies": { "fe(acme/store)": "^1.0.0" }</pre>
-  <pre class="lang-ts">// mfe-a/src/index.ts
+  <fe-code lang="json">
+<template>
+// in both mfe-a and mfe-b package.json
+"devDependencies": { "fe(acme/store)": "^1.0.0" }
+</template>
+  </fe-code>
+  <fe-code lang="ts">
+<template>
+// mfe-a/src/index.ts
 import { createStore } from "fe(acme/store)";
 
 const counter = createStore("app:counter", 0);
@@ -122,8 +87,12 @@ export function render(container, props) {
   btn.onclick = () => counter.set(counter.get() + 1);
   container.appendChild(btn);
   return () => container.removeChild(btn);
-}</pre>
-  <pre class="lang-ts">// mfe-b/src/index.ts
+}
+</template>
+  </fe-code>
+  <fe-code lang="ts">
+<template>
+// mfe-b/src/index.ts
 import { createStore } from "fe(acme/store)";
 
 const counter = createStore("app:counter", 0);
@@ -133,7 +102,9 @@ export function render(container, props) {
   const unsub = counter.subscribe(v => { span.textContent = String(v); });
   container.appendChild(span);
   return () => { unsub(); container.removeChild(span); };
-}</pre>
+}
+</template>
+  </fe-code>
   <p>
     Both MFEs resolve to the same <code>fe(acme/store)</code> version through the
     import map. The store instance is shared because the module is loaded once.
@@ -144,7 +115,9 @@ export function render(container, props) {
     If you need a JSX transform that is not covered by the built-in React and
     Solid.js plugins, you can write your own:
   </p>
-  <pre class="lang-ts">// @acme/fe-jit-plugin-preact/src/index.ts
+  <fe-code lang="ts">
+<template>
+// @acme/fe-jit-plugin-preact/src/index.ts
 import type { JitPlugin } from "@fe/core";
 
 export default {
@@ -156,9 +129,15 @@ export default {
       jsxImportSource: "preact",
     };
   },
-} satisfies JitPlugin;</pre>
-  <pre class="lang-json">// configs/fe.config.json
-{ "jitPlugins": ["@acme/fe-jit-plugin-preact"] }</pre>
+} satisfies JitPlugin;
+</template>
+  </fe-code>
+  <fe-code lang="json">
+<template>
+// configs/fe.config.json
+{ "jitPlugins": ["@acme/fe-jit-plugin-preact"] }
+</template>
+  </fe-code>
   <p>
     The <code>build:options</code> hook receives <code>Bun.BuildOptions</code> and
     returns a modified copy. Plugins run in declaration order; later plugins can
@@ -180,4 +159,4 @@ export default {
       <li>Detail the JSR discovery mechanism (using description tags for visual identity).</li>
     </ul>
   </div>
-</article>
+</fe-compose>

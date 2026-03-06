@@ -1,83 +1,10 @@
-<style>
-h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-h3 {
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin: 1.75rem 0 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-}
-
-p {
-    font-size: 1rem;
-    line-height: 1.65;
-    margin-bottom: 1rem;
-}
-
-ul, ol {
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-
-    li {
-        font-size: 1rem;
-        line-height: 1.65;
-        margin-bottom: 0.2rem;
-    }
-}
-
-pre {
-    background: var(--code-bg);
-    color: var(--code-text);
-    padding: 1.25rem;
-    font-size: 85%;
-    line-height: 1.55;
-    overflow-x: auto;
-    margin: 1rem 0;
-    border: 1px solid var(--code-rule, transparent);
-    border-radius: 4px;
-    max-width: 100%;
-}
-
-:not(pre)>code {
-    background: rgba(0, 0, 0, 0.07);
-    padding: 0.1em 0.35em;
-    font-size: 85%;
-    font-family: monospace;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-    margin: 1rem 0;
-
-    th {
-        text-align: left;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-size: 0.68rem;
-        padding: 0.6rem;
-        border-bottom: 2px solid var(--ink);
-    }
-
-    td {
-        padding: 0.55rem 0.6rem;
-        border-bottom: 1px solid var(--rule);
-        vertical-align: top;
-        line-height: 1.5;
-    }
-}
-</style>
+<fe-component name="ProductEngPage">
 <article id="content-product">
+  <slot></slot>
+</article>
+</fe-component>
+
+<fe-compose name="ProductEngPage">
   <h2><span style="color:var(--card-a)">⧉</span> For product engineers</h2>
 
   <h3>What you own independently</h3>
@@ -134,12 +61,16 @@ table {
     live in <code>sessionStorage</code> and affect only your current tab. No redeployment,
     no asking anyone for access.
   </p>
-  <pre class="lang-ts">// manual sessionStorage override (without devtools)
+  <fe-code lang="ts">
+<template>
+// manual sessionStorage override (without devtools)
 sessionStorage.setItem(
   "fe:override:fe(acme/my-feature)",
   "http://localhost:3001/"
 );
-// then reload — the production shell loads your local build</pre>
+// then reload — the production shell loads your local build
+</template>
+  </fe-code>
   <p>
     The devtools share button encodes active overrides as URL parameters. Send the link
     to a colleague and they open the same environment in their browser.
@@ -156,13 +87,17 @@ sessionStorage.setItem(
     <code>platform.json</code>. In that case the runtime calls <code>render()</code>
     on navigation to mount your UI, so you must export it:
   </p>
-  <pre class="lang-ts">export function render(
+  <fe-code lang="ts">
+<template>
+export function render(
   container: HTMLElement,
-  props: Record&lt;string, unknown&gt;
+  props: Record<string, unknown>
 ): () => void {
   // mount your UI into container
   // return cleanup: remove your DOM, stop timers, unsubscribe listeners
-}</pre>
+}
+</template>
+  </fe-code>
   <p>
     The runtime calls <code>render</code> on mount and the returned function on unmount.
     Any framework satisfies this contract without adaptation.
@@ -173,15 +108,21 @@ sessionStorage.setItem(
     Toolkit packages are resolved at runtime through import maps. Declare them in
     <code>devDependencies</code>:
   </p>
-  <pre class="lang-json">// package.json
+  <fe-code lang="json">
+<template>
+// package.json
 {
   "name": "fe(acme/my-feature)",
   "devDependencies": {
     "fe(acme/store)": "^1.0.0",
     "fe(acme/network)": "^1.0.0"
   }
-}</pre>
-  <pre class="lang-ts">// src/index.ts
+}
+</template>
+  </fe-code>
+  <fe-code lang="ts">
+<template>
+// src/index.ts
 import { createStore } from "fe(acme/store)";
 
 const count = createStore("my-feature:count", 0);
@@ -189,5 +130,7 @@ const count = createStore("my-feature:count", 0);
 export function render(container, props) {
   // ...
   return () => {};
-}</pre>
-</article>
+}
+</template>
+  </fe-code>
+</fe-compose>

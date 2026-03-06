@@ -1,0 +1,426 @@
+<fe-component name="PlatformPage">
+<style>
+#content-platform {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    width: 100%;
+}
+
+@media (max-width: 999px) {
+    #content-platform {
+        grid-template-columns: 1fr;
+    }
+}
+
+#content-platform > section {
+    display: none;
+    padding: 2rem;
+    grid-column: 2;
+}
+
+@media (max-width: 999px) {
+    #content-platform > section {
+        grid-column: 1;
+    }
+}
+
+#content-platform:has(#nav-poc[open]) #content-poc { display: block; }
+#content-platform:has(#nav-cloud[open]) #content-cloud { display: block; }
+#content-platform:has(#nav-enterprise[open]) #content-enterprise { display: block; }
+</style>
+<article id="content-platform">
+  <slot></slot>
+</article>
+</fe-component>
+
+<fe-component name="SubNav">
+<style>
+.sub-nav {
+    grid-column: 1;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+}
+
+.sub-nav::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: -100vh;
+    width: 1px;
+    background: var(--rule);
+    pointer-events: none;
+}
+
+@media (max-width: 999px) {
+    .sub-nav {
+        border-bottom: 1px solid var(--rule);
+        position: static;
+    }
+    
+    .sub-nav::before {
+        display: none;
+    }
+}
+
+details[name="plat-sub"] > summary {
+    padding: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+    color: var(--mid);
+}
+
+details[name="plat-sub"] > summary::-webkit-details-marker {
+    display: none;
+}
+
+details[name="plat-sub"] > summary a {
+    display: block;
+    padding: 0.65rem 1.25rem;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+}
+
+details[name="plat-sub"][open] > summary {
+    color: var(--accent);
+}
+</style>
+<div class="sub-nav">
+  <details name="plat-sub" id="nav-poc" open>
+    <summary><a href="#nav-poc"><span style="color:var(--card-b)">۞</span> POC</a></summary>
+  </details>
+  <details name="plat-sub" id="nav-cloud">
+    <summary><a href="#nav-cloud"><span style="color:var(--card-b)">۞</span> Cloud</a></summary>
+  </details>
+  <details name="plat-sub" id="nav-enterprise">
+    <summary><a href="#nav-enterprise"><span style="color:var(--card-b)">۞</span> Enterprise</a></summary>
+  </details>
+</div>
+</fe-component>
+
+<fe-compose name="PlatformPage">
+  <fe-compose name="SubNav"></fe-compose>
+  
+  <section id="content-poc">
+    <h2><span style="color:var(--card-b)">۞</span> Proof of concept</h2>
+    <p>
+      The fastest path to a running platform: two MFEs, one shell, everything local.
+      No CDN, no CI/CD, no cloud setup required. This walkthrough takes you from a
+      fresh workspace to a working browser demo.
+    </p>
+
+    <h3>1 · Install and scaffold</h3>
+    <fe-code lang="shell">
+<template>
+bun add -d @fe/cli
+fe new acme/mfe-a
+fe new acme/mfe-b
+</template>
+    </fe-code>
+    <p>
+      Each <code>fe new</code> creates a directory with <code>package.json</code>,
+      <code>tsconfig.json</code>, and a <code>src/index.ts</code> with a
+      <code>render()</code> stub. Give <code>mfe-b</code> a dependency on
+      <code>mfe-a</code>:
+    </p>
+    <fe-code lang="shell">
+<template>
+fe link mfe-b mfe-a
+</template>
+    </fe-code>
+
+    <h3>2 · Write a minimal shell</h3>
+    <p>
+      Create <code>host-app/index.html</code> with the platform config embedded and
+      <code>host-app/src/index.ts</code> that loads the runtime:
+    </p>
+    <fe-code lang="json">
+<template>
+<!-- host-app/index.html -->
+<script type="application/json" id="platform-config">
+  { "routes": {}, "packages": {} }
+</script>
+<script type="module" src="./src/index.ts"></script>
+</template>
+    </fe-code>
+    <fe-code lang="ts">
+<template>
+// host-app/src/index.ts
+import { load, loadDevtools } from "@fe/runtime";
+await loadDevtools();
+await load(location.pathname);
+</template>
+    </fe-code>
+
+    <h3>3 · Configure</h3>
+    <p>
+      Create <code>configs/fe.config.json</code> at the workspace root:
+    </p>
+    <fe-code lang="json">
+<template>
+{
+  "shellDir": "host-app",
+  "manifestPath": "configs/platform.json",
+  "jitPlugins": ["@fe/jit-plugin-react"]
+}
+</template>
+    </fe-code>
+    <p>
+      Create <code>configs/platform.json</code> with empty routes and packages:
+    </p>
+    <fe-code lang="json">
+<template>
+{
+  "routes": {},
+  "packages": {}
+}
+</template>
+    </fe-code>
+
+    <h3>4 · Publish both MFEs</h3>
+    <fe-code lang="shell">
+<template>
+fe publish mfe-a
+fe publish mfe-b
+</template>
+    </fe-code>
+    <p>
+      Each command uploads source to <code>sources/</code> and adds an entry to
+      <code>platform.json</code>. You will see version numbers printed to stdout.
+    </p>
+
+    <h3>5 · Add a route and serve</h3>
+    <p>
+      Edit <code>configs/platform.json</code> to map a route:
+    </p>
+    <fe-code lang="json">
+<template>
+{
+  "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
+  "packages": { ... }
+}
+</template>
+    </fe-code>
+    <fe-code lang="shell">
+<template>
+fe build shell
+fe serve
+</template>
+    </fe-code>
+    <p>
+      Open <code>http://localhost:3000</code>. The runtime resolves the route, injects
+      import maps for both <code>mfe-b</code> and its dep <code>mfe-a</code>, and
+      calls <code>render()</code>. The JIT server compiles each MFE on first request
+      and caches the result.
+    </p>
+
+    <h3>What CI/CD automates from here</h3>
+    <p>
+      The manual steps above map directly to CI jobs: run <code>fe check</code> on
+      every push, run <code>fe publish</code> on merge to main, and update the route
+      in <code>platform.json</code> via a CD step. Each team does this independently
+      for their own MFE.
+    </p>
+  </section>
+
+  <section id="content-cloud">
+    <h2><span style="color:var(--card-b)">۞</span> Cloud deployment</h2>
+
+    <h3>CDN and caching</h3>
+    <p>
+      JIT-compiled artifacts are served with <code>Cache-Control: immutable</code>
+      because the URL includes the version. Put a CDN in front of <code>fe serve</code>
+      with the following origin configuration:
+    </p>
+    <ul>
+      <li>Forward all <code>/bundle/</code> requests to the JIT server origin.</li>
+      <li>Cache responses that include <code>Cache-Control: immutable</code> at the edge.</li>
+      <li>The first request per version compiles; every subsequent request serves the CDN copy.</li>
+    </ul>
+
+    <h3>Content Security Policy</h3>
+    <p>
+      The minimum required CSP for a fe-based shell:
+    </p>
+    <fe-code lang="shell">
+<template>
+# Content-Security-Policy:
+  script-src 'self' https://cdn.your-domain.com;
+  script-src-elem 'self' https://cdn.your-domain.com;
+</template>
+    </fe-code>
+    <p>
+      Import maps require no special directives beyond <code>script-src</code>. If
+      any MFE uses WebAssembly, add <code>'wasm-unsafe-eval'</code> to
+      <code>script-src</code>.
+    </p>
+
+    <h3>Config management</h3>
+    <p>
+      Two config files serve different audiences:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Who edits it</th>
+          <th>What it controls</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>fe.config.json</code></td>
+          <td>Platform team</td>
+          <td>JIT plugins, storage adapters, shell directory</td>
+        </tr>
+        <tr>
+          <td><code>platform.json</code></td>
+          <td>CD pipeline (or platform team)</td>
+          <td>Routes and package versions</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The platform team controls the JIT server configuration. MFE teams never edit
+      <code>fe.config.json</code>. The CD pipeline updates <code>platform.json</code>
+      when a new version is published.
+    </p>
+
+    <h3>Rollback</h3>
+    <p>
+      Because each publish creates a new immutable URL, rollback is a one-line change
+      to <code>platform.json</code>. Old versions remain available forever. There is no
+      "deploy" step that overwrites a previous version.
+    </p>
+    <fe-code lang="json">
+<template>
+// platform.json (before)
+"routes": { "/": "fe(acme/mfe-a)@1.2.0" }
+
+// platform.json (after rollback)
+"routes": { "/": "fe(acme/mfe-a)@1.1.0" }
+</template>
+    </fe-code>
+    <p>
+      The runtime reads the updated manifest on the next page load. No server restart
+      required.
+    </p>
+
+    <h3>Monitoring and observability</h3>
+    <p>
+      The JIT server logs each compilation with timing and cache status. Integrate
+      these logs with your observability stack:
+    </p>
+    <ul>
+      <li><strong>Cache hit rate</strong> — should approach 100% after warmup.</li>
+      <li><strong>Compilation time</strong> — typically 50-200ms per MFE.</li>
+      <li><strong>Error rate</strong> — should be near zero; investigate any spike.</li>
+    </ul>
+  </section>
+
+  <section id="content-enterprise">
+    <h2><span style="color:var(--card-b)">۞</span> Enterprise deployment</h2>
+
+    <h3>Private registry</h3>
+    <p>
+      MFEs can be published to a private registry instead of the local
+      <code>sources/</code> directory. Implement a <code>SourceStorage</code> adapter
+      that reads from your artifact storage:
+    </p>
+    <fe-code lang="ts">
+<template>
+// @acme/fe-plugin-s3/src/index.ts
+import type { Plugin, CliContext } from "@fe/core";
+import { S3Client } from "@aws-sdk/client-s3";
+
+class S3SourceStorage implements SourceStorage {
+  private client = new S3Client({ region: "us-east-1" });
+  
+  async read(slug: string, version: string): Promise<string> {
+    const key = `${slug}/${version}/index.ts`;
+    const resp = await this.client.getObject({ Bucket: "acme-mfe-sources", Key: key });
+    return await resp.Body.transformToString();
+  }
+}
+
+export default {
+  name: "acme-s3",
+  setup(ctx: CliContext) {
+    ctx.adapters.sourceStorage = new S3SourceStorage();
+  }
+} satisfies Plugin;
+</template>
+    </fe-code>
+    <p>
+      Declare the plugin in <code>fe.config.json</code>:
+    </p>
+    <fe-code lang="json">
+<template>
+{
+  "plugins": ["@acme/fe-plugin-s3"]
+}
+</template>
+    </fe-code>
+
+    <h3>Authentication</h3>
+    <p>
+      The platform does not prescribe an auth mechanism. MFEs can implement their own
+      auth flows, or the shell can inject an auth context into each <code>render()</code>
+      call via the <code>props</code> argument.
+    </p>
+    <fe-code lang="ts">
+<template>
+// host-app/src/index.ts
+import { load } from "@fe/runtime";
+import { getAuthState } from "./auth";
+
+await load(location.pathname, {
+  auth: getAuthState()
+});
+</template>
+    </fe-code>
+    <p>
+      Each MFE receives the auth state in its <code>render()</code> props.
+    </p>
+
+    <h3>Multi-tenant hosting</h3>
+    <p>
+      To host multiple tenants on a single platform instance, use route prefixes:
+    </p>
+    <fe-code lang="json">
+<template>
+{
+  "routes": {
+    "/tenant-a/": "fe(acme/tenant-a-shell)@1.0.0",
+    "/tenant-b/": "fe(acme/tenant-b-shell)@1.0.0"
+  }
+}
+</template>
+    </fe-code>
+    <p>
+      Each tenant shell can load a completely different set of MFEs. The runtime
+      resolves routes independently for each path prefix.
+    </p>
+
+    <h3>Plugin development</h3>
+    <p>
+      Plugins can swap any adapter at bootstrap time. Common use cases:
+    </p>
+    <ul>
+      <li><strong>Artifact storage</strong> — replace local <code>uploads/</code> with S3, GCS, or Azure Blob.</li>
+      <li><strong>Config provider</strong> — read <code>fe.config.json</code> from environment variables or a remote API.</li>
+      <li><strong>CLI commands</strong> — add new commands like <code>fe deploy</code> or <code>fe status</code>.</li>
+    </ul>
+    <p>
+      Plugins run after built-in adapters are initialized, so they can freely
+      override any adapter.
+    </p>
+  </section>
+</fe-compose>

@@ -1,0 +1,3 @@
+# Documentation fragments use custom components that are sensitive to line breaks
+docs/site/fragments/*.html
+docs/site/index.html
