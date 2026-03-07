@@ -166,7 +166,7 @@ interface PlatformConfig {
 }
 interface PackageVersion {
   url:  string;                  // runtime-reachable artifact URL
-  deps: Record<string, string>;  // fe() dep specifier → semver range
+  deps: Record<string, string>;  // MFE dep specifier → semver range
 }
 ```
 

@@ -1,12 +1,5 @@
-/**
- * @module
- * TypeScript language grammar for @fe-platform/syntax-highlighter.
- */
 import { Rule } from '../types.ts';
 
-/**
- * Rules for highlighting TypeScript code.
- */
 export const ts: Rule[] = [
     { category: 'comment', pattern: /\/\/.*|\/\*[\s\S]*?\*\//g },
     { category: 'string', pattern: /"[^"]*"|'[^']*'|`[^`]*`/g },

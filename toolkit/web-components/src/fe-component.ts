@@ -1,3 +1,12 @@
+/**
+ * `<fe-component name="Name">` — declares a reusable template. On upgrade, all child
+ * `<style>` elements are moved to `document.head` with selectors scoped to
+ * `[data-fe-id="Name"]`. The remaining children are snapshotted and the element is
+ * emptied; it stays in the DOM as a registry entry for `<fe-compose>` to look up by name.
+ *
+ * The `content` getter returns a fresh `DocumentFragment` clone on each call, so multiple
+ * `<fe-compose>` instances can reference the same component independently.
+ */
 export class FEComponent extends HTMLElement {
     private _snapshot: Node[] = [];
 

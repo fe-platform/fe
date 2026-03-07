@@ -10,7 +10,8 @@
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
-    "@fe/core": "workspace:*"
+    "@fe/core": "workspace:*",
+    "@fe/specifier": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest",

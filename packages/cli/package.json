@@ -17,6 +17,7 @@
     "@fe/compiler": "workspace:*",
     "@fe/core": "workspace:*",
     "@fe/runtime": "workspace:*",
+    "@fe/specifier": "workspace:*",
     "kleur": "^4.1.5"
   },
   "devDependencies": {

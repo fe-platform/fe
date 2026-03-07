@@ -1,12 +1,5 @@
-/**
- * @module
- * HTML language grammar for @fe-platform/syntax-highlighter.
- */
 import { Rule } from '../types.ts';
 
-/**
- * Rules for highlighting HTML code.
- */
 export const html: Rule[] = [
     { category: 'comment', pattern: /<!--[\s\S]*?-->/g },
     { category: 'keyword', pattern: /<!DOCTYPE\b[^>]*>/gi },

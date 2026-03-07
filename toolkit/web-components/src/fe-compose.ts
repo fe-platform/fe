@@ -1,5 +1,13 @@
 import type { FEComponent } from "./fe-component.ts";
 
+/**
+ * `<fe-compose name="Name">` — instantiates the template declared by the matching
+ * `<fe-component name="Name">`. Children with a `slot="slotName"` attribute are inserted
+ * before the corresponding `<slot>` in the template; unslotted children fill the default slot.
+ *
+ * Extra attributes (other than `name`, `data-fe-id`, `slot`) are forwarded to the root
+ * element of the instantiated template. The element renders as `display: contents`.
+ */
 export class FECompose extends HTMLElement {
     static {
         if (!document.getElementById('fe-compose-styles')) {

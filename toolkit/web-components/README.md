@@ -150,15 +150,7 @@ Wrapping in `<template>` prevents the browser from interpreting the content as H
 
 ## CSS scoping
 
-`<fe-component>` rewrites styles using a simple regex rather than shadow DOM. The selector `.card` becomes `[data-fe-id="Card"] .card`. `@`-rules and `:root` selectors are left unchanged.
-
-`<fe-compose>` sets `data-fe-id="Name"` on itself before filling slots, so all composed children inherit the scope. A single CSS rule in `document.head`:
-
-```css
-fe-compose { display: contents }
-```
-
-ensures the element does not create an extra box while still acting as the scope ancestor.
+`<fe-component>` rewrites styles with a regex rather than shadow DOM: `.card` becomes `[data-fe-id="Card"] .card`. `@`-rules and `:root` selectors are left unchanged. `<fe-compose>` sets `data-fe-id="Name"` on itself before filling slots, so all composed children inherit the scope.
 
 ## Notes
 

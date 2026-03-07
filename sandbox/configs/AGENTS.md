@@ -28,10 +28,10 @@ To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` t
 ```json
 {
   "routes": {
-    "/": "fe(acme/mfe-b)@1.0.0"
+    "/": "@acme/fe.mfe-b@1.0.0"
   },
   "packages": {
-    "fe(acme/mfe-a)": {
+    "@acme/fe.mfe-a": {
       "versions": {
         "1.0.0": {
           "url": "/bundle/mfe-a/1.0.0/index.ts",
@@ -39,12 +39,12 @@ To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` t
         }
       }
     },
-    "fe(acme/mfe-b)": {
+    "@acme/fe.mfe-b": {
       "versions": {
         "1.0.0": {
           "url": "/bundle/mfe-b/1.0.0/index.ts",
           "deps": {
-            "fe(acme/mfe-a)": "^1.0.0"
+            "@acme/fe.mfe-a": "^1.0.0"
           }
         }
       }
@@ -61,13 +61,13 @@ value = "specifier@version" (the top-level MFE for that route)
   resolved by platform.ts at runtime; no static import map in HTML
 
 ### packages
-key   = fe() bare-specifier (exact string in `import … from "fe(acme/…)"`)
+key   = `@scope/fe.name` bare-specifier (exact string in `import … from "@acme/…"`)
 value = { versions: { "X.Y.Z": { url, deps } } }
   url:  runtime URL for the artifact (often built on-the-fly via JIT bundler)
     local JIT: "/bundle/<slug>/<ver>/index.ts"
     legacy:    "./uploads/<slug>/<ver>/index.js"
     remote:    "https://cdn.example.com/<slug>/<ver>/bundle.js"
-  deps: fe() dependencies with semver ranges (e.g. "^1.0.0")
+  deps: MFE dependencies with semver ranges (e.g. "^1.0.0")
 
 ## consumers
 ```
@@ -84,7 +84,7 @@ cli/src/plugins/publish.ts:publish()
 
 packages/runtime/src/platform.ts (browser runtime)
   ← reads <script id="__platform__"> from DOM
-  → resolves fe() dep graph · injects import maps at runtime · dynamic import()
+  → resolves MFE dep graph · injects import maps at runtime · dynamic import()
 ```
 
 ## update procedure

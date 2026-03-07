@@ -11,17 +11,18 @@ CLAUDE.md→symlink→here
 │  ├─ cli/              @fe/cli               v0.1.0  build/serve/dev/admin CLI (published · bin: fe)
 │  ├─ runtime/          @fe/runtime           v0.1.0  browser platform loader (published)
 │  ├─ compiler/         @fe/compiler          v1.0.0  MFE bundler + JIT bundler (published)
+│  ├─ specifier/        @fe/specifier         v0.1.0  MFE specifier utilities (published)
 │  ├─ jit-plugin-react/ @fe/jit-plugin-react  v0.1.0  JIT plugin: React JSX (published)
 │  └─ jit-plugin-solid/ @fe/jit-plugin-solid  v0.1.0  JIT plugin: Solid.js JSX (published)
 ├─ sandbox/                                           example workspace (not published)
 │  ├─ host-app/         name=host-app                 shell using @fe/runtime · builds to host-app/dist/
-│  ├─ mfe-a/            name=fe(acme/mfe-a)           standalone MFE · fe()-deps=∅
-│  ├─ mfe-b/            name=fe(acme/mfe-b)           composes mfe-a · devDep→fe(acme/mfe-a)
+│  ├─ mfe-a/            name=@acme/fe.mfe-a           standalone MFE · MFE-deps=∅
+│  ├─ mfe-b/            name=@acme/fe.mfe-b           composes mfe-a · devDep→@acme/fe.mfe-a
 │  └─ configs/          fe.config.json · platform.json · routes+packages registry + CLI config
 ├─ toolkit/                                           reusable tools and low-dependency MFEs
-│  ├─ devtools/         name=fe(acme/devtools)        overlay · uses Solid.js
-│  ├─ store/            name=fe(acme/store)           global state primitive · zero deps
-│  └─ network/          name=fe(acme/network)         shared fetch · dedup + cache + interceptors
+│  ├─ devtools/         name=@acme/fe.devtools        overlay · uses Solid.js
+│  ├─ store/            name=@acme/fe.store           global state primitive · zero deps
+│  └─ network/          name=@acme/fe.network         shared fetch · dedup + cache + interceptors
 ├─ nx.json              minimal Nx config (target ordering only · no nx cloud)
 └─ package.json         workspace root
 ```
@@ -32,15 +33,16 @@ bun@latest ONLY · !node !npm !webpack !vite !rollup
 lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler
 tests=∅  CI=typecheck+build (packages job → sandbox job)
 
-## ⟿ fe() convention
+## ⟿ MFE specifier convention
 ```
-fe(scope/name) = package-name string (NOT url-scheme) = browser bare-specifier
-pkg.json  "name":"fe(acme/mfe-a)"
-src       import {x} from "fe(acme/mfe-a)"
+@scope/fe.name = package-name string (NOT url-scheme) = browser bare-specifier
+pkg.json  "name":"@acme/fe.mfe-a"
+src       import {x} from "@acme/fe.mfe-a"
 platform  sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
 ```
-build: build.ts reads pkg.devDeps → filter keys startsWith("fe(") → Bun.build external[]
-ts: bun-install creates node_modules/fe(acme/mfe-a) symlink → resolves without tsconfig.paths
+detection: `isMfeSpecifier(key)` from `@fe/specifier` — matches `@scope/fe.name` and `fe.name`
+build: build.ts reads pkg.devDeps → filter via `isMfeSpecifier` → Bun.build external[]
+ts: bun-install creates node_modules/@acme/fe.mfe-a symlink → resolves without tsconfig.paths
 runtime: browser import maps resolve bare-specifier → JS url (multiple maps, injected lazily)
 
 ## MFE interface (∀ MFE must export)
@@ -98,11 +100,11 @@ Plugins access config via `ctx.adapters.config.get()`, NOT by reading the file d
 ## platform.json config
 ```json
 {
-  "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
-  "devtools": "fe(acme/devtools)@1.0.0",
+  "routes": { "/": "@acme/fe.mfe-b@1.0.0" },
+  "devtools": "@acme/fe.devtools@1.0.0",
   "packages": {
-    "fe(acme/mfe-a)": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
-    "fe(acme/mfe-b)": { "versions": { "1.0.0": { "url": "...", "deps": { "fe(acme/mfe-a)": "^1.0.0" } } } }
+    "@acme/fe.mfe-a": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
+    "@acme/fe.mfe-b": { "versions": { "1.0.0": { "url": "...", "deps": { "@acme/fe.mfe-a": "^1.0.0" } } } }
   }
 }
 ```
@@ -141,14 +143,14 @@ fe build shell → fe serve
 1. HTML loads with embedded platform config · no static import map
 2. host-app app.js calls loadDevtools() then load(path)
 3. load() reads config, resolves route → specifier@version
-4. resolves transitive fe() deps via semver (from packages registry)
+4. resolves transitive MFE deps via semver (from packages registry)
 5. injects <script type="importmap"> for all resolved deps
 6. import(specifier) → browser resolves via injected maps
 ```
 
 ## CI · .github/workflows/ci.yml
 trigger: push→main | PR→main
-`packages` job: typecheck @fe/core @fe/cli @fe/runtime @fe/compiler @fe/jit-plugin-react @fe/jit-plugin-solid
+`packages` job: typecheck @fe/core @fe/specifier @fe/cli @fe/runtime @fe/compiler @fe/jit-plugin-react @fe/jit-plugin-solid
 `sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app + toolkit/devtools
 
 ## docs
@@ -211,11 +213,11 @@ Exceptions:
 - MFE entry files (`src/index.ts`) are themselves the bundle root; static imports are correct.
 
 ## ✗ invariants
-- !bundle fe(*) · must stay external · importmap resolves runtime
+- !bundle @scope/fe.* · must stay external · importmap resolves runtime
 - admin-upload writes to packages only, never routes
 - routes updated manually or by CD pipeline
 - !framework-deps · DOM only (exception: devtools/ bundles Solid.js internally)
-- fe() devDeps → devDependencies only
+- MFE devDeps → devDependencies only
 - sandbox/ is !published · packages/* are published
 - multiple import maps: deps injected lazily, deduped via versioned resolution
 - plugins must call ctx.adapters.config.get() · never import from cli/src/config directly

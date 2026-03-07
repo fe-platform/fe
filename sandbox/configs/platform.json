@@ -1,10 +1,10 @@
 {
   "routes": {
-    "/": "fe(acme/mfe-b)@1.0.0"
+    "/": "@acme/fe.mfe-b@1.0.0"
   },
-  "devtools": "fe(acme/devtools)@1.0.0",
+  "devtools": "@acme/fe.devtools@1.0.0",
   "packages": {
-    "fe(acme/devtools)": {
+    "@acme/fe.devtools": {
       "versions": {
         "1.0.0": {
           "url": "./uploads/devtools/1.0.0/index.js",
@@ -12,7 +12,7 @@
         }
       }
     },
-    "fe(acme/mfe-a)": {
+    "@acme/fe.mfe-a": {
       "versions": {
         "1.0.0": {
           "url": "./uploads/mfe-a/1.0.0/index.js",
@@ -20,12 +20,12 @@
         }
       }
     },
-    "fe(acme/mfe-b)": {
+    "@acme/fe.mfe-b": {
       "versions": {
         "1.0.0": {
           "url": "./uploads/mfe-b/1.0.0/index.js",
           "deps": {
-            "fe(acme/mfe-a)": "^1.0.0"
+            "@acme/fe.mfe-a": "^1.0.0"
           }
         }
       }

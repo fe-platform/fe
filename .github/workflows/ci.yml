@@ -26,6 +26,7 @@ jobs:
       - name: Typecheck packages
         run: |
           bunx tsc --noEmit --project packages/core/tsconfig.json
+          bunx tsc --noEmit --project packages/specifier/tsconfig.json
           bunx tsc --noEmit --project packages/cli/tsconfig.json
           bunx tsc --noEmit --project packages/runtime/tsconfig.json
           bunx tsc --noEmit --project packages/compiler/tsconfig.json
