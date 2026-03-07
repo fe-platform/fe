@@ -3,15 +3,15 @@
 
 ## identity
 ```
-name:      fe(acme/store)
+name:      @acme/fe.store
 version:   1.0.0
 module:    src/index.ts
-fe()-deps: ∅  (no external fe() imports)
+MFE-deps: ∅  (no external MFE imports)
 dependencies: ∅  (zero runtime deps)
 ```
 
 ## purpose
-Framework-agnostic cross-MFE state primitive. MFEs import it as a `fe()` dependency;
+Framework-agnostic cross-MFE state primitive. MFEs import it as an MFE dependency;
 the import map ensures all MFEs share a single module instance, and therefore a single
 store registry.
 
@@ -36,7 +36,7 @@ interface Store<T> {
 
 ## usage in an MFE
 ```ts
-import { createStore } from "fe(acme/store)";
+import { createStore } from "@acme/fe.store";
 
 const auth = createStore("auth", { user: null });
 

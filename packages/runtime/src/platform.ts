@@ -1,4 +1,5 @@
 import type { PlatformConfig } from "@fe/core";
+import { parseSpecVersion } from "@fe/specifier";
 import { resolveVersion } from "./semver";
 import { readOverrides, processUrlParams } from "./overrides";
 
@@ -10,12 +11,6 @@ function readConfig(): PlatformConfig {
   const el = document.getElementById("__platform__");
   if (!el) throw new Error("Platform config not found in page");
   return JSON.parse(el.textContent!);
-}
-
-function parseSpecVersion(sv: string): { specifier: string; version: string } {
-  const idx = sv.indexOf(")@");
-  if (idx === -1) throw new Error(`Invalid specifier@version: ${sv}`);
-  return { specifier: sv.slice(0, idx + 1), version: sv.slice(idx + 2) };
 }
 
 const config = readConfig();

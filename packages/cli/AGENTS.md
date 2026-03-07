@@ -12,7 +12,7 @@ src/
   index.ts                           CLI entry: parse argv → bootstrap → dispatch
   bootstrap.ts                       wires up CliContext + loads plugins
   plugin-loader.ts                   dynamic import() of external plugin npm packages
-  helpers.ts                         readPackageMeta · readFeDepKeys · readFeDeps · slugFromSpecifier
+  helpers.ts                         readPackageMeta · readFeDepKeys · readFeDeps · slugFromSpecifier · isMfeSpecifier
   adapters/
     json-config-provider.ts          ConfigProvider: reads configs/fe.config.json
     package-json-config-provider.ts  ConfigProvider: reads "fe" key from package.json
@@ -68,7 +68,7 @@ createPackageJsonConfigProvider(root: string): ConfigProvider
 Reads the `"fe"` key from `<root>/package.json`. Use this when running `fe`
 commands from an MFE project directory rather than the monorepo root:
 ```json
-{ "name": "fe(acme/my-mfe)", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
+{ "name": "@acme/fe.my-mfe", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
 ```
 A CLI plugin can swap to this adapter in its `setup()`:
 ```ts
@@ -102,7 +102,7 @@ const { readFeConfig } = await import("../config");
 ### build (plugins/build.ts)
 ```
 fe build <target>   Bun.build src/index.ts → dist/index.js, esm, browser
-                    external[] = fe() keys from devDependencies
+                    external[] = MFE specifier keys from devDependencies
 fe build shell      Bun.build src/index.ts → dist/app.js
                     reads platform.json → injects as <script id="__platform__"> in dist/index.html
 ```
@@ -145,7 +145,7 @@ fe publish <target>
   reads name + version from target/package.json
   slug = slugFromSpecifier(name)
   sourceStorage.upload(slug, version, tmpDir)  // uploads src/ content + package.json
-  reads fe() devDeps → resolves dep versions from local package.json files
+  reads MFE devDeps → resolves dep versions from local package.json files
   url = `/bundle/${slug}/${version}/index.{ts|tsx}`
   manifest.registerPackage(name, version, {url, deps})
 ```
@@ -155,7 +155,7 @@ Never touches "routes": only "packages" in platform.json. Legacy `admin.ts` prov
 ```
 fe new <scope/name>
   creates <name-slug>/ directory in cwd with:
-    package.json  name=fe(<scope/name>), "fe" config key, build/check scripts
+    package.json  name=@<scope>/fe.<name>, build/check scripts
     tsconfig.json  strict · ESNext · bundler moduleResolution
     src/index.ts   render() stub
   exits 1 if directory already exists
@@ -173,11 +173,13 @@ fe check <target|shell>
 
 ## helpers.ts
 ```ts
-readPackageMeta(dir)    → { name, version }  reads dir/package.json
-readFeDepKeys(dir)      → string[]           devDep keys that start with "fe("
-readFeDeps(dir)         → Record<string,string>  full devDeps map filtered to fe() keys
-slugFromSpecifier(name) → string             "fe(acme/mfe-a)" → "mfe-a"
+readPackageMeta(dir)    → { name, version }        reads dir/package.json
+isMfeSpecifier(key)     → boolean                  true for "@scope/fe.name" and "fe.name"
+readFeDepKeys(dir)      → string[]                 devDep keys that pass isMfeSpecifier
+readFeDeps(dir)         → Record<string,string>    full devDeps map filtered by isMfeSpecifier
+slugFromSpecifier(name) → string                   "@acme/fe.mfe-a" → "mfe-a"
 ```
+All specifier utilities are re-exported from `@fe/specifier`.
 
 ## external plugin loading (plugin-loader.ts)
 ```ts

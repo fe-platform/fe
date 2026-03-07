@@ -3,11 +3,11 @@
 
 ## identity
 ```
-name:    fe(acme/devtools)
+name:    @acme/fe.devtools
 version: 1.0.0
 module:  src/index.tsx
 types:   src/index.tsx
-fe()-deps: ∅  (no cross-MFE imports)
+MFE-deps: ∅  (no cross-MFE imports)
 dependencies:
   "solid-js": "^1.9.0"  (bundled into output, NOT external)
 devDependencies:
@@ -64,7 +64,7 @@ share URL: ?platform:overrides=<JSON>
 # from repo root (preferred):
 fe build toolkit/devtools
   → reads @fe/jit-plugin-solid from devDependencies via build:options waterfall
-  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=["fe(*)"])
+  → Bun.build(src/index.tsx → dist/index.js, esm, browser, external=[])
   → solid-js is bundled (not external)
 
 # from toolkit/devtools/:
@@ -91,7 +91,7 @@ fe admin upload toolkit/devtools
 
 # 3. Activate: add to platform.json manually:
 {
-  "devtools": "fe(acme/devtools)@1.0.0",
+  "devtools": "@acme/fe.devtools@1.0.0",
   "routes": { ... },
   "packages": { ... }
 }

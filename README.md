@@ -5,9 +5,11 @@
 **Ship independently. Compose natively.**
 </div>
 
+This platform is under active development. Interfaces, conventions, and package names are changing. Do not use it in production yet. Version 1.0 will be the first production-ready release, with the core user and developer stories addressed and stable.
+
 **fe** is a source-first microfrontend platform built on native browser primitives and **TypeScript**. The intent is to provide a system where teams own their features from scaffold to production without the friction of shared build pipelines or version negotiations at deploy time.
 
-Each team publishes raw **TypeScript source** code. The JIT server compiles it on first request. The browser resolves every `fe(scope/name)` specifier through import maps at runtime.
+Each team publishes raw **TypeScript source** code. The JIT server compiles it on first request. The browser resolves every `@scope/fe.name` specifier through import maps at runtime.
 
 ## Core principles
 
@@ -27,15 +29,15 @@ The platform makes choices that are genuinely unusual in the frontend world, and
 | **Platform Config** | A `platform.json` manifest that maps routes and versions. |
 | **Browser Runtime** | Resolves the dependency graph and injects native import maps. |
 
-## The `fe()` convention
+## MFE specifier convention
 
-`fe(scope/name)` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime.
+`@scope/fe.name` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime. The `fe.` prefix in the name segment signals MFE identity; the scope is enforced by the registry.
 
 Because MFEs are plain **ES modules**, they can export anything: functions, stores, API clients, or UI components.
 
 ```ts
-import { createStore } from "fe(acme/store)";
-import { Button } from "fe(shared/ui)";
+import { createStore } from "@acme/fe.store";
+import { Button } from "@shared/fe.ui";
 ```
 
 ## MFE contract
@@ -59,7 +61,7 @@ fe new <scope/name>   scaffold a new MFE
 fe dev <target>       live-reload dev server
 fe check <target>     typecheck + build simulation (CI)
 fe publish <target>   upload source + register version
-fe link <mfe> <dep>   wire a local fe() dependency
+fe link <mfe> <dep>   wire a local MFE dependency
 fe build shell        compile the host shell
 fe serve              run the JIT server
 ```
