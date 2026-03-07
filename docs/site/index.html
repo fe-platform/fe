@@ -12,7 +12,7 @@
         <script type="importmap">
             {
                 "imports": {
-                    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter@latest?bundle=true&standalone"
+                    "@feo/fe-syntax-highlighter": "https://esm.sh/jsr/@feo/fe-syntax-highlighter@latest?bundle=true&standalone"
                 }
             }
         </script>
@@ -127,7 +127,7 @@
                     pre.textContent = content.trim();
                     this.innerHTML = "";
                     this.appendChild(pre);
-                    const { highlight } = await import("@fe-platform/syntax-highlighter");
+                    const { highlight } = await import("@feo/fe-syntax-highlighter");
                     highlight(this);
                 }
             }

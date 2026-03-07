@@ -1,5 +1,5 @@
 {
-  "name": "@fe-platform/syntax-highlighter",
+  "name": "@feo/fe-syntax-highlighter",
   "version": "0.0.8",
   "description": "High-performance syntax highlighter using the CSS Custom Highlight API. Zero-DOM overhead, modular, and supporting TypeScript, JSON, and Shell.",
   "license": "MIT",

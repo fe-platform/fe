@@ -1,4 +1,4 @@
-# @fe-platform/syntax-highlighter
+# @feo/fe-syntax-highlighter
 
 Syntax highlighting via the [CSS Custom Highlight API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API). Styles text ranges in place rather than wrapping tokens in `<span>` elements, so the DOM stays clean and copy-paste works naturally.
 
@@ -9,7 +9,7 @@ Based on techniques from **[Ivo Culic](https://ivoculic.dev/)**: [CSS Custom Hig
 ## Usage
 
 ```js
-import { highlight } from "@fe-platform/syntax-highlighter";
+import { highlight } from "@feo/fe-syntax-highlighter";
 
 // highlights every <pre class="lang-*"> inside the element
 highlight(document);
@@ -29,7 +29,7 @@ Built-in: `ts`, `json`, `shell`, `html`. Pass the name as a class on `<pre>`:
 Register additional languages at runtime:
 
 ```js
-import { registerLanguage } from "@fe-platform/syntax-highlighter";
+import { registerLanguage } from "@feo/fe-syntax-highlighter";
 
 registerLanguage("rust", [
     { category: "keyword", pattern: /\b(fn|let|mut|pub|use|mod)\b/g },
@@ -43,17 +43,17 @@ Five themes ship as importable CSS strings:
 
 | Export | Path |
 |---|---|
-| `autoTheme` | `@fe-platform/syntax-highlighter/themes/auto` |
-| `lightTheme` | `@fe-platform/syntax-highlighter/themes/light` |
-| `darkTheme` | `@fe-platform/syntax-highlighter/themes/dark` |
-| `draculaTheme` | `@fe-platform/syntax-highlighter/themes/dracula` |
-| `githubLightTheme` | `@fe-platform/syntax-highlighter/themes/github-light` |
+| `autoTheme` | `@feo/fe-syntax-highlighter/themes/auto` |
+| `lightTheme` | `@feo/fe-syntax-highlighter/themes/light` |
+| `darkTheme` | `@feo/fe-syntax-highlighter/themes/dark` |
+| `draculaTheme` | `@feo/fe-syntax-highlighter/themes/dracula` |
+| `githubLightTheme` | `@feo/fe-syntax-highlighter/themes/github-light` |
 
 Switch themes by passing the string to `setHighlightSheet`:
 
 ```js
-import { setHighlightSheet } from "@fe-platform/syntax-highlighter";
-import { draculaTheme } from "@fe-platform/syntax-highlighter/themes/dracula";
+import { setHighlightSheet } from "@feo/fe-syntax-highlighter";
+import { draculaTheme } from "@feo/fe-syntax-highlighter/themes/dracula";
 
 setHighlightSheet(draculaTheme);
 ```

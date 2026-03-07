@@ -1,5 +1,5 @@
 {
-  "name": "@fe-platform/syntax-highlighter",
+  "name": "@feo/fe-syntax-highlighter",
   "version": "0.0.9",
   "description": "High-performance syntax highlighter using the CSS Custom Highlight API. Zero-DOM overhead, modular, and supporting TypeScript, JSON, and Shell.",
   "license": "MIT",
@@ -15,6 +15,9 @@
     "./themes/dracula": "./src/themes/dracula.ts",
     "./themes/github-light": "./src/themes/github-light.ts",
     "./types": "./src/types.ts"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2022"]
   },
   "publish": {
     "include": [

@@ -2,8 +2,8 @@
 
 ## identity
 ```
-jsr.json  name: "@fe-platform/web-components"  version: 0.1.0
-package.json  name: "@fe-platform/web-components"  (workspace resolution + IDE support)
+jsr.json  name: "@feo/fe-web-components"  version: 0.1.0
+package.json  name: "@feo/fe-web-components"  (workspace resolution + IDE support)
 ```
 
 ## topology
@@ -12,7 +12,7 @@ src/
 ├─ html-include.ts   HTMLInclude custom element
 ├─ fe-component.ts   FEComponent custom element  (exported class — fe-compose imports type)
 ├─ fe-compose.ts     FECompose custom element    (import type FEComponent from ./fe-component.ts)
-├─ fe-code.ts        FECode custom element       (dynamic import @fe-platform/syntax-highlighter)
+├─ fe-code.ts        FECode custom element       (dynamic import @feo/fe-syntax-highlighter)
 └─ index.ts          side-effect imports in define order
 ```
 
@@ -55,17 +55,17 @@ does NOT remove the fe-component — stays empty in DOM for reuse by multiple co
 ### fe-code
 attrs:  `lang` (ts · json · shell · html)
 reads content from `<template>` child first, falls back to `textContent`
-dynamic import: `await import("@fe-platform/syntax-highlighter")` — lazy, not bundled
+dynamic import: `await import("@feo/fe-syntax-highlighter")` — lazy, not bundled
 
 ## CSS scoping (light DOM, not shadow DOM)
 `[data-fe-id="Name"]` set on `<fe-compose>` · styles scoped via selector rewriting in `<fe-component>`
 requires `fe-compose { display: contents }` in consumer CSS so the element does not box
 
 ## deps
-`@fe-platform/syntax-highlighter`
+`@feo/fe-syntax-highlighter`
   runtime: dynamic import in fe-code.ts (consumer must provide in import map)
   local:   `devDependencies: workspace:*` in package.json → symlink via bun workspaces
-  jsr:     `"imports": { "@fe-platform/syntax-highlighter": "jsr:@fe-platform/syntax-highlighter" }` in jsr.json
+  jsr:     `"imports": { "@feo/fe-syntax-highlighter": "jsr:@feo/fe-syntax-highlighter" }` in jsr.json
 
 ## publishing
 ```bash

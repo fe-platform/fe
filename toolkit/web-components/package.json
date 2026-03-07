@@ -1,9 +1,9 @@
 {
-  "name": "@fe-platform/web-components",
+  "name": "@feo/fe-web-components",
   "version": "0.1.1",
   "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose, fe-code.",
   "license": "MIT",
   "devDependencies": {
-    "@fe-platform/syntax-highlighter": "workspace:*"
+    "@feo/fe-syntax-highlighter": "workspace:*"
   }
 }

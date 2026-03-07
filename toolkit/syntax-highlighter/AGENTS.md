@@ -1,4 +1,4 @@
-# Agents: @fe-platform/syntax-highlighter
+# Agents: @feo/fe-syntax-highlighter
 
 This package is a high-performance syntax highlighter leveraging the CSS Custom Highlight API.
 

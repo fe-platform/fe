@@ -97,7 +97,7 @@ Attributes on `<fe-compose>` (other than `id`, `data-fe-id`, and `slot`) are cop
 
 ## `fe-code`
 
-Renders a code block with syntax highlighting via `@fe-platform/syntax-highlighter`.
+Renders a code block with syntax highlighting via `@feo/fe-syntax-highlighter`.
 
 ```html
 <fe-code lang="ts">
@@ -149,7 +149,7 @@ To use this pattern in another HTML page:
 2. Copy the `body { opacity: 0; transition: opacity 0.25s; }` and `body.ready { opacity: 1; }` rules if you want the eager-loading fade-in.
 3. Add `html-include:not(:defined) { display: none; }` to hide elements before the script runs.
 4. Serve fragment files without extensions, or ensure your server handles extensionless requests for `.html` files.
-5. If you use `fe-code`, add `@fe-platform/syntax-highlighter` to your import map.
+5. If you use `fe-code`, add `@feo/fe-syntax-highlighter` to your import map.
 
 The `getTarget` helper, `sync` (hash navigation), and `FECode` are optional — remove what you do not need.
 

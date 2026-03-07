@@ -1,5 +1,5 @@
 {
-  "name": "@fe-platform/web-components",
+  "name": "@feo/fe-web-components",
   "version": "0.1.2",
   "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose, fe-code.",
   "license": "MIT",
@@ -7,7 +7,8 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "imports": {
-    "@fe-platform/syntax-highlighter": "jsr:@fe-platform/syntax-highlighter@^0.0.9"
+    "@feo/fe-syntax-highlighter": "jsr:@feo/fe-syntax-highlighter@^0.0.9",
+    "@feo/fe-syntax-highlighter/": "jsr:@feo/fe-syntax-highlighter@^0.0.9/"
   },
   "exports": {
     ".": "./src/index.ts",

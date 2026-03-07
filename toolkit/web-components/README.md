@@ -1,4 +1,4 @@
-# @fe-platform/web-components
+# @feo/fe-web-components
 
 Four web components for assembling pages from HTML fragments without a build step or framework.
 
@@ -18,27 +18,27 @@ Via [esm.sh](https://esm.sh) from JSR — add to your import map:
 ```json
 {
   "imports": {
-    "@fe-platform/web-components": "https://esm.sh/jsr/@fe-platform/web-components",
-    "@fe-platform/syntax-highlighter": "https://esm.sh/jsr/@fe-platform/syntax-highlighter"
+    "@feo/fe-web-components": "https://esm.sh/jsr/@feo/fe-web-components",
+    "@feo/fe-syntax-highlighter": "https://esm.sh/jsr/@feo/fe-syntax-highlighter"
   }
 }
 ```
 
-`@fe-platform/syntax-highlighter` is only required if you use `<fe-code>`. `web-components` imports it lazily via dynamic `import()`, so it is not bundled in.
+`@feo/fe-syntax-highlighter` is only required if you use `<fe-code>`. `web-components` imports it lazily via dynamic `import()`, so it is not bundled in.
 
 Then in your module script:
 
 ```js
-import "@fe-platform/web-components";
+import "@feo/fe-web-components";
 ```
 
 Or import individual elements:
 
 ```js
-import "@fe-platform/web-components/html-include";
-import "@fe-platform/web-components/fe-component";
-import "@fe-platform/web-components/fe-compose";
-import "@fe-platform/web-components/fe-code";
+import "@feo/fe-web-components/html-include";
+import "@feo/fe-web-components/fe-component";
+import "@feo/fe-web-components/fe-compose";
+import "@feo/fe-web-components/fe-code";
 ```
 
 Each file calls `customElements.define` with a guard (`if (!customElements.get(...))`) so importing multiple entry points is safe.
@@ -146,7 +146,7 @@ Wrapping in `<template>` prevents the browser from interpreting the content as H
 
 | Attribute | Values | Description |
 |---|---|---|
-| `lang` | `ts`, `json`, `shell`, `html` | Language for syntax highlighting. Passed to `@fe-platform/syntax-highlighter`. |
+| `lang` | `ts`, `json`, `shell`, `html` | Language for syntax highlighting. Passed to `@feo/fe-syntax-highlighter`. |
 
 ## CSS scoping
 
@@ -155,5 +155,5 @@ Wrapping in `<template>` prevents the browser from interpreting the content as H
 ## Notes
 
 - **Define order matters** when registering components inline: `html-include` → `fe-component` → `fe-code` → `fe-compose`. The main entry (`"."`) handles this automatically.
-- `<fe-code>` dynamically imports `@fe-platform/syntax-highlighter` on first use. Add it to your import map; it is not bundled.
+- `<fe-code>` dynamically imports `@feo/fe-syntax-highlighter` on first use. Add it to your import map; it is not bundled.
 - Multiple `<fe-compose>` elements can reference the same `<fe-component>`. Each call to `target.content` returns a fresh `DocumentFragment` clone.

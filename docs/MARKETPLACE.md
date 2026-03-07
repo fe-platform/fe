@@ -5,7 +5,7 @@ The fe platform is "source-first." JSR (jsr.io) is a registry built for raw Type
 ## 1. The "Official" Namespace & Visual Identity
 To distinguish platform-maintained utilities from third-party MFEs, we adopt the `#` prefix. Since registries like JSR do not allow parentheses, we use a **Visual Bridge**:
 
-- **Registry Name:** `@fe-platform/syntax-highlighter`
+- **Registry Name:** `@feo/fe-syntax-highlighter`
 - **Platform Identity:** `fe(#syntax-highlighter)`
 - **Discovery Tag:** We include the platform identity in the package description to enable search-based discovery.
 
@@ -22,7 +22,7 @@ While `fe publish` remains the primary tool for internal/private MFEs, JSR is th
 The fe platform (CLI/Runtime) will implement a resolver that translates the visually unique `fe()` specifiers into registry-valid fetch URLs.
 - `import { ... } from "fe(#syntax-highlighter)"`
 - ↓ Resolver translates to:
-- `import { ... } from "https://esm.sh/jsr/@fe-platform/syntax-highlighter"`
+- `import { ... } from "https://esm.sh/jsr/@feo/fe-syntax-highlighter"`
 
 ## 3. The Marketplace UI
 The fe documentation site will host a "Marketplace" section.
@@ -32,6 +32,6 @@ The fe documentation site will host a "Marketplace" section.
 
 ## 4. Implementation Phase 1: The Highlighter
 - **Location:** `toolkit/syntax-highlighter`
-- **JSR Name:** `@fe-platform/syntax-highlighter`
+- **JSR Name:** `@feo/fe-syntax-highlighter`
 - **Visual Name:** `fe(#syntax-highlighter)`
 - **Goal:** Docs site becomes the first consumer of an MFE pulled via a public registry using this bridge.

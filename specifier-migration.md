@@ -159,7 +159,7 @@ npx jsr publish   # publishes @fe/specifier
 `@fe/core`, `@fe/cli`, `@fe/runtime`, `@fe/compiler`, `@fe/jit-plugin-react`,
 `@fe/jit-plugin-solid` are platform infrastructure, not MFEs. They keep their names.
 
-`@fe-platform/syntax-highlighter` and `@fe-platform/web-components` are already
+`@feo/fe-syntax-highlighter` and `@feo/fe-web-components` are already
 registry-compatible; assess separately whether they need the `fe.` name convention.
 
 ---

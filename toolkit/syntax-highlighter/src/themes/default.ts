@@ -1,6 +1,6 @@
 /**
  * @module
- * Default automatic theme for @fe-platform/syntax-highlighter.
+ * Default automatic theme for @feo/fe-syntax-highlighter.
  */
 import { lightTheme } from './light.ts';
 import { darkTheme } from './dark.ts';

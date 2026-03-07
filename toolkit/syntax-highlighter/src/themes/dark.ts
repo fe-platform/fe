@@ -1,6 +1,6 @@
 /**
  * @module
- * Dark theme for @fe-platform/syntax-highlighter.
+ * Dark theme for @feo/fe-syntax-highlighter.
  */
 
 /**

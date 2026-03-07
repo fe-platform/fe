@@ -75,7 +75,7 @@ attr: name="ComponentName"   must match a <fe-component name="ComponentName"> in
 attr: lang="ts|js|..."   maps to <pre class="lang-...">
 child: <template>        if present, innerHTML used as source; otherwise textContent
 ```
-- **`connectedCallback`** ⟿ async; dynamically imports `highlight` from `@fe-platform/syntax-highlighter`
+- **`connectedCallback`** ⟿ async; dynamically imports `highlight` from `@feo/fe-syntax-highlighter`
 - renders into `<pre>` then calls `highlight(this)`
 
 ---
@@ -106,7 +106,7 @@ Dark mode via `@media (prefers-color-scheme: dark)`.
 - **zero waterfalls** ⟿ all CSS and JS INLINED in `index.html`; no external `.css` or `.js` files
 - **preloading** ⟿ critical fragments (`header`, `hero`) declared as `<link rel="preload" as="fetch" crossorigin="anonymous">` in `<head>`
 - **esm only** ⟿ `<script type="module">`; no IIFEs
-- **import maps** ⟿ `@fe-platform/syntax-highlighter` resolved via `importmap`; keep pinned to `@latest`
+- **import maps** ⟿ `@feo/fe-syntax-highlighter` resolved via `importmap`; keep pinned to `@latest`
 - **edge caching** ⟿ `_headers` sets 1-hour browser / 1-day edge cache for HTML+fragments with background revalidation
 
 ## ✗ maintenance invariants

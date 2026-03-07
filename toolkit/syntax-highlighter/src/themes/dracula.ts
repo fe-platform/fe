@@ -1,6 +1,6 @@
 /**
  * @module
- * Dracula theme for @fe-platform/syntax-highlighter.
+ * Dracula theme for @feo/fe-syntax-highlighter.
  */
 
 /**
