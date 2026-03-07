@@ -30,7 +30,8 @@ Detection convention (replaces `startsWith("fe(")`):
 
 ```ts
 function isMfeSpecifier(key: string): boolean {
-  return /^@[^/]+\/fe\./.test(key);
+  // matches both "@acme/fe.name" (scoped) and "fe.name" (unscoped)
+  return /^(?:@[^/]+\/)?fe\./.test(key);
 }
 ```
 
@@ -38,8 +39,11 @@ Version parsing (replaces split on `")@"`):
 
 ```ts
 function parseSpecVersion(sv: string): { specifier: string; version: string } {
+  // For scoped names ("@acme/fe.name@1.0.0"), lastIndexOf finds the version "@".
+  // For unscoped names ("fe.name@1.0.0"), indexOf("@") is -1 only if no version,
+  // so lastIndexOf still works correctly in both cases.
   const at = sv.lastIndexOf("@");
-  // at > 0 because the name itself starts with "@"
+  if (at <= 0) return { specifier: sv, version: "" };
   return { specifier: sv.slice(0, at), version: sv.slice(at + 1) };
 }
 ```
@@ -48,7 +52,7 @@ Slug extraction (replaces `fe(acme/mfe-a)` → `mfe-a`):
 
 ```ts
 function slugFromSpecifier(specifier: string): string {
-  // "@acme/fe.mfe-a" → "mfe-a"
+  // "@acme/fe.mfe-a" → "mfe-a"  |  "fe.mfe-a" → "mfe-a"
   return specifier.split("/").pop()!.replace(/^fe\./, "");
 }
 ```
