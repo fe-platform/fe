@@ -1,7 +1,3 @@
-/**
- * @module
- * The core engine of @fe-platform/syntax-highlighter.
- */
 import { Category, Rule } from './types.ts';
 import { ts } from './languages/ts.ts';
 import { json } from './languages/json.ts';
@@ -12,10 +8,7 @@ import { autoTheme } from './themes/default.ts';
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(autoTheme);
 
-/**
- * Global Highlight objects for each category.
- * These are shared across all code blocks highlighted by the library.
- */
+/** One `Highlight` object per token category, registered in `CSS.highlights` as `hl-<category>`. */
 export const categories: Record<Category, Highlight> = {
     keyword: new Highlight(),
     string: new Highlight(),
@@ -45,20 +38,18 @@ const languages: Record<string, Rule[]> = {
 };
 
 /**
- * Registers a new language grammar at runtime.
- * 
- * @param name - The language identifier (e.g., 'rust', 'python').
- * @param rules - The array of tokenization rules.
+ * Registers a language grammar at runtime.
+ * @param name - Language identifier matched against `lang-<name>` class names.
+ * @param rules - Tokenization rules applied in order; earlier rules win on overlap.
  */
 export function registerLanguage(name: string, rules: Rule[]): void {
     languages[name] = rules;
 }
 
 /**
- * Applies syntax highlighting to all code blocks within the given root.
- * Targets <pre> elements with a class containing `lang-<name>`.
- * 
- * @param root - The root element (Document, Element, or ShadowRoot) to search.
+ * Applies syntax highlighting to all `<pre class="lang-*">` elements inside `root`.
+ * Adds the default stylesheet to `root.ownerDocument.adoptedStyleSheets` on first call.
+ * Safe to call multiple times; ranges accumulate into the shared `Highlight` objects.
  */
 export function highlight(root: Document | Element): void {
     if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
@@ -140,10 +131,8 @@ export function highlight(root: Document | Element): void {
 }
 
 /**
- * Applies a theme by setting CSS variables on the root.
- * Useful for runtime color customization.
- * 
- * @param theme - A map of category names to color/style values.
+ * Sets CSS custom properties on `document.documentElement` to override individual token colors.
+ * Property names map to `--hl-<key>` (e.g. `{ keyword: "#ff0" }` sets `--hl-keyword: #ff0`).
  */
 export function applyTheme(theme: Partial<Record<Category | 'comment-style', string>>): void {
     const root = document.documentElement;
@@ -153,10 +142,8 @@ export function applyTheme(theme: Partial<Record<Category | 'comment-style', str
 }
 
 /**
- * Replaces the current global Highlight CSS with a new stylesheet.
- * Use this to apply pre-made theme strings (e.g. from `@fe-platform/syntax-highlighter/themes/dracula`).
- * 
- * @param css - The raw CSS string containing ::highlight() rules.
+ * Replaces the active theme stylesheet. Pass any theme string from the `themes/*` exports,
+ * or supply raw `::highlight()` CSS rules to define a fully custom theme.
  */
 export function setHighlightSheet(css: string): void {
     sheet.replaceSync(css);

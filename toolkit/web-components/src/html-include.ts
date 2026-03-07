@@ -1,3 +1,15 @@
+/**
+ * `<html-include href="path/to/fragment">` — fetches an HTML fragment and replaces its
+ * own content with the response body. The `.html` extension is stripped before fetching.
+ *
+ * `loading="eager"` fetches immediately; the element otherwise lazy-loads via
+ * `IntersectionObserver` with a 400 px root margin. Set `state="loaded"` to prevent
+ * re-fetching after a DOM reconnect.
+ *
+ * Fires a `load` event (bubbles) on each successful fetch, and a `fragments-ready`
+ * event on `document.body` once all eager fragments have loaded. At that moment
+ * `body.classList` also receives `ready`, which triggers a CSS fade-in.
+ */
 export class HTMLInclude extends HTMLElement {
     static readonly _eagerPending: Set<HTMLInclude> = new Set<HTMLInclude>();
 

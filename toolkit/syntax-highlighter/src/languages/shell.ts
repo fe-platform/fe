@@ -1,12 +1,5 @@
-/**
- * @module
- * Shell/Bash language grammar for @fe-platform/syntax-highlighter.
- */
 import { Rule } from '../types.ts';
 
-/**
- * Rules for highlighting Shell/Bash code.
- */
 export const shell: Rule[] = [
     { category: 'comment', pattern: /#.*/g },
     { category: 'string', pattern: /"[^"]*"|'[^']*'/g },

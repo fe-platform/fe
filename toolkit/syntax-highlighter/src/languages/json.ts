@@ -1,12 +1,5 @@
-/**
- * @module
- * JSON language grammar for @fe-platform/syntax-highlighter.
- */
 import { Rule } from '../types.ts';
 
-/**
- * Rules for highlighting JSON code.
- */
 export const json: Rule[] = [
     { category: 'property', pattern: /"[^"]*"(?=\s*:)/g },
     { category: 'string', pattern: /(?<=:\s*)"[^"]*"/g },

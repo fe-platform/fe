@@ -1,12 +1,4 @@
-/**
- * @module
- * Core type definitions for @fe-platform/syntax-highlighter.
- */
-
-/**
- * Supported token categories for syntax highlighting.
- * These correspond to the `::highlight(hl-<category>)` pseudo-elements.
- */
+/** Token category — maps to a `::highlight(hl-<category>)` CSS pseudo-element. */
 export type Category = 
     | 'keyword' 
     | 'string' 
@@ -21,17 +13,10 @@ export type Category =
     | 'constant'
     | 'boolean';
 
-/**
- * A rule for tokenizing a specific category of text.
- */
+/** A single tokenization rule. `pattern` must have the `g` flag. */
 export interface Rule {
-    /** The category to assign to matched text. */
     category: Category;
-    /** The regular expression to match. Should have the 'g' flag. */
     pattern: RegExp;
 }
 
-/**
- * A set of rules defining a language grammar.
- */
 export type LanguageRules = Rule[];

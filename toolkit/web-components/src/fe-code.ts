@@ -1,3 +1,8 @@
+/**
+ * `<fe-code lang="ts">` — renders a syntax-highlighted code block. Source is read from a
+ * `<template>` child (recommended, prevents HTML parsing) or from `textContent`. The `lang`
+ * attribute is passed to `@fe-platform/syntax-highlighter`, which is loaded lazily on first use.
+ */
 export class FECode extends HTMLElement {
     async connectedCallback() {
         const template = this.querySelector("template");

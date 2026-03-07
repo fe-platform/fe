@@ -1,89 +1,78 @@
 # @fe-platform/syntax-highlighter
 
-A high-performance, modular syntax highlighter using the **CSS Custom Highlight API**.
-
-It styles text ranges directly without adding any extra DOM nodes (spans), resulting in 2-3x faster rendering and cleaner copy-pasting.
+Syntax highlighting via the [CSS Custom Highlight API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API). Styles text ranges in place rather than wrapping tokens in `<span>` elements, so the DOM stays clean and copy-paste works naturally.
 
 ## Credits
-This project was inspired by and based on the techniques described by **[Ivo Culic](https://ivoculic.dev/)** in [CSS Custom Highlight API for Syntax Highlighting](https://front-end.tips/css-highlights-api-for-syntax-highlighting/).
 
-## Features
-- **Zero DOM Overhead:** Styles text nodes directly using `::highlight()`.
-- **Priority-Based Engine:** Resolves overlapping tokens (e.g., keywords inside strings) with a "best-match-wins" strategy.
-- **Modular Architecture:** Easily add new languages and themes as plugins.
-- **Language Support:**
-  - **TypeScript:** Comprehensive keywords, types, strings (including template literals), comments (inline & multiline), numbers, operators, function names, and properties.
-  - **JSON:** Properties (keys), string values, numeric/boolean/null literals, and punctuation.
-  - **Shell:** Common commands, variables (`$VAR`), flags, arguments, and operators.
-- **Theme Plugins:** Decoupled from logic via CSS variables or raw CSS Highlight API styles.
-- **Vanilla ESM:** Distributed as `.ts` for direct use via `esm.sh` or JSR.
+Based on techniques from **[Ivo Culic](https://ivoculic.dev/)**: [CSS Custom Highlight API for Syntax Highlighting](https://front-end.tips/css-highlights-api-for-syntax-highlighting/).
 
 ## Usage
 
-### Direct Browser Usage (via esm.sh)
-```html
-<script type="module">
-  import { highlight } from 'https://esm.sh/jsr/@fe-platform/syntax-highlighter';
-  
-  // Highlight everything on the page using autoTheme (prefers-color-scheme)
-  highlight(document);
-</script>
-```
-
-### Programmatic Usage
-```javascript
+```js
 import { highlight } from "@fe-platform/syntax-highlighter";
 
-// Highlight a specific container or shadow root
+// highlights every <pre class="lang-*"> inside the element
+highlight(document);
 highlight(myContainer);
 ```
 
-## Plugin System
+The default theme (`autoTheme`) switches between light and dark based on `prefers-color-scheme`. It is applied to `document.adoptedStyleSheets` on first call.
 
-### Adding a Language
-You can register new languages by providing a name and an array of regex rules:
+### Languages
 
-```javascript
-import { highlight, registerLanguage } from "@fe-platform/syntax-highlighter";
+Built-in: `ts`, `json`, `shell`, `html`. Pass the name as a class on `<pre>`:
 
-registerLanguage('my-lang', [
-  { category: 'keyword', pattern: /\b(foo|bar)\b/g },
-  { category: 'comment', pattern: /\/\/.*/g }
+```html
+<pre class="lang-ts">const x = 42;</pre>
+```
+
+Register additional languages at runtime:
+
+```js
+import { registerLanguage } from "@fe-platform/syntax-highlighter";
+
+registerLanguage("rust", [
+    { category: "keyword", pattern: /\b(fn|let|mut|pub|use|mod)\b/g },
+    { category: "comment", pattern: /\/\/.*/g }
 ]);
 ```
 
-### Applying Themes
-The highlighter comes with several built-in themes that can be applied dynamically.
+### Themes
 
-#### Available Themes:
-- `autoTheme` (Default): System-aware switching between light/dark.
-- `lightTheme`: Modern light theme.
-- `darkTheme`: Modern dark theme.
-- `draculaTheme`: Classic Dracula dark mode.
-- `githubLightTheme`: GitHub-inspired light mode.
+Five themes ship as importable CSS strings:
 
-#### Example: Switching to Dracula
-```javascript
+| Export | Path |
+|---|---|
+| `autoTheme` | `@fe-platform/syntax-highlighter/themes/auto` |
+| `lightTheme` | `@fe-platform/syntax-highlighter/themes/light` |
+| `darkTheme` | `@fe-platform/syntax-highlighter/themes/dark` |
+| `draculaTheme` | `@fe-platform/syntax-highlighter/themes/dracula` |
+| `githubLightTheme` | `@fe-platform/syntax-highlighter/themes/github-light` |
+
+Switch themes by passing the string to `setHighlightSheet`:
+
+```js
 import { setHighlightSheet } from "@fe-platform/syntax-highlighter";
 import { draculaTheme } from "@fe-platform/syntax-highlighter/themes/dracula";
 
-// Apply the theme globally
 setHighlightSheet(draculaTheme);
 ```
 
-#### Option 2: Fine-tuning with CSS Variables
-You can also override specific colors using CSS variables:
+Override individual colors with CSS custom properties:
 
 ```css
 :root {
-  --hl-keyword: #4338ca;
-  --hl-string: #10b981;
+    --hl-keyword: #4338ca;
+    --hl-string: #10b981;
 }
 ```
 
-## Theming Categories
-The following categories are available for styling:
-- `keyword`, `string`, `comment`, `type`, `number`, `operator`, `function`, `property`, `variable`, `argument`, `constant`, `boolean`
+Available properties: `--hl-keyword`, `--hl-string`, `--hl-comment`, `--hl-type`, `--hl-number`, `--hl-operator`, `--hl-function`, `--hl-property`, `--hl-variable`, `--hl-argument`, `--hl-constant`, `--hl-boolean`.
+
+## Browser support
+
+Requires the CSS Custom Highlight API. Supported in Chrome 105+, Safari 17.2+, Firefox 135+. `highlight()` is a no-op in unsupported browsers.
 
 ## License
+
 MIT
