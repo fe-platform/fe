@@ -155,6 +155,13 @@ trigger: push→main | PR→main
 documentation lives at https://fe.frustrated.dev
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
+## git diff hygiene (token efficiency)
+When summarising branch changes (e.g. to draft a PR title/body):
+1. `git log origin/main..<branch> --oneline` → commit list · cheap · do first
+2. `git diff origin/main..<branch> --stat` → files + line counts · cheap · do second
+3. only if #2 is insufficient: `git diff origin/main..<branch> -- <file>` per file · targeted · avoid full diff dumps
+never run `git diff origin/main..<branch>` without `--stat` or a path filter · that dumps the entire diff unconditionally and wastes context
+
 ## ✗ agent conduct: cardinal rules
 - **Communication Cardinality.** When editing any `AGENTS.md` file, prioritize **absolute clarity for other AI agents** over human grammar or English conventions. Use any valid UTF-8 characters (symbols, arrows, boxes) to compress information and make it unambiguous. This rule is permanent and applies to all future edits.
 - oversight and caution are paramount · code velocity is not
