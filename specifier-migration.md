@@ -59,6 +59,84 @@ function slugFromSpecifier(specifier: string): string {
 
 ---
 
+## New package: `@fe/specifier`
+
+The three utility functions above (`isMfeSpecifier`, `parseSpecVersion`,
+`slugFromSpecifier`) currently live in `packages/cli/src/helpers.ts`. They are useful to
+any tool that works with MFE specifiers: the CLI, the runtime, the compiler, third-party
+plugins, and any organisation's own tooling. Extracting them into a dedicated published
+package makes that reuse explicit and dependency-free.
+
+### Location
+
+```
+packages/specifier/       @fe/specifier       v0.1.0
+└─ src/
+   └─ index.ts            (all exports, ≤ 180 lines)
+```
+
+### Public API
+
+```ts
+/** Returns true for "@acme/fe.name" and "fe.name"; false for all other strings. */
+export function isMfeSpecifier(key: string): boolean
+
+/** Splits "@acme/fe.name@1.0.0" into { specifier: "@acme/fe.name", version: "1.0.0" }.
+ *  Returns { specifier: sv, version: "" } when no version suffix is present. */
+export function parseSpecVersion(sv: string): { specifier: string; version: string }
+
+/** Extracts the short slug: "@acme/fe.mfe-a" → "mfe-a", "fe.mfe-a" → "mfe-a". */
+export function slugFromSpecifier(specifier: string): string
+```
+
+### package.json
+
+```json
+{
+  "name": "@fe/specifier",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" }
+}
+```
+
+### Consumers
+
+After this package exists, update the following to import from `@fe/specifier` instead
+of defining the logic locally:
+
+| Package | File | Change |
+|---|---|---|
+| `@fe/cli` | `packages/cli/src/helpers.ts` | remove local definitions, `import { isMfeSpecifier, parseSpecVersion, slugFromSpecifier } from "@fe/specifier"` |
+| `@fe/runtime` | wherever `parseSpecVersion` is currently inlined | same import |
+| `@fe/compiler` | wherever MFE detection is done in the JIT bundler | same import |
+
+Add `@fe/specifier` to `dependencies` (not `devDependencies`) in each consumer's
+`package.json`, since the functions are needed at runtime, not just at build time.
+
+### CI
+
+Add `@fe/specifier` to the `packages` job in `.github/workflows/ci.yml` alongside the
+other platform packages.
+
+### JSR publish
+
+```bash
+cd packages/specifier
+npx jsr publish   # publishes @fe/specifier
+```
+
+```json
+{
+  "name": "@fe/specifier",
+  "version": "0.1.0",
+  "exports": "./src/index.ts"
+}
+```
+
+---
+
 ## Package name mapping
 
 ### Toolkit (published)
@@ -278,15 +356,21 @@ model this platform already uses.
 
 ## Order of operations
 
-1. Update `packages/cli/src/helpers.ts` first — detection logic is foundational.
-2. Update all `package.json` name and devDependency fields.
-3. Run `bun install` at workspace root to rebuild symlinks.
-4. Update `platform.json` specifier keys and values.
-5. Update TypeScript source imports.
-6. Update tests.
-7. Run `bun run typecheck` and `bun run build` to confirm no regressions.
-8. Update all AGENTS.md and README.md files.
-9. Add the disclaimer to README.md.
-10. Add `jsr.json` to each toolkit package.
-11. Publish toolkit packages to JSR.
-12. Commit and push on branch `claude/mfe-specifier-ideation-GMvC6`.
+1. Create `packages/specifier/` with `src/index.ts` and `package.json`.
+2. Add `@fe/specifier` to the `packages` job in `ci.yml`.
+3. Update `packages/cli/src/helpers.ts` to import from `@fe/specifier`; remove local definitions.
+4. Update `@fe/runtime` and `@fe/compiler` to import from `@fe/specifier`.
+5. Add `"@fe/specifier": "workspace:*"` to `dependencies` in each consumer's `package.json`.
+6. Run `bun install` to wire up the workspace dependency.
+7. Update all MFE and toolkit `package.json` name fields.
+8. Update `devDependencies` keys in consumer `package.json` files.
+9. Run `bun install` again to rebuild symlinks under the new names.
+10. Update `platform.json` specifier keys and values.
+11. Update TypeScript source imports in MFEs.
+12. Update tests.
+13. Run `bun run typecheck` and `bun run build` to confirm no regressions.
+14. Update all AGENTS.md and README.md files.
+15. Add the disclaimer to README.md.
+16. Add `jsr.json` to `packages/specifier/` and each toolkit package.
+17. Publish `@fe/specifier` to JSR first, then publish toolkit packages.
+18. Commit and push on branch `claude/mfe-specifier-ideation-GMvC6`.
