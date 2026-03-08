@@ -2,7 +2,7 @@
     --bg: #fcfcf9; --ink: #0a0a0a; --mid: #4a4a48; --accent: #4338ca; --rule: #d1d1cc; --dot: #bdbdb8;
     --card-a: #f59e0b; --card-b: #3b82f6; --card-c: #10b981; --card-d: #f43f5e;
     --code-bg: #fffcf0; --code-text: #222220; --code-rule: #f0eee0;
-    --article-bg: #f8f8f6; --article-text: #1a1a1a; --header-height: 3.5rem;
+    --article-bg: #f8f8f6; --article-text: #1a1a1a; --header-height: 5.5rem;
 }
 @media (prefers-color-scheme: dark) {
     :root {
