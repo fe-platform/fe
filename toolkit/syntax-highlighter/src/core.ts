@@ -148,8 +148,11 @@ function applySheet(root: Document | Element): void {
 export function highlight(root: Document | Element): void {
     if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
 
-    // Clear previous highlights
-    Object.values(categories).forEach(h => h.clear());
+    // Clear highlights only if we're highlighting the entire document.
+    // Individual element highlighting is incremental.
+    if (root instanceof Document) {
+        Object.values(categories).forEach(h => h.clear());
+    }
 
     applySheet(root);
 
