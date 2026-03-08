@@ -118,7 +118,7 @@ function DevTools() {
             <div style={labelStyle}>Add override</div>
             <input
               style={inputStyle}
-              placeholder="fe(acme/mfe-a)"
+              placeholder="@conqueso/fe-mfe-a"
               value={specInput()}
               onInput={(e) => setSpecInput(e.currentTarget.value)}
             />

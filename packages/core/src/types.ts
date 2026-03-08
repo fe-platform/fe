@@ -17,7 +17,7 @@ export interface PlatformConfig {
    * Specifier@version strings to preload on platform initialisation.
    * Preloading resolves the dep graph, injects the import map, and queues a
    * `<link rel="modulepreload">` hint so the browser fetches the module early.
-   * @example ["@acme/fe.mfe-b@1.0.0", "@acme/fe.mfe-a@1.0.0"]
+   * @example ["@conqueso/fe-mfe-b@1.0.0", "@conqueso/fe-mfe-a@1.0.0"]
    */
   preload?: string[];
 }

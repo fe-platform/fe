@@ -9,16 +9,16 @@ test("platform config is embedded in HTML", async ({ page }) => {
   const configText = await page.locator("#__platform__").textContent();
   const config = JSON.parse(configText!);
 
-  expect(config.routes["/"]).toBe("@acme/fe.mfe-b@1.0.0");
-  expect(config.packages).toHaveProperty("@acme/fe.mfe-a");
-  expect(config.packages).toHaveProperty("@acme/fe.mfe-b");
-  expect(config.packages).toHaveProperty("@acme/fe.devtools");
+  expect(config.routes["/"]).toBe("@conqueso/fe-mfe-b@1.0.0");
+  expect(config.packages).toHaveProperty("@conqueso/fe-mfe-a");
+  expect(config.packages).toHaveProperty("@conqueso/fe-mfe-b");
+  expect(config.packages).toHaveProperty("@fe/fe-devtools");
 
-  const mfeA = config.packages["@acme/fe.mfe-a"].versions["1.0.0"];
+  const mfeA = config.packages["@conqueso/fe-mfe-a"].versions["1.0.0"];
   expect(mfeA.url).toMatch(/mfe-a/);
 
-  const mfeB = config.packages["@acme/fe.mfe-b"].versions["1.0.0"];
-  expect(mfeB.deps["@acme/fe.mfe-a"]).toMatch(/^\^/);
+  const mfeB = config.packages["@conqueso/fe-mfe-b"].versions["1.0.0"];
+  expect(mfeB.deps["@conqueso/fe-mfe-a"]).toMatch(/^\^/);
 });
 
 test("runtime injects import maps for route dependencies", async ({ page }) => {
@@ -32,8 +32,8 @@ test("runtime injects import maps for route dependencies", async ({ page }) => {
     );
   });
 
-  expect(allSpecifiers).toContain("@acme/fe.mfe-b");
-  expect(allSpecifiers).toContain("@acme/fe.mfe-a");
+  expect(allSpecifiers).toContain("@conqueso/fe-mfe-b");
+  expect(allSpecifiers).toContain("@conqueso/fe-mfe-a");
 });
 
 test("mfe-b renders and composes mfe-a in #app", async ({ page }) => {
@@ -52,7 +52,7 @@ test("devtools overlay is mounted with toggle button", async ({ page }) => {
 
 test("platform:overrides URL param stores in sessionStorage and is stripped", async ({ page }) => {
   const overrides = {
-    "@acme/fe.mfe-a": "http://localhost:3000/uploads/mfe-a/1.0.0/index.js",
+    "@conqueso/fe-mfe-a": "http://localhost:3000/uploads/mfe-a/1.0.0/index.js",
   };
   const qs = new URLSearchParams({ "platform:overrides": JSON.stringify(overrides) });
 
@@ -70,7 +70,7 @@ test("platform:clear-overrides strips sessionStorage and removes URL param", asy
   await page.evaluate(() => {
     sessionStorage.setItem(
       "platform:overrides",
-      JSON.stringify({ "@acme/fe.mfe-a": "http://custom.example" })
+      JSON.stringify({ "@conqueso/fe-mfe-a": "http://custom.example" })
     );
   });
 

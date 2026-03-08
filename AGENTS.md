@@ -1,7 +1,7 @@
 # ⚯ fe-platform · root · agent-ref
 CLAUDE.md→symlink→here
 
-> Heavily influenced by and borrows concepts from the MFE architecture described at [1fe.com](https://1fe.com/).
+> Heavily influenced by and borrows concepts from the MFE architecture described at [1fe-com](https://1fe-com/).
 
 ## topology
 ```
@@ -16,13 +16,13 @@ CLAUDE.md→symlink→here
 │  └─ jit-plugin-solid/ @fe/jit-plugin-solid  v0.1.0  JIT plugin: Solid.js JSX (published)
 ├─ sandbox/                                           example workspace (not published)
 │  ├─ host-app/         name=host-app                 shell using @fe/runtime · builds to host-app/dist/
-│  ├─ mfe-a/            name=@acme/fe.mfe-a           standalone MFE · MFE-deps=∅
-│  ├─ mfe-b/            name=@acme/fe.mfe-b           composes mfe-a · devDep→@acme/fe.mfe-a
-│  └─ configs/          fe.config.json · platform.json · routes+packages registry + CLI config
+│  ├─ mfe-a/            name=@conqueso/fe-mfe-a           standalone MFE · MFE-deps=∅
+│  ├─ mfe-b/            name=@conqueso/fe-mfe-b           composes mfe-a · devDep→@conqueso/fe-mfe-a
+│  └─ configs/          fe-config.json · platform.json · routes+packages registry + CLI config
 ├─ toolkit/                                           reusable tools and low-dependency MFEs
-│  ├─ devtools/         name=@acme/fe.devtools        overlay · uses Solid.js
-│  ├─ store/            name=@acme/fe.store           global state primitive · zero deps
-│  └─ network/          name=@acme/fe.network         shared fetch · dedup + cache + interceptors
+│  ├─ devtools/         name=@fe/fe-devtools        overlay · uses Solid.js
+│  ├─ store/            name=@fe/fe-store           global state primitive · zero deps
+│  └─ network/          name=@fe/fe-network         shared fetch · dedup + cache + interceptors
 ├─ nx.json              minimal Nx config (target ordering only · no nx cloud)
 └─ package.json         workspace root
 ```
@@ -35,14 +35,14 @@ tests=∅  CI=typecheck+build (packages job → sandbox job)
 
 ## ⟿ MFE specifier convention
 ```
-@scope/fe.name = package-name string (NOT url-scheme) = browser bare-specifier
-pkg.json  "name":"@acme/fe.mfe-a"
-src       import {x} from "@acme/fe.mfe-a"
+@scope/fe-name = package-name string (NOT url-scheme) = browser bare-specifier
+pkg.json  "name":"@conqueso/fe-mfe-a"
+src       import {x} from "@conqueso/fe-mfe-a"
 platform  sandbox/configs/platform.json packages section: specifier → versions → {url, deps}
 ```
-detection: `isMfeSpecifier(key)` from `@fe/specifier` — matches `@scope/fe.name` and `fe.name`
+detection: `isMfeSpecifier(key)` from `@fe/specifier` — matches `@scope/fe-name` and `fe-name`
 build: build.ts reads pkg.devDeps → filter via `isMfeSpecifier` → Bun.build external[]
-ts: bun-install creates node_modules/@acme/fe.mfe-a symlink → resolves without tsconfig.paths
+ts: bun-install creates node_modules/@conqueso/fe-mfe-a symlink → resolves without tsconfig.paths
 runtime: browser import maps resolve bare-specifier → JS url (multiple maps, injected lazily)
 
 ## MFE interface (∀ MFE must export)
@@ -62,18 +62,18 @@ admin  upload <tgt>    cp dist/→uploads/slug/ver/ · register in platform.json
 check  <target>|shell  typecheck + simulate build (CI use)
 ```
 CLI config is supplied by `ctx.adapters.config` (ConfigProvider adapter).
-Default impl reads `configs/fe.config.json` at workspace root. Plugins may swap this adapter.
+Default impl reads `configs/fe-config.json` at workspace root. Plugins may swap this adapter.
 
 ## @fe/cli Plugin API
-Organizations extend the CLI by adding plugins in `configs/fe.config.json`:
+Organizations extend the CLI by adding plugins in `configs/fe-config.json`:
 ```json
-{ "plugins": ["@acme/fe-plugin-s3"] }
+{ "plugins": ["@conqueso/fe-plugin-s3"] }
 ```
 Each plugin is an npm package that exports a `Plugin` object (default or named `plugin`):
 ```ts
 import type { Plugin, CliContext } from "@fe/core";
 export default {
-  name: "acme-s3",
+  name: "conqueso-s3",
   setup(ctx: CliContext) {
     ctx.adapters.artifactStorage = new S3Storage("my-bucket");
     // can also swap ctx.adapters.config for remote/env-based config
@@ -93,18 +93,18 @@ Plugins run after builtins so they can freely swap `ctx.adapters.*`.
   "shellDir":     "shell"                  // host application directory (sandbox: "host-app")
 }
 ```
-File lives at `configs/fe.config.json` (co-located with platform.json).
+File lives at `configs/fe-config.json` (co-located with platform.json).
 All fields optional; defaults apply when file is absent.
 Plugins access config via `ctx.adapters.config.get()`, NOT by reading the file directly.
 
 ## platform.json config
 ```json
 {
-  "routes": { "/": "@acme/fe.mfe-b@1.0.0" },
-  "devtools": "@acme/fe.devtools@1.0.0",
+  "routes": { "/": "@conqueso/fe-mfe-b@1.0.0" },
+  "devtools": "@fe/fe-devtools@1.0.0",
   "packages": {
-    "@acme/fe.mfe-a": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
-    "@acme/fe.mfe-b": { "versions": { "1.0.0": { "url": "...", "deps": { "@acme/fe.mfe-a": "^1.0.0" } } } }
+    "@conqueso/fe-mfe-a": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
+    "@conqueso/fe-mfe-b": { "versions": { "1.0.0": { "url": "...", "deps": { "@conqueso/fe-mfe-a": "^1.0.0" } } } }
   }
 }
 ```
@@ -154,7 +154,7 @@ trigger: push→main | PR→main
 `sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app + toolkit/devtools
 
 ## docs
-documentation lives at https://fe.frustrated.dev
+documentation lives at https://fe-frustrated.dev
 pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
 
 ## git diff hygiene (token efficiency)
@@ -213,7 +213,7 @@ Exceptions:
 - MFE entry files (`src/index.ts`) are themselves the bundle root; static imports are correct.
 
 ## ✗ invariants
-- !bundle @scope/fe.* · must stay external · importmap resolves runtime
+- !bundle @scope/fe-* · must stay external · importmap resolves runtime
 - admin-upload writes to packages only, never routes
 - routes updated manually or by CD pipeline
 - !framework-deps · DOM only (exception: devtools/ bundles Solid.js internally)

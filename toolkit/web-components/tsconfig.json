@@ -6,6 +6,7 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["bun-types"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]

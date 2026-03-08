@@ -15,7 +15,7 @@
     CI/CD pipelines or coordination tickets.
   </p>
   <ul>
-    <li><code>fe new acme/my-feature</code> — scaffold a new MFE in one command.</li>
+    <li><code>fe new conqueso/my-feature</code> — scaffold a new MFE in one command.</li>
     <li><code>fe dev my-feature</code> — hot-reload dev server, live in your browser.</li>
     <li><code>fe check my-feature</code> — typecheck before pushing; same check runs in CI.</li>
     <li><code>fe publish my-feature</code> — upload source and register the new version.</li>
@@ -33,7 +33,7 @@
       <tr><td>Shell app</td><td>The host HTML page that loads your MFE. You do not build or deploy it.</td></tr>
       <tr><td>JIT server URL</td><td>The base URL where compiled bundles are served. Embedded in the shell.</td></tr>
       <tr><td><code>platform.json</code></td><td>Routes and package registry. Your team or CI updates a route entry after publishing.</td></tr>
-      <tr><td>Toolkit packages</td><td><code>fe(acme/store)</code>, <code>fe(acme/network)</code> — resolved at runtime, no install step.</td></tr>
+      <tr><td>Toolkit packages</td><td><code>@fe/fe-store</code>, <code>@fe/fe-network</code> — resolved at runtime, no install step.</td></tr>
     </tbody>
   </table>
 
@@ -42,11 +42,11 @@
     A typical feature cycle looks like this:
   </p>
   <ol>
-    <li>Scaffold once: <code>fe new acme/my-feature</code> creates <code>my-feature/</code> with a <code>render()</code> stub.</li>
+    <li>Scaffold once: <code>fe new conqueso/my-feature</code> creates <code>my-feature/</code> with a <code>render()</code> stub.</li>
     <li>Develop: <code>fe dev my-feature</code> then open the shell with a sessionStorage override pointing at your dev URL.</li>
     <li>Type-check in CI: <code>fe check my-feature</code> runs on every push.</li>
     <li>Publish when ready: <code>fe publish my-feature</code> uploads source and prints the new version.</li>
-    <li>Update the route in <code>platform.json</code> from <code>fe(acme/my-feature)@old</code> to <code>@new</code>.</li>
+    <li>Update the route in <code>platform.json</code> from <code>@conqueso/fe-my-feature@old</code> to <code>@new</code>.</li>
   </ol>
   <p>
     Steps 4 and 5 are independent of every other team. No build pipeline coordination.
@@ -57,14 +57,14 @@
   <h3>Testing against the production shell</h3>
   <p>
     The devtools overlay (accessible via the platform team) lets you redirect any
-    <code>fe(scope/name)</code> specifier to a local <code>fe dev</code> URL. Overrides
+    <code>@scope/fe-name</code> specifier to a local <code>fe dev</code> URL. Overrides
     live in <code>sessionStorage</code> and affect only your current tab. No redeployment,
     no asking anyone for access.
   </p>
   <textarea lang="ts">
 // manual sessionStorage override (without devtools)
 sessionStorage.setItem(
-  "fe:override:fe(acme/my-feature)",
+  "fe:override:@conqueso/fe-my-feature",
   "http://localhost:3001/"
 );
 // then reload — the production shell loads your local build
@@ -107,16 +107,16 @@ export function render(
   <textarea lang="json">
 // package.json
 {
-  "name": "fe(acme/my-feature)",
+  "name": "@conqueso/fe-my-feature",
   "devDependencies": {
-    "fe(acme/store)": "^1.0.0",
-    "fe(acme/network)": "^1.0.0"
+    "@fe/fe-store": "^1.0.0",
+    "@fe/fe-network": "^1.0.0"
   }
 }
 </textarea>
   <textarea lang="ts">
 // src/index.ts
-import { createStore } from "fe(acme/store)";
+import { createStore } from "@fe/fe-store";
 
 const count = createStore("my-feature:count", 0);
 

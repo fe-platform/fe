@@ -1,4 +1,4 @@
-import { Rule } from '../types.ts';
+import type { Rule } from '../types.ts';
 
 export const json: Rule[] = [
     { category: 'comment', pattern: /\/\/.*|\/\*[\s\S]*?\*\//g },

@@ -1,4 +1,4 @@
-# fe(acme/mfe-a)
+# @conqueso/fe-mfe-a
 
 React microfrontend, no cross-MFE dependencies.
 

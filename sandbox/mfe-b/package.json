@@ -1,17 +1,12 @@
 {
-  "name": "@acme/fe.mfe-b",
-  "version": "1.0.0",
-  "module": "src/index.tsx",
+  "name": "@conqueso/fe-mfe-b",
+  "version": "0.2.0",
+  "type": "module",
+  "main": "src/index.tsx",
   "scripts": {
-    "build": "cd ../.. && fe build sandbox/mfe-b",
-    "check": "cd ../.. && fe check sandbox/mfe-b"
-  },
-  "devDependencies": {
-    "bun-plugin-solid": "^1.0.0",
-    "@acme/fe.mfe-a": "file:../mfe-a",
-    "@fe/cli": "workspace:*"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "solid-js": "^1.9.11"
+    "@conqueso/fe-mfe-a": "workspace:*"
   }
 }

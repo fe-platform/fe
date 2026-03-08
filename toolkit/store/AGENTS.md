@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:      @acme/fe.store
+name:      @fe/fe-store
 version:   1.0.0
 module:    src/index.ts
 MFE-deps: ∅  (no external MFE imports)
@@ -36,7 +36,7 @@ interface Store<T> {
 
 ## usage in an MFE
 ```ts
-import { createStore } from "@acme/fe.store";
+import { createStore } from "@fe/fe-store";
 
 const auth = createStore("auth", { user: null });
 

@@ -72,7 +72,7 @@ async function execute(req: Request): Promise<Response> {
 }
 
 /**
- * The singleton network client. All MFEs that import `fe(acme/network)` share
+ * The singleton network client. All MFEs that import `@fe/fe-network` share
  * this instance via the import map, giving them a common cache and interceptor
  * chain without any explicit coordination.
  */

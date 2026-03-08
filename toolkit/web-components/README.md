@@ -36,7 +36,7 @@ import "@feo/fe-web-components/fe-component";
 import "@feo/fe-web-components/fe-compose";
 ```
 
-Each file calls `customElements.define` with a guard (`if (!customElements.get(...))`) so importing multiple entry points is safe.
+Each file calls `customElements.define` with a guard (`if (!customElements.get(...))`) so importing multiple entry points is safe-
 
 ## Usage
 

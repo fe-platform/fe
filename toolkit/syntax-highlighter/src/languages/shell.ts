@@ -1,4 +1,4 @@
-import { Rule } from '../types.ts';
+import type { Rule } from '../types.ts';
 
 export const shell: Rule[] = [
     { category: 'comment', pattern: /#.*/g },

@@ -14,7 +14,7 @@ export interface CompileOptions {
 }
 
 export async function compileMfe(options: CompileOptions) {
-  const { entrypoints, outdir, external = ["@*/fe.*", "fe.*"], rootDir, naming, plugins } = options;
+  const { entrypoints, outdir, external = ["@*/fe-*", "fe-*"], rootDir, naming, plugins } = options;
 
   let buildPlugins: unknown[];
   if (plugins !== undefined) {
@@ -136,7 +136,7 @@ async function jitHandle(
 }
 
 export function createJITBundler(options: JITBundlerOptions) {
-  const { storage, external = ["@*/fe.*", "fe.*"], jitPlugins = [] } = options;
+  const { storage, external = ["@*/fe-*", "fe-*"], jitPlugins = [] } = options;
   const cache = new Map<string, CacheEntry>();
 
   return { handle: (req: Request) => jitHandle(req, storage, cache, external, jitPlugins) };

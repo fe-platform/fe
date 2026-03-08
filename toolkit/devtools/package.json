@@ -1,5 +1,5 @@
 {
-  "name": "@acme/fe.devtools",
+  "name": "@fe/fe-devtools",
   "version": "0.2.0",
   "module": "src/index.tsx",
   "types": "src/index.tsx",

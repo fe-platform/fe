@@ -17,7 +17,7 @@ src/
 interface CompileOptions {
   entrypoints: string[];
   outdir?:     string;
-  external?:   string[];        // default: ["fe(*)"]
+  external?:   string[];        // default: ["@*/fe-*", "fe-*"]
   rootDir:     string;          // used for solid-js auto-detection
   naming?:     string | Record<string, string>;
   plugins?:    unknown[];       // when set, skips auto-detection
@@ -35,7 +35,7 @@ Plugin resolution:
 ```ts
 interface JITBundlerOptions {
   storage:     SourceStorage;
-  external?:   string[];        // default: ["fe(*)"]
+  external?:   string[];        // default: ["@*/fe-*", "fe-*"]
   jitPlugins?: JitPlugin[];     // transforms applied to BuildOptions before each compile
 }
 ```

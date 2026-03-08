@@ -1,18 +1,22 @@
 {
   "name": "host-app",
-  "version": "1.0.0",
+  "version": "0.2.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd .. && fe build shell",
-    "check": "cd .. && fe check shell",
-    "typecheck": "bunx tsc --noEmit",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
-    "@fe/runtime": "workspace:*"
+    "@fe/runtime": "workspace:*",
+    "@fe/core": "workspace:*",
+    "@conqueso/fe-mfe-b": "workspace:*"
   },
   "devDependencies": {
-    "@acme/fe.mfe-b": "file:../mfe-b",
-    "@fe/cli": "workspace:*"
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
   }
 }

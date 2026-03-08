@@ -1,4 +1,4 @@
-# Specifier Migration: `fe(scope/name)` to `@scope/fe.name`
+# Specifier Migration: `@scope/fe-name` to `@scope/fe-name`
 
 This document is a plan only. No changes have been made to the codebase.
 Implement after reviewing and approving this plan.
@@ -19,10 +19,10 @@ where registries can enforce ownership.
 ## New format
 
 ```
-old:  fe(acme/mfe-a)          @  1.0.0
-new:  @acme/fe.mfe-a          @  1.0.0
+old:  @conqueso/fe-mfe-a          @  1.0.0
+new:  @conqueso/fe-mfe-a          @  1.0.0
       └──┬──┘ └──┬──┘
-         │       └── name segment: "fe." prefix signals MFE identity
+         │       └── name segment: "fe-" prefix signals MFE identity
          └────────── scope: registry-enforced, org-owned
 ```
 
@@ -30,7 +30,7 @@ Detection convention (replaces `startsWith("fe(")`):
 
 ```ts
 function isMfeSpecifier(key: string): boolean {
-  // matches both "@acme/fe.name" (scoped) and "fe.name" (unscoped)
+  // matches both "@conqueso/fe-name" (scoped) and "fe-name" (unscoped)
   return /^(?:@[^/]+\/)?fe\./.test(key);
 }
 ```
@@ -39,8 +39,8 @@ Version parsing (replaces split on `")@"`):
 
 ```ts
 function parseSpecVersion(sv: string): { specifier: string; version: string } {
-  // For scoped names ("@acme/fe.name@1.0.0"), lastIndexOf finds the version "@".
-  // For unscoped names ("fe.name@1.0.0"), indexOf("@") is -1 only if no version,
+  // For scoped names ("@conqueso/fe-name@1.0.0"), lastIndexOf finds the version "@".
+  // For unscoped names ("fe-name@1.0.0"), indexOf("@") is -1 only if no version,
   // so lastIndexOf still works correctly in both cases.
   const at = sv.lastIndexOf("@");
   if (at <= 0) return { specifier: sv, version: "" };
@@ -48,11 +48,11 @@ function parseSpecVersion(sv: string): { specifier: string; version: string } {
 }
 ```
 
-Slug extraction (replaces `fe(acme/mfe-a)` → `mfe-a`):
+Slug extraction (replaces `@conqueso/fe-mfe-a` → `mfe-a`):
 
 ```ts
 function slugFromSpecifier(specifier: string): string {
-  // "@acme/fe.mfe-a" → "mfe-a"  |  "fe.mfe-a" → "mfe-a"
+  // "@conqueso/fe-mfe-a" → "mfe-a"  |  "fe-mfe-a" → "mfe-a"
   return specifier.split("/").pop()!.replace(/^fe\./, "");
 }
 ```
@@ -78,14 +78,14 @@ packages/specifier/       @fe/specifier       v0.1.0
 ### Public API
 
 ```ts
-/** Returns true for "@acme/fe.name" and "fe.name"; false for all other strings. */
+/** Returns true for "@conqueso/fe-name" and "fe-name"; false for all other strings. */
 export function isMfeSpecifier(key: string): boolean
 
-/** Splits "@acme/fe.name@1.0.0" into { specifier: "@acme/fe.name", version: "1.0.0" }.
+/** Splits "@conqueso/fe-name@1.0.0" into { specifier: "@conqueso/fe-name", version: "1.0.0" }.
  *  Returns { specifier: sv, version: "" } when no version suffix is present. */
 export function parseSpecVersion(sv: string): { specifier: string; version: string }
 
-/** Extracts the short slug: "@acme/fe.mfe-a" → "mfe-a", "fe.mfe-a" → "mfe-a". */
+/** Extracts the short slug: "@conqueso/fe-mfe-a" → "mfe-a", "fe-mfe-a" → "mfe-a". */
 export function slugFromSpecifier(specifier: string): string
 ```
 
@@ -143,16 +143,16 @@ npx jsr publish   # publishes @fe/specifier
 
 | Old name            | New name              |
 |---------------------|-----------------------|
-| `fe(acme/devtools)` | `@acme/fe.devtools`   |
-| `fe(acme/store)`    | `@acme/fe.store`      |
-| `fe(acme/network)`  | `@acme/fe.network`    |
+| `@fe/fe-devtools` | `@fe/fe-devtools`   |
+| `@fe/fe-store`    | `@fe/fe-store`      |
+| `@fe/fe-network`  | `@fe/fe-network`    |
 
 ### Sandbox MFEs (not published, local only)
 
 | Old name            | New name              |
 |---------------------|-----------------------|
-| `fe(acme/mfe-a)`    | `@acme/fe.mfe-a`      |
-| `fe(acme/mfe-b)`    | `@acme/fe.mfe-b`      |
+| `@conqueso/fe-mfe-a`    | `@conqueso/fe-mfe-a`      |
+| `@conqueso/fe-mfe-b`    | `@conqueso/fe-mfe-b`      |
 
 ### Platform packages (no change)
 
@@ -160,7 +160,7 @@ npx jsr publish   # publishes @fe/specifier
 `@fe/jit-plugin-solid` are platform infrastructure, not MFEs. They keep their names.
 
 `@feo/fe-syntax-highlighter` and `@feo/fe-web-components` are already
-registry-compatible; assess separately whether they need the `fe.` name convention.
+registry-compatible; assess separately whether they need the `fe-` name convention.
 
 ---
 
@@ -186,17 +186,17 @@ Update all keys and values:
 ```json
 {
   "routes": {
-    "/": "@acme/fe.mfe-b@1.0.0"
+    "/": "@conqueso/fe-mfe-b@1.0.0"
   },
-  "devtools": "@acme/fe.devtools@1.0.0",
+  "devtools": "@fe/fe-devtools@1.0.0",
   "packages": {
-    "@acme/fe.devtools": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
-    "@acme/fe.mfe-a":   { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
-    "@acme/fe.mfe-b":   {
+    "@fe/fe-devtools": { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
+    "@conqueso/fe-mfe-a":   { "versions": { "1.0.0": { "url": "...", "deps": {} } } },
+    "@conqueso/fe-mfe-b":   {
       "versions": {
         "1.0.0": {
           "url": "...",
-          "deps": { "@acme/fe.mfe-a": "^1.0.0" }
+          "deps": { "@conqueso/fe-mfe-a": "^1.0.0" }
         }
       }
     }
@@ -206,20 +206,20 @@ Update all keys and values:
 
 ### `sandbox/mfe-a/package.json`
 
-- `"name"`: `"fe(acme/mfe-a)"` → `"@acme/fe.mfe-a"`
+- `"name"`: `"@conqueso/fe-mfe-a"` → `"@conqueso/fe-mfe-a"`
 
 ### `sandbox/mfe-b/package.json`
 
-- `"name"`: `"fe(acme/mfe-b)"` → `"@acme/fe.mfe-b"`
-- `devDependencies` key: `"fe(acme/mfe-a)"` → `"@acme/fe.mfe-a"` (value `file:../mfe-a` unchanged)
+- `"name"`: `"@conqueso/fe-mfe-b"` → `"@conqueso/fe-mfe-b"`
+- `devDependencies` key: `"@conqueso/fe-mfe-a"` → `"@conqueso/fe-mfe-a"` (value `file:../mfe-a` unchanged)
 
 ### `sandbox/host-app/package.json`
 
-- `devDependencies` key: `"fe(acme/mfe-b)"` → `"@acme/fe.mfe-b"` (value `file:../mfe-b` unchanged)
+- `devDependencies` key: `"@conqueso/fe-mfe-b"` → `"@conqueso/fe-mfe-b"` (value `file:../mfe-b` unchanged)
 
 ### `sandbox/mfe-b/src/index.tsx`
 
-- `import { render as renderA } from "fe(acme/mfe-a)"` → `"@acme/fe.mfe-a"`
+- `import { render as renderA } from "@conqueso/fe-mfe-a"` → `"@conqueso/fe-mfe-a"`
 
 ### `sandbox/host-app/tests/host.spec.ts`
 
@@ -227,15 +227,15 @@ Update all string literals that reference old specifiers.
 
 ### `toolkit/devtools/package.json`
 
-- `"name"`: `"fe(acme/devtools)"` → `"@acme/fe.devtools"`
+- `"name"`: `"@fe/fe-devtools"` → `"@fe/fe-devtools"`
 
 ### `toolkit/store/package.json`
 
-- `"name"`: `"fe(acme/store)"` → `"@acme/fe.store"`
+- `"name"`: `"@fe/fe-store"` → `"@fe/fe-store"`
 
 ### `toolkit/network/package.json`
 
-- `"name"`: `"fe(acme/network)"` → `"@acme/fe.network"`
+- `"name"`: `"@fe/fe-network"` → `"@fe/fe-network"`
 
 ### `packages/compiler/src/jit.ts` (and any other compiler source)
 
@@ -246,8 +246,8 @@ update automatically once helpers.ts is fixed.
 ### `node_modules` symlinks
 
 After changing package names in package.json files, re-run `bun install` at the workspace
-root. Bun will create new symlinks at `node_modules/@acme/fe.mfe-a` etc. and remove old
-`node_modules/fe(acme/mfe-a)` symlinks.
+root. Bun will create new symlinks at `node_modules/@conqueso/fe-mfe-a` etc. and remove old
+`node_modules/@conqueso/fe-mfe-a` symlinks.
 
 ---
 
@@ -271,7 +271,7 @@ Every occurrence of the old format in the following files:
 In AGENTS.md files, update the `⟿ fe() convention` section to describe the new format,
 the detection regex, and the version parsing logic.
 
-The heading and section name can evolve from "fe() convention" to "fe. specifier
+The heading and section name can evolve from "fe() convention" to "fe- specifier
 convention" or simply "MFE specifier convention".
 
 ---
@@ -303,15 +303,15 @@ Run from each toolkit package directory:
 ```bash
 # store
 cd toolkit/store
-npx jsr publish   # publishes @acme/fe.store
+npx jsr publish   # publishes @fe/fe-store
 
 # network
 cd toolkit/network
-npx jsr publish   # publishes @acme/fe.network
+npx jsr publish   # publishes @fe/fe-network
 
 # devtools
 cd toolkit/devtools
-npx jsr publish   # publishes @acme/fe.devtools
+npx jsr publish   # publishes @fe/fe-devtools
 ```
 
 Or equivalently with Deno:
@@ -326,13 +326,13 @@ JSR deprecation via CLI (verify this command against current jsr CLI docs before
 as the JSR CLI is still evolving):
 
 ```bash
-npx jsr deprecate @acme/fe-old-name "Renamed to @acme/fe.store. See migration guide."
+npx jsr deprecate @conqueso/fe-old-name "Renamed to @fe/fe-store. See migration guide."
 ```
 
 If the `jsr deprecate` subcommand is not yet available, deprecation can be done through
 the jsr.io web UI: package settings page has a deprecation field.
 
-Note: the old names (`fe(acme/store)` etc.) were never published to jsr.io because the
+Note: the old names (`@fe/fe-store` etc.) were never published to jsr.io because the
 parentheses made them invalid. There are no old jsr packages to deprecate. The
 deprecation step is only relevant if you previously published under any interim name.
 
@@ -343,7 +343,7 @@ first publish:
 
 ```json
 {
-  "name": "@acme/fe.store",
+  "name": "@fe/fe-store",
   "version": "0.1.0",
   "exports": "./src/index.ts"
 }

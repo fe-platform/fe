@@ -55,13 +55,14 @@ function buildPackageJson(specifier: string, slug: string): string {
 
 async function runNew(ctx: CliContext, args: string[]): Promise<void> {
   const name = args[0];
-  if (!name || name.includes("fe(")) {
-    console.error('Usage: fe new <scope/name>  (e.g. "fe new acme/my-mfe")');
+  if (!name || name.includes("fe(") || name.includes("@")) {
+    console.error('Usage: fe new <scope/name>  (e.g. "fe new conqueso/my-mfe")');
     process.exit(1);
   }
 
-  const specifier = `fe(${name})`;
-  const slug = name.split("/").pop()!;
+  const [scope, nameOnly] = name.includes("/") ? name.split("/") : ["", name];
+  const specifier = scope ? `@${scope}/fe-${nameOnly}` : `fe-${nameOnly}`;
+  const slug = nameOnly;
   const dir = join(ctx.root, slug);
 
   if (existsSync(dir)) {

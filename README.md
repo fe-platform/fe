@@ -9,7 +9,7 @@ This platform is under active development. Interfaces, conventions, and package 
 
 **fe** is a source-first microfrontend platform built on native browser primitives and **TypeScript**. The intent is to provide a system where teams own their features from scaffold to production without the friction of shared build pipelines or version negotiations at deploy time.
 
-Each team publishes raw **TypeScript source** code. The JIT server compiles it on first request. The browser resolves every `@scope/fe.name` specifier through import maps at runtime.
+Each team publishes raw **TypeScript source** code. The JIT server compiles it on first request. The browser resolves every `@scope/fe-name` specifier through import maps at runtime.
 
 ## Core principles
 
@@ -31,18 +31,18 @@ The platform makes choices that are genuinely unusual in the frontend world, and
 
 ## MFE specifier convention
 
-`@scope/fe.name` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime. The `fe.` prefix in the name segment signals MFE identity; the scope is enforced by the registry.
+`@scope/fe-name` is a bare specifier that works as a package name, an import key, and a manifest identifier. It is externalized during building and resolved by the browser at runtime. The `fe-` prefix in the name segment signals MFE identity; the scope is enforced by the registry.
 
 Because MFEs are plain **ES modules**, they can export anything: functions, stores, API clients, or UI components.
 
 ```ts
-import { createStore } from "@acme/fe.store";
-import { Button } from "@shared/fe.ui";
+import { createStore } from "@fe/fe-store";
+import { Button } from "@shared/fe-ui";
 ```
 
 ## MFE contract
 
-In cases where a microfrontend is registered as a route, it is expected to export a `render` function to mount into a container. You can read more about the [render contract](https://fe.frustrated.dev) in the documentation.
+In cases where a microfrontend is registered as a route, it is expected to export a `render` function to mount into a container. You can read more about the [render contract](https://fe-frustrated.dev) in the documentation.
 
 ```ts
 export function render(
@@ -72,5 +72,5 @@ This project uses icons from [Streamline](https://streamlinehq.com). Some icons 
 
 ---
 
-[Full documentation](https://fe.frustrated.dev) · [CONTRIBUTING.md](./CONTRIBUTING.md)
+[Full documentation](https://fe-frustrated.dev) · [CONTRIBUTING.md](./CONTRIBUTING.md)
 

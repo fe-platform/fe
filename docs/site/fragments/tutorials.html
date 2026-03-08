@@ -20,13 +20,13 @@
 bun add -d @fe/cli @fe/jit-plugin-react
 
 # scaffold the MFE
-fe new acme/hello
+fe new conqueso/hello
 
 # scaffold the shell (or use sandbox/host-app as a template)
 # edit configs/fe.config.json and configs/platform.json
 
 fe publish hello
-# add route "/" : "fe(acme/hello)@1.0.0" to platform.json
+# add route "/" : "@conqueso/fe-hello@1.0.0" to platform.json
 fe build shell
 fe serve
 </textarea>
@@ -41,8 +41,8 @@ fe serve
     cross-team dependency resolution through import maps.
   </p>
   <textarea lang="shell">
-fe new acme/mfe-a   # React MFE, no deps
-fe new acme/mfe-b   # Solid.js MFE, depends on mfe-a
+fe new conqueso/mfe-a   # React MFE, no deps
+fe new conqueso/mfe-b   # Solid.js MFE, depends on mfe-a
 
 fe link mfe-b mfe-a  # adds mfe-a as devDependency of mfe-b
 
@@ -50,7 +50,7 @@ fe publish mfe-a
 fe publish mfe-b
 </textarea>
   <p>
-    In <code>mfe-b/src/index.ts</code>, import from <code>fe(acme/mfe-a)</code>.
+    In <code>mfe-b/src/index.ts</code>, import from <code>@conqueso/fe-mfe-a</code>.
     The runtime will resolve both specifiers via the injected import map. The JIT
     server compiles each independently using the appropriate JIT plugin.
   </p>
@@ -61,16 +61,16 @@ fe publish mfe-b
   <h3>3 · Using toolkit/store across MFEs</h3>
   <p>
     Share state between two MFEs without prop drilling or a global window variable.
-    <code>fe(acme/store)</code> provides a typed pub/sub store that persists across
+    <code>@fe/fe-store</code> provides a typed pub/sub store that persists across
     MFE mounts and unmounts.
   </p>
   <textarea lang="json">
 // in both mfe-a and mfe-b package.json
-"devDependencies": { "fe(acme/store)": "^1.0.0" }
+"devDependencies": { "@fe/fe-store": "^1.0.0" }
 </textarea>
   <textarea lang="ts">
 // mfe-a/src/index.ts
-import { createStore } from "fe(acme/store)";
+import { createStore } from "@fe/fe-store";
 
 const counter = createStore("app:counter", 0);
 
@@ -84,7 +84,7 @@ export function render(container, props) {
 </textarea>
   <textarea lang="ts">
 // mfe-b/src/index.ts
-import { createStore } from "fe(acme/store)";
+import { createStore } from "@fe/fe-store";
 
 const counter = createStore("app:counter", 0);
 
@@ -96,7 +96,7 @@ export function render(container, props) {
 }
 </textarea>
   <p>
-    Both MFEs resolve to the same <code>fe(acme/store)</code> version through the
+    Both MFEs resolve to the same <code>@fe/fe-store</code> version through the
     import map. The store instance is shared because the module is loaded once.
   </p>
 
@@ -106,11 +106,11 @@ export function render(container, props) {
     Solid.js plugins, you can write your own:
   </p>
   <textarea lang="ts">
-// @acme/fe-jit-plugin-preact/src/index.ts
+// @conqueso/fe-jit-plugin-preact/src/index.ts
 import type { JitPlugin } from "@fe/core";
 
 export default {
-  name: "acme-preact",
+  name: "conqueso-preact",
   "build:options"(options) {
     return {
       ...options,
@@ -122,7 +122,7 @@ export default {
 </textarea>
   <textarea lang="json">
 // configs/fe.config.json
-{ "jitPlugins": ["@acme/fe-jit-plugin-preact"] }
+{ "jitPlugins": ["@conqueso/fe-jit-plugin-preact"] }
 </textarea>
   <p>
     The <code>build:options</code> hook receives <code>Bun.BuildOptions</code> and

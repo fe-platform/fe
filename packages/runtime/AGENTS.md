@@ -25,7 +25,7 @@ Injected by `fe build shell` at build time.
 
 ### load(path: string)
 ```
-1. config.routes[path] → "@acme/fe.mfe-b@1.0.0"
+1. config.routes[path] → "@conqueso/fe-mfe-b@1.0.0"
 2. parseSpecVersion → { specifier, version }
 3. resolveDeps(specifier, version) → Map<specifier, url>  (transitive walk)
 4. applyOverridesAndInject(allDeps)  → merge sessionStorage overrides, then injectImportMap
@@ -34,7 +34,7 @@ Injected by `fe build shell` at build time.
 
 ### preload(specifierVersion: string)
 ```
-preload("@acme/fe.mfe-b@1.0.0")
+preload("@conqueso/fe-mfe-b@1.0.0")
 1. parseSpecVersion → { specifier, version }
 2. resolveDeps(specifier, version) → Map<specifier, url>  (transitive walk)
 3. applyOverridesAndInject(allDeps)  → merge sessionStorage overrides, then injectImportMap

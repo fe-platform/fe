@@ -6,8 +6,8 @@
 name:    host-app
 version: 1.0.0
 devDependencies:
-  "@acme/fe.mfe-b": "file:../mfe-b"
-    → node_modules/@acme/fe.mfe-b symlink (after bun install)
+  "@conqueso/fe-mfe-b": "file:../mfe-b"
+    → node_modules/@conqueso/fe-mfe-b symlink (after bun install)
     → no longer statically imported; kept for bun install compatibility
 ```
 
@@ -31,7 +31,7 @@ dist/            build output (gitignored)
 import {load, loadDevtools} from "./platform"
 const app = document.getElementById("app")!
 const path = window.location.pathname
-await loadDevtools()                // loads @acme/fe.devtools if config.devtools is set
+await loadDevtools()                // loads @fe/fe-devtools if config.devtools is set
 const {render} = await load(path)  // resolves deps, injects import maps, dynamic import
 render(app, {name:"Shell User"})
 ```
@@ -48,7 +48,7 @@ overrides.ts
 
 platform.ts
   readConfig()                  reads <script id="__platform__"> from DOM → PlatformConfig
-  parseSpecVersion(sv)          "@acme/fe.mfe-b@1.0.0" → {specifier,version}
+  parseSpecVersion(sv)          "@conqueso/fe-mfe-b@1.0.0" → {specifier,version}
   resolveDeps(spec,ver)         walk transitive MFE dep graph → flat Map<specifier,url>
   injectImportMap(imports)      create+append <script type="importmap"> · deduplicates
   applyOverridesAndInject(deps) merge sessionStorage overrides then injectImportMap
@@ -125,7 +125,7 @@ webServer.command = [
 webServer.reuseExistingServer = !process.env.CI
 ```
 The tests use the legacy artifact path (`fe build + fe admin upload`) because the sandbox
-`fe.config.json` does not configure `jitPlugins`, so JIT compilation of SolidJS MFEs is not set up.
+`fe-config.json` does not configure `jitPlugins`, so JIT compilation of SolidJS MFEs is not set up.
 `bun run --cwd ../toolkit/devtools build` invokes the devtools package's own `build` script
 (`fe build toolkit/devtools`) since its entry is `src/index.tsx`, not `src/index.ts`.
 

@@ -1,9 +1,9 @@
-/** Returns true for "@acme/fe.name" and "fe.name"; false for all other strings. */
+/** Returns true for "@scope/fe-name" and "fe-name"; false for all other strings. */
 export function isMfeSpecifier(key: string): boolean {
-  return /^(?:@[^/]+\/)?fe\./.test(key);
+  return /^(?:@[^/]+\/)?fe-/.test(key);
 }
 
-/** Splits "@acme/fe.name@1.0.0" into { specifier: "@acme/fe.name", version: "1.0.0" }.
+/** Splits "@scope/fe-name@1.0.0" into { specifier: "@scope/fe-name", version: "1.0.0" }.
  *  Returns { specifier: sv, version: "" } when no version suffix is present. */
 export function parseSpecVersion(sv: string): { specifier: string; version: string } {
   const at = sv.lastIndexOf("@");
@@ -11,7 +11,7 @@ export function parseSpecVersion(sv: string): { specifier: string; version: stri
   return { specifier: sv.slice(0, at), version: sv.slice(at + 1) };
 }
 
-/** Extracts the short slug: "@acme/fe.mfe-a" → "mfe-a", "fe.mfe-a" → "mfe-a". */
+/** Extracts the short slug: "@scope/fe-mfe-a" → "mfe-a", "fe-mfe-a" → "mfe-a". */
 export function slugFromSpecifier(specifier: string): string {
-  return specifier.split("/").pop()!.replace(/^fe\./, "");
+  return specifier.split("/").pop()!.replace(/^fe-/, "");
 }

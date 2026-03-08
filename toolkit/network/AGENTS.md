@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:      @acme/fe.network
+name:      @fe/fe-network
 version:   1.0.0
 module:    src/index.ts
 MFE-deps: ∅  (no external MFE imports)
@@ -12,7 +12,7 @@ dependencies: ∅  (zero runtime deps; wraps platform fetch)
 
 ## purpose
 Shared, framework-agnostic network layer for cross-MFE request deduplication, caching,
-and interceptor hooks. All MFEs that import `@acme/fe.network` share one module instance
+and interceptor hooks. All MFEs that import `@fe/fe-network` share one module instance
 via the import map, giving them a common cache and interceptor chain.
 
 ## API (src/index.ts)
@@ -44,7 +44,7 @@ Response interceptors run in insertion order after fetch, before caching.
 
 ## usage
 ```ts
-import { network, invalidateCache } from "@acme/fe.network";
+import { network, invalidateCache } from "@fe/fe-network";
 
 // Add an auth header to every request
 const remove = network.addRequestInterceptor(async (req) => {

@@ -119,8 +119,8 @@ details[name="plat-sub"][open] > summary {
     <h3>1 · Install and scaffold</h3>
     <textarea lang="shell">
 bun add -d @fe/cli
-fe new acme/mfe-a
-fe new acme/mfe-b
+fe new conqueso/mfe-a
+fe new conqueso/mfe-b
 </textarea>
     <p>
       Each <code>fe new</code> creates a directory with <code>package.json</code>,
@@ -187,7 +187,7 @@ fe publish mfe-b
     </p>
     <textarea lang="json">
 {
-  "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
+  "routes": { "/": "@conqueso/fe-mfe-b@1.0.0" },
   "packages": { ... }
 }
 </textarea>
@@ -280,10 +280,10 @@ fe serve
     </p>
     <textarea lang="json">
 // platform.json (before)
-"routes": { "/": "fe(acme/mfe-a)@1.2.0" }
+"routes": { "/": "@conqueso/fe-mfe-a@1.2.0" }
 
 // platform.json (after rollback)
-"routes": { "/": "fe(acme/mfe-a)@1.1.0" }
+"routes": { "/": "@conqueso/fe-mfe-a@1.1.0" }
 </textarea>
     <p>
       The runtime reads the updated manifest on the next page load. No server restart
@@ -312,7 +312,7 @@ fe serve
       that reads from your artifact storage:
     </p>
     <textarea lang="ts">
-// @acme/fe-plugin-s3/src/index.ts
+// @conqueso/fe-plugin-s3/src/index.ts
 import type { Plugin, CliContext } from "@fe/core";
 import { S3Client } from "@aws-sdk/client-s3";
 
@@ -321,13 +321,13 @@ class S3SourceStorage implements SourceStorage {
   
   async read(slug: string, version: string): Promise<string> {
     const key = `${slug}/${version}/index.ts`;
-    const resp = await this.client.getObject({ Bucket: "acme-mfe-sources", Key: key });
+    const resp = await this.client.getObject({ Bucket: "conqueso-mfe-sources", Key: key });
     return await resp.Body.transformToString();
   }
 }
 
 export default {
-  name: "acme-s3",
+  name: "conqueso-s3",
   setup(ctx: CliContext) {
     ctx.adapters.sourceStorage = new S3SourceStorage();
   }
@@ -338,7 +338,7 @@ export default {
     </p>
     <textarea lang="json">
 {
-  "plugins": ["@acme/fe-plugin-s3"]
+  "plugins": ["@conqueso/fe-plugin-s3"]
 }
 </textarea>
 
@@ -368,8 +368,8 @@ await load(location.pathname, {
     <textarea lang="json">
 {
   "routes": {
-    "/tenant-a/": "fe(acme/tenant-a-shell)@1.0.0",
-    "/tenant-b/": "fe(acme/tenant-b-shell)@1.0.0"
+    "/tenant-a/": "@conqueso/fe-tenant-a-shell@1.0.0",
+    "/tenant-b/": "@conqueso/fe-tenant-b-shell@1.0.0"
   }
 }
 </textarea>

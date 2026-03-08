@@ -27,7 +27,7 @@ fe serve
 before `fe publish`; the pre-flight check inside `publish` is sufficient.
 
 Devtools uses the legacy artifact path (`fe build + fe admin upload`) because the sandbox
-`fe.config.json` does not configure `jitPlugins` for Solid.js JIT compilation.
+`fe-config.json` does not configure `jitPlugins` for Solid.js JIT compilation.
 
 ## Developing an MFE in isolation
 
@@ -37,7 +37,7 @@ fe dev sandbox/mfe-a     # sandbox at http://localhost:3000
 
 Edit `src/`: Bun rebuilds, SSE notifies the browser, module swaps in-place. No page reload.
 
-> **Note:** `dev` mode only maps the target MFE in its import map. If the MFE imports other `fe()` packages (e.g. `mfe-b` importing `mfe-a`), those deps won't resolve in the sandbox. Build and upload them first, then use `serve` instead.
+> **Note:** `dev` mode only maps the target MFE in its import map. If the MFE imports other MFE packages (e.g. `mfe-b` importing `mfe-a`), those deps won't resolve in the sandbox. Build and upload them first, then use `serve` instead.
 
 ## Publishing a new MFE version
 
@@ -47,10 +47,10 @@ fe build sandbox/mfe-a
 
 # 2. Publish: uploads source for JIT and registers entry in sandbox/configs/platform.json
 fe publish sandbox/mfe-a
-# → Registered fe(acme/mfe-a)@1.0.0
+# → Registered @conqueso/fe-mfe-a@1.0.0
 
 # 3. Activate: edit sandbox/configs/platform.json "routes" to point to the new version
-#    "routes": { "/": "fe(acme/mfe-b)@1.0.0" }
+#    "routes": { "/": "@conqueso/fe-mfe-b@1.0.0" }
 
 # 4. Rebuild shell to embed the updated config
 fe build shell && fe serve
@@ -58,7 +58,7 @@ fe build shell && fe serve
 
 `admin upload` writes to `packages` only; it never touches `routes`. Artifact publishing and version activation are distinct steps with different access requirements.
 
-## Linking a new `fe()` dependency
+## Linking a new MFE dependency
 
 The `link` command adds the dep as a `devDependency` with a `file:` URI and runs `bun install`, so TypeScript resolves the import directly via `node_modules` without any `tsconfig` path config:
 
@@ -69,12 +69,12 @@ fe link sandbox/mfe-b sandbox/mfe-a
 For packages in separate repositories, replace `file:../mfe-a` with a git URI manually; nothing else changes:
 
 ```json
-"fe(acme/mfe-a)": "git+https://github.com/org/mfe-a#v1.0.0"
+"@conqueso/fe-mfe-a": "git+https://github.com/org/mfe-a#v1.0.0"
 ```
 
-## CLI config (`sandbox/configs/fe.config.json`)
+## CLI config (`sandbox/configs/fe-config.json`)
 
-The CLI reads its own config through the `ConfigProvider` adapter (`ctx.adapters.config`). The default implementation reads `configs/fe.config.json` relative to the workspace root. All fields are optional:
+The CLI reads its own config through the `ConfigProvider` adapter (`ctx.adapters.config`). The default implementation reads `configs/fe-config.json` relative to the workspace root. All fields are optional:
 
 ```json
 {
@@ -87,9 +87,9 @@ The CLI reads its own config through the `ConfigProvider` adapter (`ctx.adapters
 
 To extend the CLI (e.g. swap local artifact storage for S3), add a plugin package name to `plugins` and install it. Plugins swap `ctx.adapters.*` in their `setup()` function. Inside a plugin, always read config via `ctx.adapters.config.get()`; never read the file directly.
 
-## How `fe()` externalization works
+## How MFE externalization works
 
-`helpers.ts:readFeDepKeys` reads `devDependencies` from the target's `package.json` and passes any key starting with `fe(` to `Bun.build`'s `external` option. The naming convention itself is the build signal; no extra config needed.
+`helpers.ts:readFeDepKeys` reads `devDependencies` from the target's `package.json` and passes any key matching `isMfeSpecifier(key)` to `Bun.build`'s `external` option. The naming convention itself is the build signal; no extra config needed.
 
 ## Hot reload internals
 
@@ -106,7 +106,7 @@ To extend the CLI (e.g. swap local artifact storage for S3), add a plugin packag
 - No comments unless logic is genuinely non-obvious; no section headers or doc comments
 - Prefer functions over classes
 - No stubs, mocks, or temporary workarounds: production-ready code only
-- `fe(...)` packages must go in `devDependencies`, not `dependencies`: `helpers.ts:readFeDepKeys` filters on devDeps
+- MFE packages must go in `devDependencies`, not `dependencies`: `helpers.ts:readFeDepKeys` filters on devDeps using `isMfeSpecifier`
 - CLI plugins access config via `ctx.adapters.config.get()`; never import from CLI internals directly
 
 ## Pre-PR checklist

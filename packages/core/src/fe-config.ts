@@ -8,7 +8,7 @@ export interface FeConfig {
    * NPM package names of @fe/cli plugins to load.
    * Plugins provide custom ArtifactStorage, ManifestManager, or additional
    * CLI commands specific to the organization's infrastructure.
-   * @example ["@acme/fe-plugin-s3-storage", "@acme/fe-plugin-redis-manifest"]
+   * @example ["@conqueso/fe-plugin-s3-storage", "@conqueso/fe-plugin-redis-manifest"]
    */
   plugins?: string[];
 

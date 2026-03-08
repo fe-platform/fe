@@ -1,5 +1,5 @@
 {
-  "name": "fe(acme/mfe-b)",
+  "name": "@conqueso/fe-mfe-b",
   "targets": {
     "typecheck": {}
   }

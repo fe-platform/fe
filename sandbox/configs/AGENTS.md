@@ -5,10 +5,10 @@
 ```
 configs/
   platform.json    MFE routes + packages registry (runtime config)
-  fe.config.json   CLI config (build tooling config · read by ConfigProvider adapter)
+  fe-config.json   CLI config (build tooling config · read by ConfigProvider adapter)
 ```
 
-## fe.config.json
+## fe-config.json
 CLI config for the sandbox workspace. Read by `createJsonConfigProvider` in `@fe/cli`.
 Accessed at runtime via `ctx.adapters.config.get()`, not read directly by plugins.
 ```json
@@ -28,10 +28,10 @@ To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` t
 ```json
 {
   "routes": {
-    "/": "@acme/fe.mfe-b@1.0.0"
+    "/": "@conqueso/fe-mfe-b@1.0.0"
   },
   "packages": {
-    "@acme/fe.mfe-a": {
+    "@conqueso/fe-mfe-a": {
       "versions": {
         "1.0.0": {
           "url": "/bundle/mfe-a/1.0.0/index.ts",
@@ -39,12 +39,12 @@ To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` t
         }
       }
     },
-    "@acme/fe.mfe-b": {
+    "@conqueso/fe-mfe-b": {
       "versions": {
         "1.0.0": {
           "url": "/bundle/mfe-b/1.0.0/index.ts",
           "deps": {
-            "@acme/fe.mfe-a": "^1.0.0"
+            "@conqueso/fe-mfe-a": "^1.0.0"
           }
         }
       }
@@ -61,7 +61,7 @@ value = "specifier@version" (the top-level MFE for that route)
   resolved by platform.ts at runtime; no static import map in HTML
 
 ### packages
-key   = `@scope/fe.name` bare-specifier (exact string in `import … from "@acme/…"`)
+key   = `@scope/fe-name` bare-specifier (exact string in `import … from "@conqueso/…"`)
 value = { versions: { "X.Y.Z": { url, deps } } }
   url:  runtime URL for the artifact (often built on-the-fly via JIT bundler)
     local JIT: "/bundle/<slug>/<ver>/index.ts"
@@ -72,7 +72,7 @@ value = { versions: { "X.Y.Z": { url, deps } } }
 ## consumers
 ```
 cli/src/adapters/json-config-provider.ts
-  ← reads configs/fe.config.json → Required<FeConfig>
+  ← reads configs/fe-config.json → Required<FeConfig>
   → stored as ctx.adapters.config · all plugins call ctx.adapters.config.get()
 
 cli/src/plugins/build.ts:buildShell()
@@ -101,4 +101,4 @@ packages/runtime/src/platform.ts (browser runtime)
 - package URL must be reachable from host-app/dist/index.html at runtime
 - deps use semver ranges (e.g. "^1.0.0"); resolved by shell runtime in browser
 - cross-ecosystem packages use full URLs (https://...)
-- fe.config.json is CLI tooling config only; not embedded in HTML; not read by browser runtime
+- fe-config.json is CLI tooling config only; not embedded in HTML; not read by browser runtime

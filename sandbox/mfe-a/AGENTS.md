@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:    @acme/fe.mfe-a
+name:    @conqueso/fe-mfe-a
 version: 1.0.0
 module:  src/index.tsx
 framework: React 19 (react-dom/client)
@@ -58,7 +58,7 @@ Note: `fe publish` now supports `.tsx` fallback. However, the sandbox `platform.
 ```
 fe dev sandbox/mfe-a
   sandbox at http://localhost:3000
-  importmap: {"imports":{"@acme/fe.mfe-a":"/index.js"}}
+  importmap: {"imports":{"@conqueso/fe-mfe-a":"/index.js"}}
   initial render: render(#sandbox,{})
   on src/ change: rebuild → SSE {t:timestamp} → unmount + import("/index.js?t="+t) + re-render
   no page reload · module-swap HMR · reconnecting tabs receive latest pending rebuild

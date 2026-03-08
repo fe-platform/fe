@@ -35,7 +35,7 @@ async function runLink(ctx: CliContext, hooks: Hooks, args: string[]): Promise<v
 function setupLink(ctx: CliContext, hooks: Hooks): void {
   ctx.commands.set("link", {
     name: "link",
-    description: "Wire up a fe() dependency between packages",
+    description: "Wire up an MFE dependency between packages",
     usage: "link <consumer> <dep>",
     run: (args) => runLink(ctx, hooks, args),
   });

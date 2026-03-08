@@ -19,7 +19,7 @@ src/
 ```
 
 ## FeConfig (fe-config.ts)
-CLI config sourced via `ConfigProvider`. Default impl reads `configs/fe.config.json`.
+CLI config sourced via `ConfigProvider`. Default impl reads `configs/fe-config.json`.
 ```ts
 interface FeConfig {
   plugins?:      string[];   // npm packages to load as CLI plugins
@@ -40,7 +40,7 @@ interface ConfigProvider {
 }
 ```
 Supplies CLI config (FeConfig with all fields filled). Stored at `ctx.adapters.config`.
-Default impl: `@fe/cli` `createJsonConfigProvider(root)` reads `configs/fe.config.json`.
+Default impl: `@fe/cli` `createJsonConfigProvider(root)` reads `configs/fe-config.json`.
 Plugins may swap this to pull config from env vars, remote APIs, etc.
 
 ### SourceStorage / ArtifactStorage

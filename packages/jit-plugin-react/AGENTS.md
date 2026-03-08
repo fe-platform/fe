@@ -4,7 +4,7 @@
 
 ## purpose
 `@fe/jit-plugin-react` v0.1.0 — JIT plugin for React MFEs.
-Published. Add to `FeConfig.jitPlugins` in `fe.config.json` to enable explicit React mode.
+Published. Add to `FeConfig.jitPlugins` in `fe-config.json` to enable explicit React mode.
 
 ## what it does
 Bun resolves React JSX natively via tsconfig `"jsx": "react-jsx"`. This plugin:
@@ -27,7 +27,7 @@ export { jitPlugin };
 
 ## usage
 ```json
-// configs/fe.config.json
+// configs/fe-config.json
 { "jitPlugins": ["@fe/jit-plugin-react"] }
 ```
 

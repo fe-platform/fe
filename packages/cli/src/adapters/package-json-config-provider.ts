@@ -16,7 +16,7 @@ const DEFAULTS: Required<FeConfig> = {
  *
  * This lets each MFE project declare its own CLI config inline:
  * ```json
- * { "name": "fe(acme/my-mfe)", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
+ * { "name": "@conqueso/fe-my-mfe", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
  * ```
  */
 export function createPackageJsonConfigProvider(root: string): ConfigProvider {

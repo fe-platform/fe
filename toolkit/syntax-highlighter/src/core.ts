@@ -1,4 +1,4 @@
-import { Category, Rule } from './types.ts';
+import type { Category, Rule } from './types.ts';
 import { ts } from './languages/ts.ts';
 import { json } from './languages/json.ts';
 import { shell } from './languages/shell.ts';

@@ -1,9 +1,9 @@
-# fe(acme/mfe-b)
+# @conqueso/fe-mfe-b
 
-SolidJS microfrontend that composes `fe(acme/mfe-a)`. Demonstrates cross-MFE dependency composition using the `fe()` specifier scheme with two different frameworks.
+SolidJS microfrontend that composes `@conqueso/fe-mfe-a`. Demonstrates cross-MFE dependency composition using the `fe()` specifier scheme with two different frameworks.
 
 ```ts
-import { render as renderA } from "fe(acme/mfe-a)";  // external, never bundled
+import { render as renderA } from "@conqueso/fe-mfe-a";  // external, never bundled
 ```
 
 Implemented with **SolidJS** (`solid-js/web`). Renders a styled wrapper, then calls into `mfe-a` (a React MFE) to render inside it. Neither MFE knows what framework the other uses; composition happens through the `render()` contract.

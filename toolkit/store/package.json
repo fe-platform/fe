@@ -1,5 +1,5 @@
 {
-  "name": "@acme/fe.store",
+  "name": "@fe/fe-store",
   "version": "0.2.0",
   "module": "src/index.ts",
   "types": "src/index.ts",

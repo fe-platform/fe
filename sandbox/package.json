@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "@fe/cli": "workspace:*",
-    "fe(acme/mfe-b)": "file:./mfe-b"
+    "@conqueso/fe-mfe-b": "file:./mfe-b"
   }
 }

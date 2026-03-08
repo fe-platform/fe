@@ -14,7 +14,7 @@ src/
   plugin-loader.ts                   dynamic import() of external plugin npm packages
   helpers.ts                         readPackageMeta · readFeDepKeys · readFeDeps · slugFromSpecifier · isMfeSpecifier
   adapters/
-    json-config-provider.ts          ConfigProvider: reads configs/fe.config.json
+    json-config-provider.ts          ConfigProvider: reads configs/fe-config.json
     package-json-config-provider.ts  ConfigProvider: reads "fe" key from package.json
     json-manifest-manager.ts         ManifestManager: reads/writes configs/platform.json
     local-source-storage.ts          SourceStorage: cp src/→sources/<slug>/<ver>/
@@ -59,7 +59,7 @@ Two config provider implementations are available:
 ```ts
 createJsonConfigProvider(root: string): ConfigProvider
 ```
-Reads `<root>/configs/fe.config.json`. This is the default used at bootstrap.
+Reads `<root>/configs/fe-config.json`. This is the default used at bootstrap.
 
 ### package-json-config-provider.ts (per-project mode)
 ```ts
@@ -68,7 +68,7 @@ createPackageJsonConfigProvider(root: string): ConfigProvider
 Reads the `"fe"` key from `<root>/package.json`. Use this when running `fe`
 commands from an MFE project directory rather than the monorepo root:
 ```json
-{ "name": "@acme/fe.my-mfe", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
+{ "name": "@conqueso/fe-my-mfe", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
 ```
 A CLI plugin can swap to this adapter in its `setup()`:
 ```ts
@@ -155,7 +155,7 @@ Never touches "routes": only "packages" in platform.json. Legacy `admin.ts` prov
 ```
 fe new <scope/name>
   creates <name-slug>/ directory in cwd with:
-    package.json  name=@<scope>/fe.<name>, build/check scripts
+    package.json  name=@<scope>/fe-<name>, build/check scripts
     tsconfig.json  strict · ESNext · bundler moduleResolution
     src/index.ts   render() stub
   exits 1 if directory already exists
@@ -174,10 +174,10 @@ fe check <target|shell>
 ## helpers.ts
 ```ts
 readPackageMeta(dir)    → { name, version }        reads dir/package.json
-isMfeSpecifier(key)     → boolean                  true for "@scope/fe.name" and "fe.name"
+isMfeSpecifier(key)     → boolean                  true for "@scope/fe-name" and "fe-name"
 readFeDepKeys(dir)      → string[]                 devDep keys that pass isMfeSpecifier
 readFeDeps(dir)         → Record<string,string>    full devDeps map filtered by isMfeSpecifier
-slugFromSpecifier(name) → string                   "@acme/fe.mfe-a" → "mfe-a"
+slugFromSpecifier(name) → string                   "@conqueso/fe-mfe-a" → "mfe-a"
 ```
 All specifier utilities are re-exported from `@fe/specifier`.
 

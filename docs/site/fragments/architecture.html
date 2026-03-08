@@ -44,24 +44,24 @@
 
   <h3>The fe() convention</h3>
   <p>
-    <code>fe(scope/name)</code> is a plain string used as a package name everywhere: in
+    <code>@scope/fe-name</code> is a plain string used as a package name everywhere: in
     <code>package.json</code>, in import statements, and in the platform manifest. It is
     a bare specifier that the browser resolves through injected import maps. There is no
     special URL scheme.
   </p>
   <textarea lang="json">
 // package.json
-{ "name": "fe(acme/my-mfe)" }
+{ "name": "@conqueso/fe-my-mfe" }
 </textarea>
 
   <textarea lang="ts">
 // source
-import { store } from "fe(acme/store)";
+import { store } from "@fe/fe-store";
 </textarea>
 
   <textarea lang="json">
 // platform.json
-"fe(acme/store)": { "versions": { "1.0.0": { "url": "..." } } }
+"@fe/fe-store": { "versions": { "1.0.0": { "url": "..." } } }
 </textarea>
   <p>
     During build, <code>fe(*)</code> entries in <code>devDependencies</code> are treated as
@@ -156,12 +156,12 @@ export function render(
   <p>
     <code>fe dev &lt;target&gt;</code> starts a dev server for one MFE with SSE-based hot module
     reload. The devtools overlay (if installed) lets you redirect any
-    <code>fe(scope/name)</code> specifier to a local dev URL via sessionStorage. This
+    <code>@scope/fe-name</code> specifier to a local dev URL via sessionStorage. This
     override affects only the current browser tab and can be shared as a URL parameter.
   </p>
   <textarea lang="shell">
 fe dev mfe-a          # start dev server at localhost:3001
-# in devtools panel: override fe(acme/mfe-a) → http://localhost:3001/
+# in devtools panel: override @conqueso/fe-mfe-a → http://localhost:3001/
 </textarea>
   <p>
     <code>fe check &lt;target&gt;</code> runs typecheck and simulates a build without writing
@@ -175,8 +175,8 @@ fe dev mfe-a          # start dev server at localhost:3001
   <textarea lang="json">
 // mfe-b/package.json
 {
-  "name": "fe(acme/mfe-b)",
-  "devDependencies": { "fe(acme/mfe-a)": "^1.0.0" }
+  "name": "@conqueso/fe-mfe-b",
+  "devDependencies": { "@conqueso/fe-mfe-a": "^1.0.0" }
 }
 </textarea>
   <p>

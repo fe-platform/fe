@@ -3,7 +3,7 @@
 
 ## identity
 ```
-name:    @acme/fe.devtools
+name:    @fe/fe-devtools
 version: 1.0.0
 module:  src/index.tsx
 types:   src/index.tsx
@@ -78,7 +78,7 @@ output: toolkit/devtools/dist/index.js
 
 ## upload + activation (legacy artifact path)
 Devtools uses the artifact upload path (`fe admin upload`) rather than JIT publish,
-because the sandbox does not configure `jitPlugins` in `fe.config.json`.
+because the sandbox does not configure `jitPlugins` in `fe-config.json`.
 
 ```
 # 1. Build
@@ -91,7 +91,7 @@ fe admin upload toolkit/devtools
 
 # 3. Activate: add to platform.json manually:
 {
-  "devtools": "@acme/fe.devtools@1.0.0",
+  "devtools": "@fe/fe-devtools@1.0.0",
   "routes": { ... },
   "packages": { ... }
 }
