@@ -1,9 +1,11 @@
 {
   "name": "fe-platform",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "private": true,
   "workspaces": ["packages/*", "sandbox/*", "toolkit/*"],
   "scripts": {
+    "sync-versions": "bun run scripts/sync-versions.ts",
+    "postinstall": "bun run sync-versions",
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build --projects=@fe/core,@fe/cli,@fe/runtime",
     "sandbox:build": "nx run-many -t build --projects=sandbox-*"
@@ -11,6 +13,7 @@
   "devDependencies": {
     "@playwright/test": "1.56.1",
     "@types/node": "^25.3.0",
+    "glob": "^13.0.6",
     "nx": "^22.5.2",
     "typescript": "^5.9.3"
   }

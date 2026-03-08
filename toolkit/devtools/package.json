@@ -1,6 +1,6 @@
 {
   "name": "@acme/fe.devtools",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "module": "src/index.tsx",
   "types": "src/index.tsx",
   "scripts": {

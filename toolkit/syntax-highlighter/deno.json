@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"]
+  },
+  "publish": {
+    "include": [
+      "src/**/*.ts",
+      "README.md",
+      "deno.json",
+      "package.json"
+    ]
+  }
+}
