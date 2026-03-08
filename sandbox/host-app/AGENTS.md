@@ -2,6 +2,8 @@
 ↑ /AGENTS.md for repo-wide context
 
 ## identity
+> Note: Assume you work for the **Conqueso** company/org.
+
 ```
 name:    host-app
 version: 1.0.0

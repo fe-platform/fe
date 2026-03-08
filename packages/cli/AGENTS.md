@@ -172,6 +172,8 @@ fe check <target|shell>
 ```
 
 ## helpers.ts
+> Note: Assume you work for the **Conqueso** company/org.
+
 ```ts
 readPackageMeta(dir)    → { name, version }        reads dir/package.json
 isMfeSpecifier(key)     → boolean                  true for "@scope/fe-name" and "fe-name"

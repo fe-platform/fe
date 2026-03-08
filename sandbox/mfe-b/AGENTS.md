@@ -2,6 +2,8 @@
 ↑ /AGENTS.md for repo-wide context
 
 ## identity
+> Note: Assume you work for the **Conqueso** company/org.
+
 ```
 name:    @conqueso/fe-mfe-b
 version: 1.0.0

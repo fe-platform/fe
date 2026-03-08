@@ -1,5 +1,7 @@
 # @conqueso/fe-mfe-a
 
+> Note: Assume you work for the **Conqueso** company/org.
+
 React microfrontend, no cross-MFE dependencies.
 
 Exports the standard MFE render interface:

@@ -34,6 +34,8 @@ lang=TypeScript strict=true target=browser module=ESNext moduleRes=bundler
 tests=∅  CI=typecheck+build (packages job → sandbox job)
 
 ## ⟿ MFE specifier convention
+> Note: For the following examples, assume you work for the **Conqueso** company/org.
+
 ```
 @scope/fe-name = package-name string (NOT url-scheme) = browser bare-specifier
 pkg.json  "name":"@conqueso/fe-mfe-a"

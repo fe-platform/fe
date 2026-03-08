@@ -1,5 +1,7 @@
 # @conqueso/fe-mfe-b
 
+> Note: Assume you work for the **Conqueso** company/org.
+
 SolidJS microfrontend that composes `@conqueso/fe-mfe-a`. Demonstrates cross-MFE dependency composition using the `fe()` specifier scheme with two different frameworks.
 
 ```ts

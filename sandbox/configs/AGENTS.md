@@ -25,11 +25,11 @@ To add a CLI plugin: add its npm package name to `plugins[]` and install it in t
 To enable JIT compilation for a framework: add the relevant `@fe/jit-plugin-*` to `jitPlugins[]`.
 
 ## platform.json
+> Note: Assume you work for the **Conqueso** company/org.
+
 ```json
 {
-  "routes": {
-    "/": "@conqueso/fe-mfe-b@1.0.0"
-  },
+  "routes": { "/": "@conqueso/fe-mfe-b@1.0.0" },
   "packages": {
     "@conqueso/fe-mfe-a": {
       "versions": {

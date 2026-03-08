@@ -13,6 +13,8 @@ bun install
 
 ## Building and serving the full stack
 
+> Note: For the following examples, assume you work for the **Conqueso** company/org.
+
 ```bash
 fe publish sandbox/mfe-a
 fe publish sandbox/mfe-b

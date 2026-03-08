@@ -18,6 +18,7 @@ src/
 `parseSpecVersion` is imported from `@fe/specifier` (not defined locally).
 
 ## platform.ts: full behaviour
+> Note: Assume you work for the **Conqueso** company/org.
 
 ### readConfig()
 Reads `<script id="__platform__" type="application/json">` from DOM → `PlatformConfig`.
