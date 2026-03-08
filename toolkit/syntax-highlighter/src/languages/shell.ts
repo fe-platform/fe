@@ -2,7 +2,7 @@ import { Rule } from '../types.ts';
 
 export const shell: Rule[] = [
     { category: 'comment', pattern: /#.*/g },
-    { category: 'string', pattern: /"[^"]*"|'[^']*'/g },
+    { category: 'string', pattern: /"(?:\\.|[^\\"])*"|'[^']*'/g },
     // Command detection: line start, operators, subshells, or substitutions
     { 
         category: 'keyword', 
