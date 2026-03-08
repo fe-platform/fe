@@ -40,6 +40,7 @@ textarea[lang] {
     width: 100%;
     box-sizing: border-box;
     resize: none;
+    overflow: hidden;
     font-family: monospace;
     white-space: pre;
     field-sizing: content;
@@ -49,7 +50,6 @@ textarea[lang] {
     font-size: 85%;
     line-height: 1.55;
     border-radius: 4px;
-    overflow-x: auto;
 }
 ```
 

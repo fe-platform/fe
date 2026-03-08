@@ -41,7 +41,7 @@ article p { font-size: 1rem; line-height: 1.65; margin-bottom: 1rem; }
 article ul, article ol { padding-left: 1.5rem; margin-bottom: 1rem; }
 article li { font-size: 1rem; line-height: 1.65; margin-bottom: 0.2rem; }
 article pre, article textarea[lang] { background: var(--code-bg); color: var(--code-text); padding: 1.25rem; font-size: 85%; line-height: 1.55; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--code-rule, transparent); border-radius: 4px; max-width: 100%; }
-article textarea[lang] { display: block; width: 100%; box-sizing: border-box; resize: none; font-family: monospace; white-space: pre; field-sizing: content; }
+article textarea[lang] { display: block; width: 100%; box-sizing: border-box; resize: none; overflow: hidden; font-family: monospace; white-space: pre; field-sizing: content; }
 article :not(pre) > code { background: rgba(0, 0, 0, 0.07); padding: 0.1em 0.35em; font-size: 85%; font-family: monospace; }
 article table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 1rem 0; }
 article th { text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.68rem; padding: 0.6rem; border-bottom: 2px solid var(--ink); }
