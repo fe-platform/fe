@@ -25,17 +25,10 @@ export const categories: Record<Category, Highlight> = {
 };
 
 if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
-    for (const k in categories) {
-        CSS.highlights.set('hl-' + k, categories[k as Category]);
-    }
+    for (const k in categories) CSS.highlights.set('hl-' + k, categories[k as Category]);
 }
 
-const languages: Record<string, Rule[]> = {
-    ts,
-    json,
-    shell,
-    html
-};
+const languages: Record<string, Rule[]> = { ts, json, shell, html };
 
 /**
  * Registers a language grammar at runtime.
@@ -46,14 +39,66 @@ export function registerLanguage(name: string, rules: Rule[]): void {
     languages[name] = rules;
 }
 
-/**
- * Applies syntax highlighting to all `<pre class="lang-*">` elements inside `root`.
- * Adds the default stylesheet to `root.ownerDocument.adoptedStyleSheets` on first call.
- * Safe to call multiple times; ranges accumulate into the shared `Highlight` objects.
- */
-export function highlight(root: Document | Element): void {
-    if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
+function highlightPre(el: HTMLPreElement): void {
+    const langMatch = el.className.match(/lang-(\w+)/);
+    const lang = langMatch ? langMatch[1] : null;
+    if (!lang || !languages[lang]) return;
 
+    const rules = languages[lang];
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node: Text | null;
+
+    while (node = walker.nextNode() as Text | null) {
+        const text = node.textContent || '';
+        const matches: Array<{ category: Category; start: number; end: number }> = [];
+
+        if (lang === 'html') {
+            const subLangs = [
+                { pattern: /<style\b[^>]*>([\s\S]*?)<\/style>/gi, lang: 'ts' },
+                { pattern: /<script\b[^>]*>([\s\S]*?)<\/script>/gi, lang: 'ts' }
+            ];
+            subLangs.forEach(({ pattern, lang: sub }) => {
+                pattern.lastIndex = 0;
+                let m: RegExpExecArray | null;
+                while (m = pattern.exec(text)) {
+                    const offset = m.index + m[0].indexOf(m[1]);
+                    languages[sub]?.forEach(({ category, pattern: p }) => {
+                        p.lastIndex = 0;
+                        let sm: RegExpExecArray | null;
+                        while (sm = p.exec(m![1])) {
+                            matches.push({ category, start: offset + sm.index, end: offset + sm.index + sm[0].length });
+                        }
+                    });
+                }
+            });
+        }
+
+        rules.forEach(({ category, pattern }) => {
+            pattern.lastIndex = 0;
+            let m: RegExpExecArray | null;
+            while (m = pattern.exec(text)) {
+                matches.push({ category, start: m.index, end: m.index + m[0].length });
+            }
+        });
+
+        matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+
+        let lastEnd = 0;
+        for (const m of matches) {
+            if (m.start >= lastEnd) {
+                try {
+                    const range = new Range();
+                    range.setStart(node!, m.start);
+                    range.setEnd(node!, m.end);
+                    categories[m.category].add(range);
+                    lastEnd = m.end;
+                } catch (_) {}
+            }
+        }
+    }
+}
+
+function applySheet(root: Document | Element): void {
     const doc = root instanceof Document ? root : root.ownerDocument;
     if (doc && !doc.adoptedStyleSheets.includes(sheet)) {
         doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
@@ -62,72 +107,20 @@ export function highlight(root: Document | Element): void {
     if (rootNode instanceof ShadowRoot && !rootNode.adoptedStyleSheets.includes(sheet)) {
         rootNode.adoptedStyleSheets = [...rootNode.adoptedStyleSheets, sheet];
     }
+}
 
-    const blocks = root.querySelectorAll<HTMLPreElement>('pre[class*="lang-"]');
-    blocks.forEach(el => {
-        const langMatch = el.className.match(/lang-(\w+)/);
-        const lang = langMatch ? langMatch[1] : null;
-        if (!lang || !languages[lang]) return;
-
-        const rules = languages[lang];
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-        let node: Text | null;
-        
-        while (node = walker.nextNode() as Text | null) {
-            const text = node.textContent || "";
-            const matches: Array<{ category: Category; start: number; end: number; text: string }> = [];
-
-            // Handle sub-languages for HTML
-            if (lang === 'html') {
-                const subLangs = [
-                    { pattern: /<style\b[^>]*>([\s\S]*?)<\/style>/gi, lang: 'ts' }, // Using TS for CSS-like is better than nothing
-                    { pattern: /<script\b[^>]*>([\s\S]*?)<\/script>/gi, lang: 'ts' }
-                ];
-
-                subLangs.forEach(({ pattern, lang: subLangName }) => {
-                    pattern.lastIndex = 0;
-                    let m: RegExpExecArray | null;
-                    while (m = pattern.exec(text)) {
-                        const content = m[1];
-                        const offset = m.index + m[0].indexOf(content);
-                        const subRules = languages[subLangName];
-                        if (subRules) {
-                            subRules.forEach(({ category, pattern: p }) => {
-                                p.lastIndex = 0;
-                                let sm: RegExpExecArray | null;
-                                while (sm = p.exec(content)) {
-                                    matches.push({ category, start: offset + sm.index, end: offset + sm.index + sm[0].length, text: sm[0] });
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-
-            rules.forEach(({ category, pattern }) => {
-                pattern.lastIndex = 0;
-                let m: RegExpExecArray | null;
-                while (m = pattern.exec(text)) {
-                    matches.push({ category, start: m.index, end: m.index + m[0].length, text: m[0] });
-                }
-            });
-
-            matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
-
-            let lastEnd = 0;
-            matches.forEach(m => {
-                if (m.start >= lastEnd) {
-                    try {
-                        const range = new Range();
-                        range.setStart(node!, m.start);
-                        range.setEnd(node!, m.end);
-                        categories[m.category].add(range);
-                        lastEnd = m.end;
-                    } catch (e) {}
-                }
-            });
-        }
-    });
+/**
+ * Applies syntax highlighting to all `<pre class="lang-*">` elements inside `root`,
+ * or to `root` itself if it is a matching `<pre>`. Adds the default stylesheet to
+ * `root.ownerDocument.adoptedStyleSheets` on first call.
+ */
+export function highlight(root: Document | Element): void {
+    if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
+    applySheet(root);
+    const blocks = root instanceof Element && root.matches('pre[class*="lang-"]')
+        ? [root as HTMLPreElement]
+        : [...root.querySelectorAll<HTMLPreElement>('pre[class*="lang-"]')];
+    blocks.forEach(highlightPre);
 }
 
 /**
@@ -135,9 +128,8 @@ export function highlight(root: Document | Element): void {
  * Property names map to `--hl-<key>` (e.g. `{ keyword: "#ff0" }` sets `--hl-keyword: #ff0`).
  */
 export function applyTheme(theme: Partial<Record<Category | 'comment-style', string>>): void {
-    const root = document.documentElement;
     for (const [prop, val] of Object.entries(theme)) {
-        if (val) root.style.setProperty('--hl-' + prop, val);
+        if (val) document.documentElement.style.setProperty('--hl-' + prop, val);
     }
 }
 

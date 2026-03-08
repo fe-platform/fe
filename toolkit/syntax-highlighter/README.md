@@ -8,22 +8,37 @@ Based on techniques from **[Ivo Culic](https://ivoculic.dev/)**: [CSS Custom Hig
 
 ## Usage
 
-```js
-import { highlight } from "@feo/fe-syntax-highlighter";
+Import the package once. A MutationObserver activates automatically and processes code blocks as they appear in the DOM — no manual calls needed.
 
-// highlights every <pre class="lang-*"> inside the element
-highlight(document);
-highlight(myContainer);
+```js
+import "@feo/fe-syntax-highlighter";
 ```
 
-The default theme (`autoTheme`) switches between light and dark based on `prefers-color-scheme`. It is applied to `document.adoptedStyleSheets` on first call.
+### Authoring code blocks
 
-### Languages
+Use `<textarea lang="...">` for inline code. The browser treats textarea content as raw text, so angle brackets, generics, and HTML-like syntax work without escaping:
 
-Built-in: `ts`, `json`, `shell`, `html`. Pass the name as a class on `<pre>`:
+```html
+<textarea lang="ts">
+const items: Array<string> = [];
+</textarea>
+```
+
+The observer swaps each `<textarea lang>` with a highlighted `<pre><code>` automatically.
+
+For markdown-generated output, `<pre class="lang-*">` is also picked up automatically:
 
 ```html
 <pre class="lang-ts">const x = 42;</pre>
+```
+
+### Languages
+
+Built-in: `ts`, `json`, `shell`, `html`. Pass the name as the `lang` attribute on `<textarea>`, or as a `lang-<name>` class on `<pre>`:
+
+```html
+<textarea lang="json">{ "key": "value" }</textarea>
+<pre class="lang-shell">bun install</pre>
 ```
 
 Register additional languages at runtime:
@@ -49,6 +64,8 @@ Five themes ship as importable CSS strings:
 | `draculaTheme` | `@feo/fe-syntax-highlighter/themes/dracula` |
 | `githubLightTheme` | `@feo/fe-syntax-highlighter/themes/github-light` |
 
+The default theme (`autoTheme`) switches between light and dark based on `prefers-color-scheme`.
+
 Switch themes by passing the string to `setHighlightSheet`:
 
 ```js
@@ -68,6 +85,16 @@ Override individual colors with CSS custom properties:
 ```
 
 Available properties: `--hl-keyword`, `--hl-string`, `--hl-comment`, `--hl-type`, `--hl-number`, `--hl-operator`, `--hl-function`, `--hl-property`, `--hl-variable`, `--hl-argument`, `--hl-constant`, `--hl-boolean`.
+
+### Manual control
+
+If you prefer to manage highlighting yourself, import from the `core` entry point. No observer or side effects:
+
+```js
+import { highlight, registerLanguage } from "@feo/fe-syntax-highlighter/core";
+
+highlight(document); // or highlight(myContainer)
+```
 
 ## Browser support
 

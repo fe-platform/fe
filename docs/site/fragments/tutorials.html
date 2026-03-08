@@ -16,8 +16,7 @@
     The shortest path to a running platform. By the end you will have one MFE
     mounting in a shell via <code>fe serve</code>.
   </p>
-  <fe-code lang="shell">
-<template>
+  <textarea lang="shell">
 bun add -d @fe/cli @fe/jit-plugin-react
 
 # scaffold the MFE
@@ -30,8 +29,7 @@ fe publish hello
 # add route "/" : "fe(acme/hello)@1.0.0" to platform.json
 fe build shell
 fe serve
-</template>
-  </fe-code>
+</textarea>
   <p>
     Open <code>http://localhost:3000</code>. You should see your <code>render()</code>
     function mount into the shell container. Source: <code>sandbox/</code>.
@@ -42,8 +40,7 @@ fe serve
     Add a second MFE that imports a component from the first. This demonstrates
     cross-team dependency resolution through import maps.
   </p>
-  <fe-code lang="shell">
-<template>
+  <textarea lang="shell">
 fe new acme/mfe-a   # React MFE, no deps
 fe new acme/mfe-b   # Solid.js MFE, depends on mfe-a
 
@@ -51,8 +48,7 @@ fe link mfe-b mfe-a  # adds mfe-a as devDependency of mfe-b
 
 fe publish mfe-a
 fe publish mfe-b
-</template>
-  </fe-code>
+</textarea>
   <p>
     In <code>mfe-b/src/index.ts</code>, import from <code>fe(acme/mfe-a)</code>.
     The runtime will resolve both specifiers via the injected import map. The JIT
@@ -68,14 +64,11 @@ fe publish mfe-b
     <code>fe(acme/store)</code> provides a typed pub/sub store that persists across
     MFE mounts and unmounts.
   </p>
-  <fe-code lang="json">
-<template>
+  <textarea lang="json">
 // in both mfe-a and mfe-b package.json
 "devDependencies": { "fe(acme/store)": "^1.0.0" }
-</template>
-  </fe-code>
-  <fe-code lang="ts">
-<template>
+</textarea>
+  <textarea lang="ts">
 // mfe-a/src/index.ts
 import { createStore } from "fe(acme/store)";
 
@@ -88,10 +81,8 @@ export function render(container, props) {
   container.appendChild(btn);
   return () => container.removeChild(btn);
 }
-</template>
-  </fe-code>
-  <fe-code lang="ts">
-<template>
+</textarea>
+  <textarea lang="ts">
 // mfe-b/src/index.ts
 import { createStore } from "fe(acme/store)";
 
@@ -103,8 +94,7 @@ export function render(container, props) {
   container.appendChild(span);
   return () => { unsub(); container.removeChild(span); };
 }
-</template>
-  </fe-code>
+</textarea>
   <p>
     Both MFEs resolve to the same <code>fe(acme/store)</code> version through the
     import map. The store instance is shared because the module is loaded once.
@@ -115,8 +105,7 @@ export function render(container, props) {
     If you need a JSX transform that is not covered by the built-in React and
     Solid.js plugins, you can write your own:
   </p>
-  <fe-code lang="ts">
-<template>
+  <textarea lang="ts">
 // @acme/fe-jit-plugin-preact/src/index.ts
 import type { JitPlugin } from "@fe/core";
 
@@ -130,14 +119,11 @@ export default {
     };
   },
 } satisfies JitPlugin;
-</template>
-  </fe-code>
-  <fe-code lang="json">
-<template>
+</textarea>
+  <textarea lang="json">
 // configs/fe.config.json
 { "jitPlugins": ["@acme/fe-jit-plugin-preact"] }
-</template>
-  </fe-code>
+</textarea>
   <p>
     The <code>build:options</code> hook receives <code>Bun.BuildOptions</code> and
     returns a modified copy. Plugins run in declaration order; later plugins can

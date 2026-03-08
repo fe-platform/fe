@@ -49,26 +49,20 @@
     a bare specifier that the browser resolves through injected import maps. There is no
     special URL scheme.
   </p>
-  <fe-code lang="json">
-<template>
+  <textarea lang="json">
 // package.json
 { "name": "fe(acme/my-mfe)" }
-</template>
-  </fe-code>
+</textarea>
 
-  <fe-code lang="ts">
-<template>
+  <textarea lang="ts">
 // source
 import { store } from "fe(acme/store)";
-</template>
-  </fe-code>
+</textarea>
 
-  <fe-code lang="json">
-<template>
+  <textarea lang="json">
 // platform.json
 "fe(acme/store)": { "versions": { "1.0.0": { "url": "..." } } }
-</template>
-  </fe-code>
+</textarea>
   <p>
     During build, <code>fe(*)</code> entries in <code>devDependencies</code> are treated as
     externals. At runtime, the browser resolves each specifier to a URL via the injected
@@ -88,8 +82,7 @@ import { store } from "fe(acme/store)";
     <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
     the module and calls <code>render()</code> to mount the UI:
   </p>
-  <fe-code lang="ts">
-<template>
+  <textarea lang="ts">
 export function render(
   container: HTMLElement,
   props: Record<string, unknown>
@@ -97,8 +90,7 @@ export function render(
   // mount into container
   // return a cleanup function that removes your DOM nodes
 }
-</template>
-  </fe-code>
+</textarea>
   <p>
     The contract is intentionally minimal: no framework lifecycle, no router coupling,
     no shared state requirement. The cleanup function is called on navigation away.
@@ -167,12 +159,10 @@ export function render(
     <code>fe(scope/name)</code> specifier to a local dev URL via sessionStorage. This
     override affects only the current browser tab and can be shared as a URL parameter.
   </p>
-  <fe-code lang="shell">
-<template>
+  <textarea lang="shell">
 fe dev mfe-a          # start dev server at localhost:3001
 # in devtools panel: override fe(acme/mfe-a) → http://localhost:3001/
-</template>
-  </fe-code>
+</textarea>
   <p>
     <code>fe check &lt;target&gt;</code> runs typecheck and simulates a build without writing
     output. Use it in CI to catch errors early without running the full JIT pipeline.
@@ -182,15 +172,13 @@ fe dev mfe-a          # start dev server at localhost:3001
   <p>
     When a MFE depends on another, declare it in <code>devDependencies</code>:
   </p>
-  <fe-code lang="json">
-<template>
+  <textarea lang="json">
 // mfe-b/package.json
 {
   "name": "fe(acme/mfe-b)",
   "devDependencies": { "fe(acme/mfe-a)": "^1.0.0" }
 }
-</template>
-  </fe-code>
+</textarea>
   <p>
     The runtime reads the dep graph from <code>platform.json</code> and resolves the
     highest compatible version using semver. All resolved specifiers are injected into
@@ -218,8 +206,7 @@ fe dev mfe-a          # start dev server at localhost:3001
   </ul>
 
   <h3>CLI quick reference</h3>
-  <fe-code lang="shell">
-<template>
+  <textarea lang="shell">
 fe new <scope/name>   # scaffold a new MFE project
 fe dev <target>       # live-reload dev server
 fe check <target>     # typecheck + build simulation (CI)
@@ -227,6 +214,5 @@ fe publish <target>   # upload source + register version
 fe link <mfe> <dep>   # wire a local fe() dependency
 fe build shell        # compile the host shell
 fe serve              # run the JIT server
-</template>
-  </fe-code>
+</textarea>
 </fe-compose>

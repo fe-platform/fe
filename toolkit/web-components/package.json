@@ -1,9 +1,6 @@
 {
   "name": "@feo/fe-web-components",
-  "version": "0.1.1",
-  "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose, fe-code.",
-  "license": "MIT",
-  "devDependencies": {
-    "@feo/fe-syntax-highlighter": "workspace:*"
-  }
+  "version": "0.2.0",
+  "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose.",
+  "license": "MIT"
 }

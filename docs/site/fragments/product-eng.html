@@ -61,16 +61,14 @@
     live in <code>sessionStorage</code> and affect only your current tab. No redeployment,
     no asking anyone for access.
   </p>
-  <fe-code lang="ts">
-<template>
+  <textarea lang="ts">
 // manual sessionStorage override (without devtools)
 sessionStorage.setItem(
   "fe:override:fe(acme/my-feature)",
   "http://localhost:3001/"
 );
 // then reload — the production shell loads your local build
-</template>
-  </fe-code>
+</textarea>
   <p>
     The devtools share button encodes active overrides as URL parameters. Send the link
     to a colleague and they open the same environment in their browser.
@@ -87,8 +85,7 @@ sessionStorage.setItem(
     <code>platform.json</code>. In that case the runtime calls <code>render()</code>
     on navigation to mount your UI, so you must export it:
   </p>
-  <fe-code lang="ts">
-<template>
+  <textarea lang="ts">
 export function render(
   container: HTMLElement,
   props: Record<string, unknown>
@@ -96,8 +93,7 @@ export function render(
   // mount your UI into container
   // return cleanup: remove your DOM, stop timers, unsubscribe listeners
 }
-</template>
-  </fe-code>
+</textarea>
   <p>
     The runtime calls <code>render</code> on mount and the returned function on unmount.
     Any framework satisfies this contract without adaptation.
@@ -108,8 +104,7 @@ export function render(
     Toolkit packages are resolved at runtime through import maps. Declare them in
     <code>devDependencies</code>:
   </p>
-  <fe-code lang="json">
-<template>
+  <textarea lang="json">
 // package.json
 {
   "name": "fe(acme/my-feature)",
@@ -118,10 +113,8 @@ export function render(
     "fe(acme/network)": "^1.0.0"
   }
 }
-</template>
-  </fe-code>
-  <fe-code lang="ts">
-<template>
+</textarea>
+  <textarea lang="ts">
 // src/index.ts
 import { createStore } from "fe(acme/store)";
 
@@ -131,6 +124,5 @@ export function render(container, props) {
   // ...
   return () => {};
 }
-</template>
-  </fe-code>
+</textarea>
 </fe-compose>

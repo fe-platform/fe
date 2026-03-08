@@ -117,78 +117,65 @@ details[name="plat-sub"][open] > summary {
     </p>
 
     <h3>1 · Install and scaffold</h3>
-    <fe-code lang="shell">
-<template>
+    <textarea lang="shell">
 bun add -d @fe/cli
 fe new acme/mfe-a
 fe new acme/mfe-b
-</template>
-    </fe-code>
+</textarea>
     <p>
       Each <code>fe new</code> creates a directory with <code>package.json</code>,
       <code>tsconfig.json</code>, and a <code>src/index.ts</code> with a
       <code>render()</code> stub. Give <code>mfe-b</code> a dependency on
       <code>mfe-a</code>:
     </p>
-    <fe-code lang="shell">
-<template>
+    <textarea lang="shell">
 fe link mfe-b mfe-a
-</template>
-    </fe-code>
+</textarea>
 
     <h3>2 · Write a minimal shell</h3>
     <p>
       Create <code>host-app/index.html</code> with the platform config embedded and
       <code>host-app/src/index.ts</code> that loads the runtime:
     </p>
-    <fe-code lang="html">
+    <textarea lang="html">
 <script type="application/json" id="platform-config">
   { "routes": {}, "packages": {} }
 </script>
 <script type="module" src="./src/index.ts"></script>
-</template>
-    </fe-code>
-    <fe-code lang="ts">
-<template>
+</textarea>
+    <textarea lang="ts">
 // host-app/src/index.ts
 import { load, loadDevtools } from "@fe/runtime";
 await loadDevtools();
 await load(location.pathname);
-</template>
-    </fe-code>
+</textarea>
 
     <h3>3 · Configure</h3>
     <p>
       Create <code>configs/fe.config.json</code> at the workspace root:
     </p>
-    <fe-code lang="json">
-<template>
+    <textarea lang="json">
 {
   "shellDir": "host-app",
   "manifestPath": "configs/platform.json",
   "jitPlugins": ["@fe/jit-plugin-react"]
 }
-</template>
-    </fe-code>
+</textarea>
     <p>
       Create <code>configs/platform.json</code> with empty routes and packages:
     </p>
-    <fe-code lang="json">
-<template>
+    <textarea lang="json">
 {
   "routes": {},
   "packages": {}
 }
-</template>
-    </fe-code>
+</textarea>
 
     <h3>4 · Publish both MFEs</h3>
-    <fe-code lang="shell">
-<template>
+    <textarea lang="shell">
 fe publish mfe-a
 fe publish mfe-b
-</template>
-    </fe-code>
+</textarea>
     <p>
       Each command uploads source to <code>sources/</code> and adds an entry to
       <code>platform.json</code>. You will see version numbers printed to stdout.
@@ -198,20 +185,16 @@ fe publish mfe-b
     <p>
       Edit <code>configs/platform.json</code> to map a route:
     </p>
-    <fe-code lang="json">
-<template>
+    <textarea lang="json">
 {
   "routes": { "/": "fe(acme/mfe-b)@1.0.0" },
   "packages": { ... }
 }
-</template>
-    </fe-code>
-    <fe-code lang="shell">
-<template>
+</textarea>
+    <textarea lang="shell">
 fe build shell
 fe serve
-</template>
-    </fe-code>
+</textarea>
     <p>
       Open <code>http://localhost:3000</code>. The runtime resolves the route, injects
       import maps for both <code>mfe-b</code> and its dep <code>mfe-a</code>, and
@@ -247,13 +230,11 @@ fe serve
     <p>
       The minimum required CSP for a fe-based shell:
     </p>
-    <fe-code lang="shell">
-<template>
+    <textarea lang="shell">
 # Content-Security-Policy:
   script-src 'self' https://cdn.your-domain.com;
   script-src-elem 'self' https://cdn.your-domain.com;
-</template>
-    </fe-code>
+</textarea>
     <p>
       Import maps require no special directives beyond <code>script-src</code>. If
       any MFE uses WebAssembly, add <code>'wasm-unsafe-eval'</code> to
@@ -297,15 +278,13 @@ fe serve
       to <code>platform.json</code>. Old versions remain available forever. There is no
       "deploy" step that overwrites a previous version.
     </p>
-    <fe-code lang="json">
-<template>
+    <textarea lang="json">
 // platform.json (before)
 "routes": { "/": "fe(acme/mfe-a)@1.2.0" }
 
 // platform.json (after rollback)
 "routes": { "/": "fe(acme/mfe-a)@1.1.0" }
-</template>
-    </fe-code>
+</textarea>
     <p>
       The runtime reads the updated manifest on the next page load. No server restart
       required.
@@ -332,8 +311,7 @@ fe serve
       <code>sources/</code> directory. Implement a <code>SourceStorage</code> adapter
       that reads from your artifact storage:
     </p>
-    <fe-code lang="ts">
-<template>
+    <textarea lang="ts">
 // @acme/fe-plugin-s3/src/index.ts
 import type { Plugin, CliContext } from "@fe/core";
 import { S3Client } from "@aws-sdk/client-s3";
@@ -354,18 +332,15 @@ export default {
     ctx.adapters.sourceStorage = new S3SourceStorage();
   }
 } satisfies Plugin;
-</template>
-    </fe-code>
+</textarea>
     <p>
       Declare the plugin in <code>fe.config.json</code>:
     </p>
-    <fe-code lang="json">
-<template>
+    <textarea lang="json">
 {
   "plugins": ["@acme/fe-plugin-s3"]
 }
-</template>
-    </fe-code>
+</textarea>
 
     <h3>Authentication</h3>
     <p>
@@ -373,8 +348,7 @@ export default {
       auth flows, or the shell can inject an auth context into each <code>render()</code>
       call via the <code>props</code> argument.
     </p>
-    <fe-code lang="ts">
-<template>
+    <textarea lang="ts">
 // host-app/src/index.ts
 import { load } from "@fe/runtime";
 import { getAuthState } from "./auth";
@@ -382,8 +356,7 @@ import { getAuthState } from "./auth";
 await load(location.pathname, {
   auth: getAuthState()
 });
-</template>
-    </fe-code>
+</textarea>
     <p>
       Each MFE receives the auth state in its <code>render()</code> props.
     </p>
@@ -392,16 +365,14 @@ await load(location.pathname, {
     <p>
       To host multiple tenants on a single platform instance, use route prefixes:
     </p>
-    <fe-code lang="json">
-<template>
+    <textarea lang="json">
 {
   "routes": {
     "/tenant-a/": "fe(acme/tenant-a-shell)@1.0.0",
     "/tenant-b/": "fe(acme/tenant-b-shell)@1.0.0"
   }
 }
-</template>
-    </fe-code>
+</textarea>
     <p>
       Each tenant shell can load a completely different set of MFEs. The runtime
       resolves routes independently for each path prefix.

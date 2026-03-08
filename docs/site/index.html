@@ -118,20 +118,6 @@
                 }
             }
 
-            class FECode extends HTMLElement {
-                async connectedCallback() {
-                    const template = this.querySelector("template");
-                    const content = template ? template.innerHTML : this.textContent;
-                    const pre = document.createElement("pre");
-                    pre.className = `lang-${this.getAttribute("lang") || ""}`;
-                    pre.textContent = content.trim();
-                    this.innerHTML = "";
-                    this.appendChild(pre);
-                    const { highlight } = await import("@feo/fe-syntax-highlighter");
-                    highlight(this);
-                }
-            }
-
             class FECompose extends HTMLElement {
                 static {
                     if (!document.getElementById('fe-compose-styles')) {
@@ -168,8 +154,8 @@
 
             customElements.define("html-include", HTMLInclude);
             customElements.define("fe-component", FEComponent);
-            customElements.define("fe-code", FECode);
             customElements.define("fe-compose", FECompose);
+            import("@feo/fe-syntax-highlighter");
         </script>
     </head>
     <body id="top">
