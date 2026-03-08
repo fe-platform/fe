@@ -1,6 +1,6 @@
 {
   "name": "@fe/cli",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "type": "module",
   "bin": {
     "fe": "./src/index.ts"

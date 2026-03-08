@@ -12,13 +12,17 @@
         <script type="importmap">
             {
                 "imports": {
-                    "@feo/fe-syntax-highlighter": "https://esm.sh/jsr/@feo/fe-syntax-highlighter@latest?bundle=true&standalone"
+                    "@feo/fe-syntax-highlighter": "https://esm.sh/jsr/@feo/fe-syntax-highlighter@0.2.2?bundle=true&standalone",
+                    "@feo/fe-web-components": "https://esm.sh/jsr/@feo/fe-web-components@0.2.2?bundle=true&standalone"
                 }
             }
         </script>
         <meta name="description" content="fe platform: a source-first microfrontend system." />
         <link rel="stylesheet" href="style.css" />
         <script type="module">
+            import "@feo/fe-web-components";
+            import "@feo/fe-syntax-highlighter";
+
             function getTarget(root, id) {
                 const el = root.querySelector?.('[id="' + id + '"]');
                 if (el) return el;
@@ -40,122 +44,14 @@
             }
             window.addEventListener("hashchange", sync);
 
-            class HTMLInclude extends HTMLElement {
-                static _eagerPending = new Set();
-                static {
-                    if (!document.getElementById('html-include-styles')) {
-                        const s = document.createElement('style');
-                        s.id = 'html-include-styles';
-                        s.textContent = 'html-include:not(:defined){display:none}html-include{display:block;width:100%;content-visibility:auto;contain-intrinsic-size:1px 500px}body{opacity:0;transition:opacity .25s}body.ready{opacity:1}';
-                        document.head.appendChild(s);
-                    }
+            // Trigger sync when fragments are loaded
+            document.body.addEventListener("fragments-ready", sync);
+            // Also handle individual fragment loads for non-eager ones
+            document.body.addEventListener("load", (e) => {
+                if (e.target.tagName === "HTML-INCLUDE" && window.location.hash) {
+                    setTimeout(sync, 10);
                 }
-                connectedCallback() {
-                    const href = this.getAttribute("href");
-                    if (!href) return;
-                    if (this.getAttribute("loading") === "eager") { if (this.getAttribute("state") !== "loaded") this.constructor._eagerPending.add(this); this._load(href); }
-                    else {
-                        const rect = this.getBoundingClientRect();
-                        if (rect.top < window.innerHeight && rect.bottom > 0) this._load(href);
-                        else {
-                            this._observer = new IntersectionObserver((entries) => {
-                                if (entries[0].isIntersecting) { this._cleanupObserver(); this._load(href); }
-                            }, { rootMargin: "400px" });
-                            this._observer.observe(this);
-                        }
-                    }
-                }
-                _cleanupObserver() { if (this._observer) { this._observer.disconnect(); this._observer = null; } }
-                disconnectedCallback() { this._cleanupObserver(); }
-                async _load(href) {
-                    if (this.getAttribute("state") === "loaded" || this._fetching) return;
-                    this._fetching = true;
-                    try {
-                        const r = await fetch(href.replace(/\.html$/, ""));
-                        this.innerHTML = await r.text();
-                        this.setAttribute("state", "loaded");
-                        if (window.location.hash) setTimeout(sync, 10);
-                        if (HTMLInclude._eagerPending.has(this)) {
-                            HTMLInclude._eagerPending.delete(this);
-                            if (HTMLInclude._eagerPending.size === 0) { document.body.classList.add("ready"); sync(); }
-                        }
-                    } catch (err) { console.error(err); }
-                    finally { this._fetching = false; }
-                }
-            }
-
-            class FEComponent extends HTMLElement {
-                static {
-                    if (!document.getElementById('fe-component-styles')) {
-                        const s = document.createElement('style');
-                        s.id = 'fe-component-styles';
-                        s.textContent = 'fe-component{display:none}';
-                        document.head.appendChild(s);
-                    }
-                }
-                connectedCallback() {
-                    const name = this.getAttribute("name");
-                    if (!name) return;
-                    this.querySelectorAll("style").forEach((s) => {
-                        if (!s.innerHTML.includes(`[data-fe-id="${name}"]`)) {
-                            s.innerHTML = s.innerHTML.replace(/([^\r\n,{}]+)(?=[^{}]*\{)/g, (m) => {
-                                if (m.trim().startsWith("@") || m.includes(":root")) return m;
-                                return m.trim().split(/\s*,\s*/).map(sel => `[data-fe-id="${name}"] ${sel}`).join(", ");
-                            });
-                        }
-                        document.head.appendChild(s);
-                    });
-                    this.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
-                        document.head.appendChild(l);
-                    });
-                    this._snapshot = Array.from(this.childNodes).map(n => n.cloneNode(true));
-                    this.innerHTML = "";
-                }
-                get content() {
-                    const frag = document.createDocumentFragment();
-                    (this._snapshot || []).forEach(n => frag.appendChild(n.cloneNode(true)));
-                    return frag;
-                }
-            }
-
-            class FECompose extends HTMLElement {
-                static {
-                    if (!document.getElementById('fe-compose-styles')) {
-                        const s = document.createElement('style');
-                        s.id = 'fe-compose-styles';
-                        s.textContent = 'fe-compose{display:contents}';
-                        document.head.appendChild(s);
-                    }
-                }
-                connectedCallback() {
-                    const name = this.getAttribute("name");
-                    const target = document.querySelector(`fe-component[name="${name}"]`);
-                    if (!target) return;
-                    this.setAttribute("data-fe-id", name);
-                    const children = Array.from(this.childNodes);
-                    this.innerHTML = "";
-                    const content = target.content;
-                    const root = content.firstElementChild;
-                    if (root) {
-                        Array.from(this.attributes).forEach(a => {
-                            if (!["name", "data-fe-id", "slot"].includes(a.name)) root.setAttribute(a.name, a.value);
-                        });
-                    }
-                    const slots = content.querySelectorAll("slot");
-                    slots.forEach(slot => {
-                        const name = slot.getAttribute("name");
-                        children.filter(c => name ? (c.getAttribute?.("slot") === name) : !c.getAttribute?.("slot"))
-                                .forEach(m => slot.parentNode.insertBefore(m, slot));
-                        slot.remove();
-                    });
-                    this.appendChild(content);
-                }
-            }
-
-            customElements.define("html-include", HTMLInclude);
-            customElements.define("fe-component", FEComponent);
-            customElements.define("fe-compose", FECompose);
-            import("@feo/fe-syntax-highlighter");
+            });
         </script>
     </head>
     <body id="top">
