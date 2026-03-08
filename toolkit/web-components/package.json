@@ -4,6 +4,10 @@
   "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose.",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit",
+    "publish": "npx jsr publish"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./html-include": "./src/html-include.ts",
