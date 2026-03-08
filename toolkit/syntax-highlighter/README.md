@@ -32,6 +32,27 @@ For markdown-generated output, `<pre class="lang-*">` is also picked up automati
 <pre class="lang-ts">const x = 42;</pre>
 ```
 
+Before the observer runs, `textarea[lang]` elements are hidden via `display: none`. Add the following to your stylesheet so they render as code blocks in no-JS environments or before the module loads:
+
+```css
+textarea[lang] {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+    font-family: monospace;
+    white-space: pre;
+    field-sizing: content;
+    /* match your existing <pre> styles: */
+    background: #f5f5f5;
+    padding: 1.25rem;
+    font-size: 85%;
+    line-height: 1.55;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+```
+
 ### Languages
 
 Built-in: `ts`, `json`, `shell`, `html`. Pass the name as the `lang` attribute on `<textarea>`, or as a `lang-<name>` class on `<pre>`:
