@@ -1,6 +1,6 @@
 {
   "name": "@fe/fe-devtools",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "module": "src/index.tsx",
   "types": "src/index.tsx",
   "scripts": {
