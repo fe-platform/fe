@@ -5,7 +5,7 @@
       "command": "contextstream-mcp",
       "env": {
         "CONTEXTSTREAM_ALLOW_HEADER_AUTH": "false",
-        "CONTEXTSTREAM_API_KEY": "cbiq_YXA972C5MXSH8YgLsmg22xkuugm96CEMxHubB8Pow4o",
+        "CONTEXTSTREAM_API_KEY": "cbiq_lQvaKMsnj-cnswTGKj1Qv2kkcbewtlfW0UNIJkHFWUo",
         "CONTEXTSTREAM_API_URL": "https://api.contextstream.io",
         "CONTEXTSTREAM_AUTO_HIDE_INTEGRATIONS": "true",
         "CONTEXTSTREAM_CONSOLIDATED": "true",
@@ -23,7 +23,7 @@
         "CONTEXTSTREAM_TOOLSET": "standard",
         "CONTEXTSTREAM_TRANSCRIPTS_ENABLED": "false",
         "CONTEXTSTREAM_USER_AGENT": "contextstream-mcp-rust/0.1.68",
-        "CONTEXTSTREAM_WORKSPACE_ID": ""
+        "CONTEXTSTREAM_WORKSPACE_ID": "1357b17a-d5d8-45b0-8b83-e435e1eb40c0"
       }
     }
   }

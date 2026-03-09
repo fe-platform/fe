@@ -1,6 +1,6 @@
 <contextstream>
-# Workspace: Workspace
-# Workspace ID: 00000000-0000-0000-0000-000000000000
+# Workspace: My Workspace
+# Workspace ID: 1357b17a-d5d8-45b0-8b83-e435e1eb40c0
 
 # ContextStream Rules
 **MANDATORY STARTUP:** On the first message of EVERY session call `init(...)` then `context(user_message="...")`. On subsequent messages, call `context(user_message="...")` first by default. A narrow bypass is allowed only for immediate read-only ContextStream calls when prior context is still fresh and no state-changing tool has run.
