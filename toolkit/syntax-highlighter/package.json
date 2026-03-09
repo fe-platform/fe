@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "bunx tsc --noEmit",
-    "publish": "npx jsr publish"
+    "publish": "bunx deno publish --allow-dirty --config package.json"
   },
   "exports": {
     ".": "./src/observe.ts",
