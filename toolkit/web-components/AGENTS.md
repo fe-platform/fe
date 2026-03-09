@@ -29,14 +29,16 @@ attrs:  `href` (URL, required) · `loading="eager"` · `state="loaded"` (set by 
 guards: `_fetching` boolean — blocks concurrent fetches, cleared in `finally`
         `state="loaded"` — blocks re-fetch on reconnect
         `_eagerPending.add(this)` only when `state !== "loaded"` — prevents stuck pending set when fe-compose reconnects an already-loaded eager element
-events: `"load"` (bubbles) on `<html-include>` after each fragment loads
+        events: `"load"` (bubbles) on `<html-include>` after each fragment loads
         `"fragments-ready"` on `document.body` (non-bubbling) when all eager pending cleared
         `document.body.classList.add("ready")` fired at the same moment
-lazy:   `IntersectionObserver` rootMargin=400px for non-eager elements
+        lazy:   `IntersectionObserver` rootMargin=400px for non-eager elements
 
-### fe-component
-attrs:  `name` (required, unique)
-lifecycle:
+        ### fe-component
+        attrs:  `name` (required, unique)
+        visibility: `opacity: 0` by default; `opacity: 1` when `body.ready`
+        lifecycle:
+
   1. move each `<style>` → `document.head`; rewrite selectors → `[data-fe-id="Name"] <sel>`
      regex: `/([^\r\n,{}]+)(?=[^{}]*\{)/g`  ·  skips `@`-rules and `:root`  ·  idempotent
   2. snapshot remaining `childNodes` via `cloneNode(true)` → `this._snapshot: Node[]`
@@ -46,6 +48,7 @@ get content(): DocumentFragment — fresh clone of snapshot on every call → su
 
 ### fe-compose
 attrs:  `name` (required) · `slot` (not forwarded) · anything else → forwarded to template root
+visibility: `opacity: 0` by default; `opacity: 1` when `body.ready`
 lookup: `document.querySelector('fe-component[name="..."]')` — NOT id, NOT getTarget
 exclusion list for attribute forwarding: `["name", "data-fe-id", "slot"]`
   !! `"name"` must be excluded — forwarding it overwrites the first slot element's name attribute

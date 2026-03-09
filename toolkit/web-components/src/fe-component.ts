@@ -14,7 +14,7 @@ export class FEComponent extends HTMLElement {
         if (!document.getElementById('fe-component-styles')) {
             const s = document.createElement('style');
             s.id = 'fe-component-styles';
-            s.textContent = 'fe-component{display:none}';
+            s.textContent = 'fe-component{display:none;opacity:0;transition:opacity .5s}body.ready fe-component{opacity:1}';
             document.head.appendChild(s);
         }
     }

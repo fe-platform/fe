@@ -13,7 +13,7 @@ export class FECompose extends HTMLElement {
         if (!document.getElementById('fe-compose-styles')) {
             const s = document.createElement('style');
             s.id = 'fe-compose-styles';
-            s.textContent = 'fe-compose{display:contents}';
+            s.textContent = 'fe-compose{display:contents;opacity:0;transition:opacity .5s}body.ready fe-compose{opacity:1}';
             document.head.appendChild(s);
         }
     }

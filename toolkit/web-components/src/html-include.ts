@@ -17,7 +17,7 @@ export class HTMLInclude extends HTMLElement {
         if (!document.getElementById('html-include-styles')) {
             const s = document.createElement('style');
             s.id = 'html-include-styles';
-            s.textContent = 'html-include:not(:defined){display:none}html-include{display:block;width:100%;content-visibility:auto;contain-intrinsic-size:1px 500px}body{opacity:0;transition:opacity .25s}body.ready{opacity:1}';
+            s.textContent = 'html-include:not(:defined){display:none}html-include{display:block;width:100%;content-visibility:auto;contain-intrinsic-size:1px 500px}';
             document.head.appendChild(s);
         }
     }
@@ -58,15 +58,15 @@ export class HTMLInclude extends HTMLElement {
             this.innerHTML = await r.text();
             this.setAttribute("state", "loaded");
             this.dispatchEvent(new CustomEvent("load", { bubbles: true }));
+        } catch (err) {
+            console.error(err);
+        } finally {
+            this._fetching = false;
             HTMLInclude._eagerPending.delete(this);
             if (HTMLInclude._eagerPending.size === 0) {
                 document.body.classList.add("ready");
                 document.body.dispatchEvent(new CustomEvent("fragments-ready", { bubbles: false }));
             }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            this._fetching = false;
         }
     }
 }

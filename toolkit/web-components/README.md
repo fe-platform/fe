@@ -70,6 +70,8 @@ Fetches an HTML fragment and replaces its own content with the response.
 
 Declares a reusable template. Slots are standard HTML `<slot>` elements inside the template markup.
 
+**Visibility**: `<fe-component>` elements have `opacity: 0` and `transition: opacity .5s` by default. They become visible (`opacity: 1`) once `body.classList` contains `ready`.
+
 ```html
 <fe-component name="Card">
   <style>
@@ -100,6 +102,8 @@ The element stays in the DOM empty, acting as a registry entry that `<fe-compose
 ### `<fe-compose>`
 
 Instantiates a component declared by `<fe-component>`. Slot children are placed into matching `<slot>` elements in the template.
+
+**Visibility**: `<fe-compose>` elements have `opacity: 0` and `transition: opacity .5s` by default. They become visible (`opacity: 1`) once `body.classList` contains `ready`.
 
 ```html
 <fe-compose name="Card">
