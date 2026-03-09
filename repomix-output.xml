@@ -44,13 +44,24 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
-.claude/
-  settings.local.json
 .devin/
   wiki.json
 .github/
   workflows/
     ci.yml
+docs/
+  site/
+    fragments/
+      architecture.html
+      header.html
+      hero.html
+      platform-eng.html
+      product-eng.html
+      tutorials.html
+    _headers
+    index.html
+    shell-layout.css
+    style.css
 packages/
   cli/
     src/
@@ -60,12 +71,14 @@ packages/
         json-manifest-manager.ts
         local-artifact-storage.ts
         local-source-storage.ts
+        package-json-config-provider.ts
       plugins/
         admin.ts
         build.ts
         check.ts
         dev.ts
         link.ts
+        new.ts
         publish.ts
         serve.ts
       bootstrap.ts
@@ -109,6 +122,11 @@ packages/
       semver.ts
     package.json
     tsconfig.json
+  specifier/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
 sandbox/
   configs/
     fe.config.json
@@ -138,6 +156,8 @@ sandbox/
     project.json
     tsconfig.json
   package.json
+scripts/
+  sync-versions.ts
 toolkit/
   devtools/
     src/
@@ -146,9 +166,50 @@ toolkit/
     package.json
     project.json
     tsconfig.json
+  network/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
+  store/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
+  syntax-highlighter/
+    src/
+      languages/
+        html.ts
+        json.ts
+        shell.ts
+        ts.ts
+      themes/
+        dark.ts
+        default.ts
+        dracula.ts
+        github-light.ts
+        light.ts
+      core.test.ts
+      core.ts
+      observe.ts
+      types.ts
+    package.json
+    tsconfig.json
+  web-components/
+    src/
+      fe-component.ts
+      fe-compose.ts
+      html-include.ts
+      index.ts
+      scoping.test.ts
+    package.json
+    tsconfig.json
 .agent
+.aider.conf.yml
 .gemini
 .gitignore
+.mcp.json
+.prettierignore
 .repomixignore
 nx.json
 package.json
@@ -158,16 +219,612 @@ repomix.config.json
 <files>
 This section contains the contents of the repository's files.
 
-<file path=".claude/settings.local.json">
+<file path="packages/cli/src/adapters/local-artifact-storage.ts">
+import { join } from "path";
+import { cpSync, mkdirSync, existsSync } from "fs";
+import type { ArtifactStorage } from "@fe/core";
+export function createLocalArtifactStorage(root: string, uploadsDir: string): ArtifactStorage
+⋮----
+async upload(slug, version, distDir)
+async exists(slug, version)
+</file>
+
+<file path="packages/cli/src/index.ts">
+import { cwd } from "process";
+import { bootstrap } from "./bootstrap";
+</file>
+
+<file path="packages/core/src/adapters.ts">
+import type { PlatformConfig, PackageVersion, BuildOptions, BuildResult } from "./types";
+import type { FeConfig } from "./fe-config";
+export interface ConfigProvider {
+  get(): Promise<Required<FeConfig>>;
+}
+⋮----
+get(): Promise<Required<FeConfig>>;
+⋮----
+export interface ArtifactStorage {
+  upload(slug: string, version: string, distDir: string): Promise<string>;
+  exists(slug: string, version: string): Promise<boolean>;
+}
+⋮----
+upload(slug: string, version: string, distDir: string): Promise<string>;
+exists(slug: string, version: string): Promise<boolean>;
+⋮----
+export interface SourceStorage {
+  upload(slug: string, version: string, srcDir: string): Promise<string>;
+  fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
+  listFiles(slug: string, version: string): Promise<string[]>;
+}
+⋮----
+upload(slug: string, version: string, srcDir: string): Promise<string>;
+fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
+listFiles(slug: string, version: string): Promise<string[]>;
+⋮----
+export interface ManifestManager {
+  read(): Promise<PlatformConfig>;
+  write(config: PlatformConfig): Promise<void>;
+  registerPackage(specifier: string, version: string, entry: PackageVersion): Promise<void>;
+}
+⋮----
+read(): Promise<PlatformConfig>;
+write(config: PlatformConfig): Promise<void>;
+registerPackage(specifier: string, version: string, entry: PackageVersion): Promise<void>;
+⋮----
+export interface Builder {
+  build(options: BuildOptions): Promise<BuildResult>;
+}
+⋮----
+build(options: BuildOptions): Promise<BuildResult>;
+</file>
+
+<file path="packages/core/src/hooks.ts">
+import type { BuildOptions, BuildResult, PackageVersion } from "./types";
+export interface HookMap {
+  "build:before": [target: string, options: BuildOptions];
+  "build:after": [target: string, result: BuildResult];
+  "build:options": [options: BuildOptions];
+  "build:shell:before": [];
+  "build:shell:after": [];
+  "serve:start": [port: number];
+  "serve:request": [req: Request];
+  "dev:start": [target: string, port: number];
+  "dev:rebuild": [target: string];
+  "dev:reload": [];
+  "link:before": [consumer: string, dep: string];
+  "link:after": [consumer: string, depName: string];
+  "admin:upload:before": [target: string, meta: { name: string; version: string }];
+  "admin:upload:after": [target: string, url: string, deps: Record<string, string>];
+  "admin:register:before": [specifier: string, version: string, entry: PackageVersion];
+  "admin:register:after": [];
+  "publish:before": [target: string, meta: { name: string; version: string }];
+  "publish:after": [target: string, url: string, deps: Record<string, string>];
+  "publish:register:before": [specifier: string, version: string, entry: PackageVersion];
+  "publish:register:after": [];
+}
+type HookName = keyof HookMap & string;
+type HookHandler<K extends HookName> = (...args: HookMap[K]) => void | Promise<void>;
+export class Hooks
+⋮----
+hook<K extends HookName>(name: K, fn: HookHandler<K>, priority = 10): void
+async callHook<K extends HookName>(name: K, ...args: HookMap[K]): Promise<void>
+async waterfall<T>(name: string, initial: T): Promise<T>
+</file>
+
+<file path="packages/runtime/src/overrides.ts">
+export function readOverrides(): Record<string, string>
+export function processUrlParams(): void
+</file>
+
+<file path="packages/runtime/src/semver.ts">
+function parseSemver(v: string): [number, number, number]
+export function satisfies(version: string, range: string): boolean
+export function resolveVersion(versions: string[], range: string): string | null
+</file>
+
+<file path="sandbox/configs/fe.config.json">
 {
-  "permissions": {
-    "allow": [
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: remove local docs and meta, point to DeepWiki\n\nLocal Docsify site \\(docs/\\), theme package \\(meta/docsify-slab/\\), icon\nassets \\(meta/icons/\\), and the Cloudflare Pages deploy workflow are\nreplaced by the DeepWiki at https://deepwiki.com/fe-platform/fe.\n\nReferences in README, CONTRIBUTING, and AGENTS updated accordingly.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git push:*)"
+  "plugins": [],
+  "manifestPath": "configs/platform.json",
+  "uploadsDir": "uploads",
+  "shellDir": "host-app"
+}
+</file>
+
+<file path="sandbox/host-app/index.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shell</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
+</file>
+
+<file path="sandbox/host-app/playwright.config.ts">
+import { defineConfig } from "@playwright/test";
+import { fileURLToPath } from "url";
+import { join, dirname } from "path";
+</file>
+
+<file path="sandbox/host-app/tsconfig.playwright.json">
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/playwright",
+    "types": [
+      "node"
     ]
+  },
+  "include": [
+    "playwright.config.ts",
+    "tests/**/*.spec.ts"
+  ]
+}
+</file>
+
+<file path="sandbox/mfe-a/index.d.ts">
+export declare function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): ()
+</file>
+
+<file path="sandbox/mfe-b/index.d.ts">
+export declare function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): ()
+</file>
+
+<file path="toolkit/devtools/src/styles.ts">
+
+</file>
+
+<file path=".agent">
+agentInstructions: ./AGENTS.md
+</file>
+
+<file path=".gemini">
+instructions_file: AGENTS.md
+</file>
+
+<file path="nx.json">
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx tsc --noEmit",
+        "cwd": "{projectRoot}"
+      }
+    }
+  },
+  "nxCloudId": null
+}
+</file>
+
+<file path="packages/cli/src/adapters/json-manifest-manager.ts">
+import { join } from "path";
+import { readFileSync } from "fs";
+import type { ManifestManager, PlatformConfig, PackageVersion } from "@fe/core";
+async function jsonRegisterPackage(
+  configPath: string,
+  specifier: string,
+  version: string,
+  entry: PackageVersion,
+): Promise<void>
+export function createJsonManifestManager(root: string, manifestPath: string): ManifestManager
+⋮----
+async read()
+async write(config)
+</file>
+
+<file path="packages/cli/src/adapters/local-source-storage.ts">
+import { join } from "path";
+import { cpSync, mkdirSync, existsSync, readdirSync, readFileSync } from "fs";
+import type { SourceStorage } from "@fe/core";
+function walkDir(current: string, prefix: string, results: string[]): void
+async function localListFiles(dir: string): Promise<string[]>
+export function createLocalSourceStorage(root: string, sourcesDir: string): SourceStorage
+⋮----
+function pkgPath(slug: string, version: string): string
+⋮----
+async upload(slug, version, srcDir)
+async fetchFile(slug, version, relativePath)
+</file>
+
+<file path="packages/cli/src/plugins/admin.ts">
+import { join } from "path";
+import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
+import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
+async function adminUpload(ctx: CliContext, hooks: Hooks, target: string): Promise<void>
+async function runAdmin(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupAdmin(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/plugins/build.ts">
+import { join } from "path";
+import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
+import { readFeDepKeys } from "../helpers";
+export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void>
+async function buildShell(ctx: CliContext, hooks: Hooks, shellDir: string): Promise<void>
+async function runBuild(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupBuild(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/plugins/dev.ts">
+import { join } from "path";
+import { watch } from "fs";
+import type { Plugin, CliContext, Hooks } from "@fe/core";
+import { readPackageMeta } from "../helpers";
+import { buildTarget } from "./build";
+⋮----
+function notifyReload(): void
+function drainPending(ctrl: ReadableStreamDefaultController): void
+function sandboxHtml(name: string): string
+async function devFetch(req: Request, distDir: string, name: string): Promise<Response>
+⋮----
+start(c)
+cancel()
+⋮----
+async function devWatchRebuild(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void>
+async function runDev(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupDev(ctx: CliContext, hooks: Hooks): void
+</file>
+
+<file path="packages/cli/src/helpers.ts">
+import { join } from "path";
+import { readFileSync } from "fs";
+import { isMfeSpecifier, parseSpecVersion, slugFromSpecifier } from "@fe/specifier";
+⋮----
+export function readPackageMeta(dir: string):
+export function readFeDeps(dir: string): Record<string, string>
+export function readFeDepKeys(dir: string): string[]
+</file>
+
+<file path="packages/cli/src/plugin-loader.ts">
+import { join } from "path";
+import type { Plugin } from "@fe/core";
+export async function loadExternalPlugins(root: string, pluginNames: string[]): Promise<Plugin[]>
+async function applyUpdatePolicy(root: string, packageName: string, plugin: Plugin): Promise<void>
+async function readInstalledVersion(root: string, packageName: string): Promise<string | null>
+async function fetchLatestVersion(packageName: string): Promise<string | null>
+function isOutdated(installed: string, latest: string): boolean
+⋮----
+const parse = (v: string)
+</file>
+
+<file path="packages/cli/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": [
+      "bun-types"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="packages/compiler/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": [
+      "bun-types"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="packages/core/src/context.ts">
+import type { ArtifactStorage, ManifestManager, Builder, ConfigProvider, SourceStorage } from "./adapters";
+import type { JitPlugin } from "./jit-plugin";
+export interface CommandDef {
+  name: string;
+  description: string;
+  usage: string;
+  run(args: string[]): Promise<void>;
+}
+⋮----
+run(args: string[]): Promise<void>;
+⋮----
+export interface CliContext {
+  root: string;
+  adapters: {
+    config: ConfigProvider;
+    artifactStorage: ArtifactStorage;
+    manifest: ManifestManager;
+    builder: Builder;
+    sourceStorage: SourceStorage;
+  };
+  commands: Map<string, CommandDef>;
+  jitPlugins: JitPlugin[];
+}
+</file>
+
+<file path="packages/core/src/index.ts">
+
+</file>
+
+<file path="packages/core/src/jit-plugin.ts">
+import type { BuildOptions } from "./types";
+export interface JitPlugin {
+  transform(options: BuildOptions): BuildOptions;
+}
+⋮----
+transform(options: BuildOptions): BuildOptions;
+</file>
+
+<file path="packages/core/src/plugin.ts">
+import type { CliContext } from "./context";
+import type { Hooks } from "./hooks";
+export interface Plugin {
+  name: string;
+  updatePolicy?: {
+    onOutdated: "warn" | "block";
+  };
+  setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
+}
+⋮----
+setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
+</file>
+
+<file path="packages/core/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="packages/jit-plugin-react/src/index.ts">
+import type { JitPlugin, BuildOptions } from "@fe/core";
+⋮----
+transform(options: BuildOptions): BuildOptions
+</file>
+
+<file path="packages/jit-plugin-solid/src/index.ts">
+import type { JitPlugin, BuildOptions } from "@fe/core";
+import { SolidPlugin } from "bun-plugin-solid";
+⋮----
+transform(options: BuildOptions): BuildOptions
+</file>
+
+<file path="packages/runtime/src/index.ts">
+
+</file>
+
+<file path="sandbox/host-app/src/index.ts">
+import { load, loadDevtools } from "@fe/runtime";
+</file>
+
+<file path="sandbox/host-app/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="sandbox/mfe-a/src/index.tsx">
+import React from "react";
+import { createRoot } from "react-dom/client";
+import type { Root } from "react-dom/client";
+</file>
+
+<file path="sandbox/mfe-a/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="sandbox/mfe-b/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="scripts/sync-versions.ts">
+import { readFileSync, writeFileSync } from "fs";
+import { globSync } from "glob";
+import { join } from "path";
+</file>
+
+<file path="toolkit/devtools/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "src"
+  ]
+}
+</file>
+
+<file path="toolkit/store/src/index.ts">
+export type Listener<T> = (value: T) => void;
+export type Unsubscribe = () => void;
+export type Updater<T> = T | ((prev: T) => T);
+export interface Store<T> {
+  get(): T;
+  set(updater: Updater<T>): void;
+  subscribe(listener: Listener<T>): Unsubscribe;
+}
+⋮----
+get(): T;
+set(updater: Updater<T>): void;
+subscribe(listener: Listener<T>): Unsubscribe;
+⋮----
+export function createStore<T>(key: string, init: T): Store<T>
+⋮----
+set(updater: Updater<T>): void
+subscribe(listener: Listener<T>): Unsubscribe
+⋮----
+export function getStore<T>(key: string): Store<T> | null
+</file>
+
+<file path="toolkit/syntax-highlighter/src/themes/github-light.ts">
+
+</file>
+
+<file path="toolkit/syntax-highlighter/src/core.test.ts">
+import { describe, test, expect } from "bun:test";
+import { ts } from "./languages/ts.ts";
+import { json } from "./languages/json.ts";
+</file>
+
+<file path="toolkit/syntax-highlighter/src/observe.ts">
+import { highlight } from './core.ts';
+⋮----
+function swapTextarea(ta: HTMLTextAreaElement): void
+function processAdded(el: Element): void
+⋮----
+function init(): void
+</file>
+
+<file path="toolkit/web-components/src/scoping.test.ts">
+import { test, expect } from "bun:test";
+function scopeSelectors(css: string, name: string): string
+</file>
+
+<file path=".aider.conf.yml">
+read:
+  - .contextstream/rules.md
+</file>
+
+<file path=".mcp.json">
+{
+  "mcpServers": {
+    "contextstream": {
+      "args": [],
+      "command": "contextstream-mcp",
+      "env": {
+        "CONTEXTSTREAM_ALLOW_HEADER_AUTH": "false",
+        "CONTEXTSTREAM_API_KEY": "cbiq_YXA972C5MXSH8YgLsmg22xkuugm96CEMxHubB8Pow4o",
+        "CONTEXTSTREAM_API_URL": "https://api.contextstream.io",
+        "CONTEXTSTREAM_AUTO_HIDE_INTEGRATIONS": "true",
+        "CONTEXTSTREAM_CONSOLIDATED": "true",
+        "CONTEXTSTREAM_CONTEXT_PACK": "true",
+        "CONTEXTSTREAM_HOOK_TRANSCRIPTS_ENABLED": "false",
+        "CONTEXTSTREAM_INCLUDE_STRUCTURED_CONTENT": "true",
+        "CONTEXTSTREAM_LOG_LEVEL": "quiet",
+        "CONTEXTSTREAM_OUTPUT_FORMAT": "compact",
+        "CONTEXTSTREAM_PROGRESSIVE_MODE": "false",
+        "CONTEXTSTREAM_PROJECT_ID": "",
+        "CONTEXTSTREAM_ROUTER_MODE": "false",
+        "CONTEXTSTREAM_SEARCH_LIMIT": "10",
+        "CONTEXTSTREAM_SEARCH_MAX_CHARS": "800",
+        "CONTEXTSTREAM_SHOW_TIMING": "false",
+        "CONTEXTSTREAM_TOOLSET": "standard",
+        "CONTEXTSTREAM_TRANSCRIPTS_ENABLED": "false",
+        "CONTEXTSTREAM_USER_AGENT": "contextstream-mcp-rust/0.1.68",
+        "CONTEXTSTREAM_WORKSPACE_ID": ""
+      }
+    }
   }
 }
+</file>
+
+<file path=".prettierignore">
+# Documentation fragments use custom components that are sensitive to line breaks
+docs/site/fragments/*.html
+docs/site/index.html
 </file>
 
 <file path=".repomixignore">
@@ -232,149 +889,141 @@ This section contains the contents of the repository's files.
 {
   "repo_notes": [
     {
-      "content": "This is a microfrontend (MFE) platform framework. Documentation should be structured around: the MFE scenario/landscape, what fe is and what it solves, what an MFE platform consists of, what fe owns, future roadmap, how-to guides, and advanced contributor topics. Prioritize the CLI, JIT bundler, runtime/shell, CI/CD workflows, and config/infra/CSP areas.",
+      "content": "This is a microfrontend (MFE) platform framework. Documentation is a single-page site composed of HTML fragments. Core concepts: fe(*) bare specifiers, raw source JIT compilation, and import-map orchestration.",
       "author": "fe-platform maintainer"
     }
   ],
   "overview": {
-    "purpose": "A friendly, concise welcome page for the fe microfrontend platform. Must include: 1) A Markmap mind-map diagram (using ```markmap code block) showing an example MFE website with color-coded groupings, boundaries, and labels depicting: multiple teams (e.g. Team Checkout, Team Search, Team Profile), each owning different MFEs (e.g. checkout-widget, search-bar, profile-card), hosted in separate repos, composed into a single website shell. Use color and grouping to distinguish team boundaries, shared services, and the runtime shell. 2) Below the diagram, render a set of clickable navigation tiles/cards for different audiences and knowledge paths: Philosophy, Architectural Style, Technology Radar/Toolkit, APIs & Packages, Getting Started as a Platform, Getting Started as an MFE Team, Getting Started for a POC. Each tile should link to the corresponding wiki page. Keep the tone welcoming and concise — this is the front door."
+    "purpose": "Single-page docs site. It use a fragment-based architecture where sections (Architecture, Product Eng, Platform Eng, Tutorials) are toggled via CSS. The build system uses Bun to compose these fragments into a final index.html."
   },
   "pages": [
     {
-      "title": "Philosophy",
-      "purpose": "The core philosophy and principles behind fe and microfrontend architecture"
+      "title": "Architecture and conventions",
+      "purpose": "Details the moving parts (@fe/cli, compiler, runtime, etc), the fe() convention, ES module exports, and the JIT deployment model."
     },
     {
-      "title": "Architectural Style",
-      "purpose": "The architectural patterns and style fe follows — runtime composition, isolation, shared nothing, etc."
+      "title": "For product engineers",
+      "purpose": "A guide for MFE developers on independent feature lifecycles, devtools-based overrides, and toolkit usage."
     },
     {
-      "title": "Technology Radar & Toolkit",
-      "purpose": "The technology choices, supported frameworks, and recommended toolkit for MFE teams"
+      "title": "For platform engineers",
+      "purpose": "Walkthroughs for setting up a platform: from POC to Cloud deployment and Enterprise toolkit patterns."
     },
     {
-      "title": "APIs & Packages",
-      "purpose": "Reference documentation for fe's public APIs, packages, and exports"
+      "title": "Proof of Concept",
+      "purpose": "Quickstart for platform engineers to set up two MFEs and a shell locally.",
+      "parent": "For platform engineers"
     },
     {
-      "title": "Getting Started as a Platform",
-      "purpose": "Step-by-step guide for platform teams to set up fe and the runtime shell"
+      "title": "Cloud Deployment",
+      "purpose": "Details on CDN caching, CSP configuration, and horizontal scaling of the JIT server.",
+      "parent": "For platform engineers"
     },
     {
-      "title": "Getting Started as an MFE Team",
-      "purpose": "Guide for MFE teams to create, develop, and deploy their first microfrontend"
+      "title": "Enterprise and Ecosystem",
+      "purpose": "Patterns for building reusable toolkit packages and managing CLI/JIT plugins.",
+      "parent": "For platform engineers"
     },
     {
-      "title": "Getting Started for a POC",
-      "purpose": "Quickstart guide for evaluating fe with a proof of concept"
-    },
-    {
-      "title": "Scenario",
-      "purpose": "Who microfrontends apply to, what the options are with pros/cons, and where fe fits in the landscape"
-    },
-    {
-      "title": "What is fe",
-      "purpose": "What problem fe solves, what your investment is to adopt fe, and what you will get"
-    },
-    {
-      "title": "What Your MFE Platform Will Be Made Of",
-      "purpose": "Overview of configs, infra, CSP/security, your runtime/shell, MFE teams, and common tooling"
-    },
-    {
-      "title": "Configs, Infra and Security (CSP)",
-      "purpose": "Detail the configuration, infrastructure, and Content Security Policy aspects",
-      "parent": "What Your MFE Platform Will Be Made Of"
-    },
-    {
-      "title": "Your Runtime/Shell",
-      "purpose": "Document the runtime shell that hosts and orchestrates microfrontends",
-      "parent": "What Your MFE Platform Will Be Made Of"
-    },
-    {
-      "title": "Your MFE Teams",
-      "purpose": "How MFE teams are structured and operate within the platform",
-      "parent": "What Your MFE Platform Will Be Made Of"
-    },
-    {
-      "title": "Your Common Tooling",
-      "purpose": "Shared tooling provided to MFE teams",
-      "parent": "What Your MFE Platform Will Be Made Of"
-    },
-    {
-      "title": "What fe Will Own",
-      "purpose": "The brains of runtime, the CLI, the JIT bundler, and common CI/CD workflows/actions/templates"
-    },
-    {
-      "title": "Future Roadmap",
-      "purpose": "MFE registry tied to JSR, MFEs exporting more than render, NATIVES tooling, shared automation/testing"
-    },
-    {
-      "title": "How Do You Set Up Your Platform",
-      "purpose": "Step-by-step platform setup guide"
-    },
-    {
-      "title": "How Does Your Org Create MFEs",
-      "purpose": "Guide for teams to create new microfrontends"
-    },
-    {
-      "title": "How Do You Maintain Your MFE Ecosystem",
-      "purpose": "Ongoing maintenance of the MFE ecosystem and platform"
-    },
-    {
-      "title": "Advanced Topics for Contributors",
-      "purpose": "How fe works internally, project goals, and contributor deep dives"
+      "title": "Tutorials",
+      "purpose": "Hands-on tutorials: Hello World, Multi-team composition, Shared state, and Custom JIT plugins."
     }
   ]
 }
 </file>
 
-<file path="packages/cli/src/adapters/json-manifest-manager.ts">
-import { join } from "path";
-import { readFileSync } from "fs";
-import type { ManifestManager, PlatformConfig, PackageVersion } from "@fe/core";
-async function jsonRegisterPackage(
-  configPath: string,
-  specifier: string,
-  version: string,
-  entry: PackageVersion,
-): Promise<void>
-export function createJsonManifestManager(root: string, manifestPath: string): ManifestManager
-⋮----
-async read()
-async write(config)
+<file path=".github/workflows/ci.yml">
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    name: Packages (typecheck)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: bun-
+      - name: Install
+        run: bun install
+      - name: Typecheck packages
+        run: |
+          bunx tsc --noEmit --project packages/core/tsconfig.json
+          bunx tsc --noEmit --project packages/specifier/tsconfig.json
+          bunx tsc --noEmit --project packages/cli/tsconfig.json
+          bunx tsc --noEmit --project packages/runtime/tsconfig.json
+          bunx tsc --noEmit --project packages/compiler/tsconfig.json
+          bunx tsc --noEmit --project packages/jit-plugin-react/tsconfig.json
+          bunx tsc --noEmit --project packages/jit-plugin-solid/tsconfig.json
+  sandbox:
+    runs-on: ubuntu-latest
+    name: Sandbox (typecheck + build)
+    needs: packages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: bun-
+      - name: Install
+        run: bun install
+      - name: Typecheck sandbox
+        run: |
+          bunx tsc --noEmit --project sandbox/mfe-a/tsconfig.json
+          bunx tsc --noEmit --project sandbox/mfe-b/tsconfig.json
+          bunx tsc --noEmit --project sandbox/host-app/tsconfig.json
+          bunx tsc --noEmit --project toolkit/devtools/tsconfig.json
+      - name: Build sandbox
+        run: |
+          (cd sandbox/mfe-a && bun run check)
+          (cd sandbox/mfe-b && bun run check)
+          (cd toolkit/devtools && bun run check)
+          (cd sandbox/host-app && bun run check)
 </file>
 
-<file path="packages/cli/src/adapters/local-artifact-storage.ts">
-import { join } from "path";
-import { cpSync, mkdirSync, existsSync } from "fs";
-import type { ArtifactStorage } from "@fe/core";
-export function createLocalArtifactStorage(root: string, uploadsDir: string): ArtifactStorage
-⋮----
-async upload(slug, version, distDir)
-async exists(slug, version)
+<file path="packages/cli/src/adapters/bun-builder.ts">
+import type { Builder, BuildOptions } from "@fe/core";
+import { compileMfe } from "@fe/compiler";
+async function bunBuild(options: BuildOptions): Promise<
+export function createBunBuilder(): Builder
 </file>
 
-<file path="packages/cli/src/adapters/local-source-storage.ts">
+<file path="packages/cli/src/adapters/json-config-provider.ts">
 import { join } from "path";
-import { cpSync, mkdirSync, existsSync, readdirSync, readFileSync } from "fs";
-import type { SourceStorage } from "@fe/core";
-function walkDir(current: string, prefix: string, results: string[]): void
-async function localListFiles(dir: string): Promise<string[]>
-export function createLocalSourceStorage(root: string, sourcesDir: string): SourceStorage
+import type { FeConfig, ConfigProvider } from "@fe/core";
 ⋮----
-function pkgPath(slug: string, version: string): string
-⋮----
-async upload(slug, version, srcDir)
-async fetchFile(slug, version, relativePath)
+async function jsonConfigGet(configPath: string): Promise<Required<FeConfig>>
+export function createJsonConfigProvider(root: string): ConfigProvider
 </file>
 
-<file path="packages/cli/src/plugins/admin.ts">
+<file path="packages/cli/src/adapters/package-json-config-provider.ts">
 import { join } from "path";
-import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
-import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
-async function adminUpload(ctx: CliContext, hooks: Hooks, target: string): Promise<void>
-async function runAdmin(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
-function setupAdmin(ctx: CliContext, hooks: Hooks): void
+import type { FeConfig, ConfigProvider } from "@fe/core";
+⋮----
+export function createPackageJsonConfigProvider(root: string): ConfigProvider
+</file>
+
+<file path="packages/cli/src/plugins/check.ts">
+import { join } from "path";
+import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
+import { readPackageMeta, readFeDepKeys } from "../helpers";
+async function runCheck(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupCheck(ctx: CliContext, hooks: Hooks): void
 </file>
 
 <file path="packages/cli/src/plugins/link.ts">
@@ -386,8 +1035,21 @@ async function runLink(ctx: CliContext, hooks: Hooks, args: string[]): Promise<v
 function setupLink(ctx: CliContext, hooks: Hooks): void
 </file>
 
+<file path="packages/cli/src/plugins/new.ts">
+import { join } from "path";
+import { mkdirSync, writeFileSync, existsSync } from "fs";
+import type { CliContext, CommandDef } from "@fe/core";
+import type { Hooks } from "@fe/core";
+⋮----
+function buildPackageJson(specifier: string, slug: string): string
+async function runNew(ctx: CliContext, args: string[]): Promise<void>
+⋮----
+setup(ctx: CliContext, _hooks: Hooks): void
+</file>
+
 <file path="packages/cli/src/plugins/publish.ts">
 import { join } from "path";
+import { existsSync, mkdirSync, cpSync } from "fs";
 import type { Plugin, CliContext, Hooks, PackageVersion } from "@fe/core";
 import { readPackageMeta, readFeDeps, slugFromSpecifier } from "../helpers";
 async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<void>
@@ -395,30 +1057,47 @@ async function runPublish(ctx: CliContext, hooks: Hooks, args: string[]): Promis
 function setupPublish(ctx: CliContext, hooks: Hooks): void
 </file>
 
-<file path="packages/cli/src/helpers.ts">
+<file path="packages/cli/src/plugins/serve.ts">
 import { join } from "path";
-import { readFileSync } from "fs";
-export function readPackageMeta(dir: string):
-export function readFeDeps(dir: string): Record<string, string>
-export function readFeDepKeys(dir: string): string[]
-export function parseSpecVersion(sv: string):
-export function slugFromSpecifier(specifier: string): string
+import type { Plugin, CliContext, Hooks } from "@fe/core";
+import { createJITBundler } from "@fe/compiler";
+async function serveFetch(
+  req: Request,
+  hooks: Hooks,
+  jit: { handle: (req: Request) => Promise<Response | null> },
+  root: string,
+  distDir: string,
+  uploadsPrefix: string,
+): Promise<Response>
+async function runServe(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
+function setupServe(ctx: CliContext, hooks: Hooks): void
 </file>
 
-<file path="packages/cli/src/index.ts">
-import { cwd } from "process";
-import { bootstrap } from "./bootstrap";
-</file>
-
-<file path="packages/cli/src/plugin-loader.ts">
-import type { Plugin } from "@fe/core";
-export async function loadExternalPlugins(root: string, pluginNames: string[]): Promise<Plugin[]>
+<file path="packages/cli/src/bootstrap.ts">
+import { Hooks } from "@fe/core";
+import type { CliContext, JitPlugin, Plugin } from "@fe/core";
+import { loadExternalPlugins } from "./plugin-loader";
+import { createBunBuilder } from "./adapters/bun-builder";
+import { createJsonConfigProvider } from "./adapters/json-config-provider";
+import { buildPlugin } from "./plugins/build";
+import { createJsonManifestManager } from "./adapters/json-manifest-manager";
+import { createLocalArtifactStorage } from "./adapters/local-artifact-storage";
+import { createLocalSourceStorage } from "./adapters/local-source-storage";
+import { adminPlugin } from "./plugins/admin";
+import { publishPlugin } from "./plugins/publish";
+import { devPlugin } from "./plugins/dev";
+import { linkPlugin } from "./plugins/link";
+import { servePlugin } from "./plugins/serve";
+import { checkPlugin } from "./plugins/check";
+import { newPlugin } from "./plugins/new";
+⋮----
+export async function bootstrap(root: string): Promise<
 </file>
 
 <file path="packages/compiler/package.json">
 {
   "name": "@fe/compiler",
-  "version": "1.0.0",
+  "version": "0.2.2",
   "module": "src/index.ts",
   "types": "src/index.ts",
   "type": "module",
@@ -438,50 +1117,21 @@ export async function loadExternalPlugins(root: string, pluginNames: string[]): 
 }
 </file>
 
-<file path="packages/compiler/tsconfig.json">
-{
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "types": [
-      "bun-types"
-    ]
-  },
-  "include": [
-    "src"
-  ]
+<file path="packages/core/src/fe-config.ts">
+export interface FeConfig {
+  plugins?: string[];
+  jitPlugins?: string[];
+  manifestPath?: string;
+  uploadsDir?: string;
+  shellDir?: string;
+  sourcesDir?: string;
 }
-</file>
-
-<file path="packages/core/src/jit-plugin.ts">
-import type { BuildOptions } from "./types";
-export interface JitPlugin {
-  transform(options: BuildOptions): BuildOptions;
-}
-⋮----
-transform(options: BuildOptions): BuildOptions;
-</file>
-
-<file path="packages/core/src/plugin.ts">
-import type { CliContext } from "./context";
-import type { Hooks } from "./hooks";
-export interface Plugin {
-  name: string;
-  setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
-}
-⋮----
-setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
 </file>
 
 <file path="packages/core/package.json">
 {
   "name": "@fe/core",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -496,33 +1146,6 @@ setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
 }
 </file>
 
-<file path="packages/jit-plugin-react/src/index.ts">
-import type { JitPlugin, BuildOptions } from "@fe/core";
-⋮----
-transform(options: BuildOptions): BuildOptions
-</file>
-
-<file path="packages/jit-plugin-react/package.json">
-{
-  "name": "@fe/jit-plugin-react",
-  "version": "0.1.0",
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "scripts": {
-    "typecheck": "bunx tsc --noEmit"
-  },
-  "dependencies": {
-    "@fe/core": "workspace:*"
-  },
-  "devDependencies": {
-    "bun-types": "latest",
-    "typescript": "^5.0.0"
-  }
-}
-</file>
-
 <file path="packages/jit-plugin-react/tsconfig.json">
 {
   "compilerOptions": {
@@ -530,40 +1153,11 @@ transform(options: BuildOptions): BuildOptions
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["bun-types"]
   },
   "include": ["src"]
-}
-</file>
-
-<file path="packages/jit-plugin-solid/src/index.ts">
-import type { JitPlugin, BuildOptions } from "@fe/core";
-import { SolidPlugin } from "bun-plugin-solid";
-⋮----
-transform(options: BuildOptions): BuildOptions
-</file>
-
-<file path="packages/jit-plugin-solid/package.json">
-{
-  "name": "@fe/jit-plugin-solid",
-  "version": "0.1.0",
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "scripts": {
-    "typecheck": "bunx tsc --noEmit"
-  },
-  "dependencies": {
-    "@fe/core": "workspace:*",
-    "bun-plugin-solid": "^1.0.0",
-    "solid-js": "^1.9.0"
-  },
-  "devDependencies": {
-    "bun-types": "latest",
-    "typescript": "^5.0.0"
-  }
 }
 </file>
 
@@ -574,6 +1168,7 @@ transform(options: BuildOptions): BuildOptions
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["bun-types"]
   },
@@ -581,129 +1176,24 @@ transform(options: BuildOptions): BuildOptions
 }
 </file>
 
-<file path="packages/runtime/src/overrides.ts">
-export function readOverrides(): Record<string, string>
-export function processUrlParams(): void
-</file>
-
-<file path="packages/runtime/src/semver.ts">
-function parseSemver(v: string): [number, number, number]
-export function satisfies(version: string, range: string): boolean
-export function resolveVersion(versions: string[], range: string): string | null
-</file>
-
-<file path="sandbox/configs/fe.config.json">
-{
-  "plugins": [],
-  "manifestPath": "configs/platform.json",
-  "uploadsDir": "uploads",
-  "shellDir": "host-app"
-}
-</file>
-
-<file path="sandbox/host-app/index.html">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shell</title>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="./app.js"></script>
-</body>
-</html>
-</file>
-
-<file path="sandbox/host-app/tsconfig.playwright.json">
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "outDir": "dist/playwright",
-    "types": [
-      "node"
-    ]
-  },
-  "include": [
-    "playwright.config.ts",
-    "tests/**/*.spec.ts"
-  ]
-}
-</file>
-
-<file path="sandbox/mfe-a/src/index.tsx">
-import React from "react";
-import { createRoot, Root } from "react-dom/client";
-</file>
-
-<file path="sandbox/mfe-a/index.d.ts">
-export declare function render(
-  container: HTMLElement,
-  props: Record<string, unknown>
-): ()
-</file>
-
-<file path="sandbox/mfe-b/index.d.ts">
-export declare function render(
-  container: HTMLElement,
-  props: Record<string, unknown>
-): ()
-</file>
-
-<file path="toolkit/devtools/src/styles.ts">
-
-</file>
-
-<file path=".agent">
-agentInstructions: ./AGENTS.md
-</file>
-
-<file path=".gemini">
-instructions_file: AGENTS.md
-</file>
-
-<file path="packages/cli/src/plugins/check.ts">
-import { join } from "path";
-import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
-import { readPackageMeta, readFeDepKeys } from "../helpers";
-async function runCheck(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
-function setupCheck(ctx: CliContext, hooks: Hooks): void
-</file>
-
-<file path="packages/cli/src/plugins/dev.ts">
-import { join } from "path";
-import { watch } from "fs";
-import type { Plugin, CliContext, Hooks } from "@fe/core";
-import { readPackageMeta } from "../helpers";
-import { buildTarget } from "./build";
-⋮----
-function notifyReload(): void
-function drainPending(ctrl: ReadableStreamDefaultController): void
-function sandboxHtml(name: string): string
-async function devFetch(req: Request, distDir: string, name: string): Promise<Response>
-⋮----
-start(c)
-cancel()
-⋮----
-async function devWatchRebuild(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void>
-async function runDev(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
-function setupDev(ctx: CliContext, hooks: Hooks): void
-</file>
-
-<file path="packages/cli/tsconfig.json">
+<file path="packages/runtime/tsconfig.json">
 {
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src",
     "types": [
       "bun-types"
-    ]
+    ],
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "include": [
     "src"
@@ -711,46 +1201,21 @@ function setupDev(ctx: CliContext, hooks: Hooks): void
 }
 </file>
 
-<file path="packages/core/src/hooks.ts">
-import type { BuildOptions, BuildResult, PackageVersion } from "./types";
-export interface HookMap {
-  "build:before": [target: string, options: BuildOptions];
-  "build:after": [target: string, result: BuildResult];
-  "build:options": [options: BuildOptions];
-  "build:shell:before": [];
-  "build:shell:after": [];
-  "serve:start": [port: number];
-  "serve:request": [req: Request];
-  "dev:start": [target: string, port: number];
-  "dev:rebuild": [target: string];
-  "dev:reload": [];
-  "link:before": [consumer: string, dep: string];
-  "link:after": [consumer: string, depName: string];
-  "admin:upload:before": [target: string, meta: { name: string; version: string }];
-  "admin:upload:after": [target: string, url: string, deps: Record<string, string>];
-  "admin:register:before": [specifier: string, version: string, entry: PackageVersion];
-  "admin:register:after": [];
-  "publish:before": [target: string, meta: { name: string; version: string }];
-  "publish:after": [target: string, url: string, deps: Record<string, string>];
-  "publish:register:before": [specifier: string, version: string, entry: PackageVersion];
-  "publish:register:after": [];
-}
-type HookName = keyof HookMap & string;
-type HookHandler<K extends HookName> = (...args: HookMap[K]) => void | Promise<void>;
-export class Hooks
-⋮----
-hook<K extends HookName>(name: K, fn: HookHandler<K>, priority = 10): void
-async callHook<K extends HookName>(name: K, ...args: HookMap[K]): Promise<void>
-async waterfall<T>(name: string, initial: T): Promise<T>
+<file path="packages/specifier/src/index.ts">
+export function isMfeSpecifier(key: string): boolean
+export function parseSpecVersion(sv: string):
+/** Extracts the short slug: "@scope/fe-mfe-a" → "mfe-a", "fe-mfe-a" → "mfe-a". */
+export function slugFromSpecifier(specifier: string): string
 </file>
 
-<file path="packages/core/tsconfig.json">
+<file path="packages/specifier/tsconfig.json">
 {
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": "src"
@@ -761,162 +1226,21 @@ async waterfall<T>(name: string, initial: T): Promise<T>
 }
 </file>
 
-<file path="packages/runtime/src/platform.ts">
-import type { PlatformConfig } from "@fe/core";
-import { resolveVersion } from "./semver";
-import { readOverrides, processUrlParams } from "./overrides";
-export type RenderFn = (container: HTMLElement, props: Record<string, unknown>) => () => void;
-⋮----
-function readConfig(): PlatformConfig
-function parseSpecVersion(sv: string):
-⋮----
-function resolveDeps(
-  specifier: string,
-  version: string,
-  resolved: Map<string, string> = new Map(),
-): Map<string, string>
-function injectImportMap(imports: Record<string, string>): void
-function applyOverridesAndInject(allDeps: Map<string, string>): void
-export async function load(path: string): Promise<
-export async function loadDevtools(): Promise<void>
-</file>
-
-<file path="sandbox/configs/platform.json">
-{
-  "routes": {
-    "/": "fe(acme/mfe-b)@1.0.0"
-  },
-  "devtools": "fe(acme/devtools)@1.0.0",
-  "packages": {
-    "fe(acme/devtools)": {
-      "versions": {
-        "1.0.0": {
-          "url": "./uploads/devtools/1.0.0/index.js",
-          "deps": {}
-        }
-      }
-    },
-    "fe(acme/mfe-a)": {
-      "versions": {
-        "1.0.0": {
-          "url": "./uploads/mfe-a/1.0.0/index.js",
-          "deps": {}
-        }
-      }
-    },
-    "fe(acme/mfe-b)": {
-      "versions": {
-        "1.0.0": {
-          "url": "./uploads/mfe-b/1.0.0/index.js",
-          "deps": {
-            "fe(acme/mfe-a)": "^1.0.0"
-          }
-        }
-      }
-    }
-  }
-}
-</file>
-
-<file path="sandbox/host-app/src/index.ts">
-import { load, loadDevtools } from "@fe/runtime";
-</file>
-
-<file path="sandbox/host-app/tests/host.spec.ts">
-import { test, expect } from "@playwright/test";
-</file>
-
-<file path="sandbox/host-app/playwright.config.ts">
-import { defineConfig } from "@playwright/test";
-import { fileURLToPath } from "url";
-import { join, dirname } from "path";
-</file>
-
-<file path="sandbox/host-app/tsconfig.json">
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "lib": [
-      "ES2022",
-      "DOM"
-    ]
-  },
-  "include": [
-    "src"
-  ]
-}
-</file>
-
 <file path="sandbox/mfe-a/project.json">
 {
-  "name": "fe(acme/mfe-a)",
+  "name": "@conqueso/fe-mfe-a",
   "targets": {
     "typecheck": {}
   }
 }
-</file>
-
-<file path="sandbox/mfe-a/tsconfig.json">
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ]
-  },
-  "include": [
-    "src"
-  ]
-}
-</file>
-
-<file path="sandbox/mfe-b/src/index.tsx">
-import { render as renderA } from "fe(acme/mfe-a)";
-import { render as solidRender } from "solid-js/web";
-function Wrapper(props:
-export function render(
-  container: HTMLElement,
-  props: Record<string, unknown>
-): () => void
 </file>
 
 <file path="sandbox/mfe-b/project.json">
 {
-  "name": "fe(acme/mfe-b)",
+  "name": "@conqueso/fe-mfe-b",
   "targets": {
     "typecheck": {}
   }
-}
-</file>
-
-<file path="sandbox/mfe-b/tsconfig.json">
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ]
-  },
-  "include": [
-    "src"
-  ]
 }
 </file>
 
@@ -932,7 +1256,7 @@ export function render(
   },
   "devDependencies": {
     "@fe/cli": "workspace:*",
-    "fe(acme/mfe-b)": "file:./mfe-b"
+    "@conqueso/fe-mfe-b": "file:./mfe-b"
   }
 }
 </file>
@@ -963,84 +1287,639 @@ function share()
 
 <file path="toolkit/devtools/project.json">
 {
-  "name": "fe(acme/devtools)",
+  "name": "@fe/fe-devtools",
   "targets": {
     "typecheck": {}
   }
 }
 </file>
 
-<file path="toolkit/devtools/tsconfig.json">
+<file path="toolkit/network/src/index.ts">
+export type RequestInterceptor = (request: Request) => Request | Promise<Request>;
+export type ResponseInterceptor = (response: Response, request: Request) => Response | Promise<Response>;
+export interface NetworkConfig {
+  interceptors?: {
+    request?: RequestInterceptor[];
+    response?: ResponseInterceptor[];
+  };
+}
+export interface NetworkClient {
+  fetch(input: string | URL | Request, init?: RequestInit): Promise<Response>;
+  addRequestInterceptor(fn: RequestInterceptor): () => void;
+  addResponseInterceptor(fn: ResponseInterceptor): () => void;
+}
+⋮----
+fetch(input: string | URL | Request, init?: RequestInit): Promise<Response>;
+addRequestInterceptor(fn: RequestInterceptor): ()
+addResponseInterceptor(fn: ResponseInterceptor): ()
+⋮----
+function cacheKey(req: Request): string
+function isCacheable(req: Request): boolean
+async function applyRequestInterceptors(req: Request): Promise<Request>
+async function applyResponseInterceptors(res: Response, req: Request): Promise<Response>
+async function execute(req: Request): Promise<Response>
+⋮----
+fetch(input, init)
+addRequestInterceptor(fn)
+addResponseInterceptor(fn)
+⋮----
+export function invalidateCache(urlPrefix: string): void
+</file>
+
+<file path="toolkit/network/tsconfig.json">
 {
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    "jsx": "react-jsx",
-    "jsxImportSource": "solid-js"
+    "lib": ["ES2022", "DOM"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
 </file>
 
-<file path="nx.json">
+<file path="toolkit/store/tsconfig.json">
 {
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "defaultBase": "main",
-  "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist"]
-    },
-    "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "bunx tsc --noEmit",
-        "cwd": "{projectRoot}"
-      }
-    }
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "lib": ["ES2022", "DOM"]
   },
-  "nxCloudId": null
+  "include": ["src"]
 }
 </file>
 
-<file path="packages/cli/src/adapters/bun-builder.ts">
-import type { Builder, BuildOptions } from "@fe/core";
-import { compileMfe } from "@fe/compiler";
-async function bunBuild(options: BuildOptions): Promise<
-export function createBunBuilder(): Builder
+<file path="toolkit/syntax-highlighter/src/themes/default.ts">
+import { lightTheme } from './light.ts';
+import { darkTheme } from './dark.ts';
 </file>
 
-<file path="packages/cli/src/adapters/json-config-provider.ts">
-import { join } from "path";
-import type { FeConfig, ConfigProvider } from "@fe/core";
-⋮----
-async function jsonConfigGet(configPath: string): Promise<Required<FeConfig>>
-export function createJsonConfigProvider(root: string): ConfigProvider
+<file path="toolkit/syntax-highlighter/src/themes/dracula.ts">
+
 </file>
 
-<file path="packages/cli/src/plugins/build.ts">
-import { join } from "path";
-import type { Plugin, CliContext, BuildOptions, Hooks } from "@fe/core";
-import { readFeDepKeys } from "../helpers";
-export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void>
-async function buildShell(ctx: CliContext, hooks: Hooks, shellDir: string): Promise<void>
-async function runBuild(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
-function setupBuild(ctx: CliContext, hooks: Hooks): void
+<file path="toolkit/syntax-highlighter/src/types.ts">
+export type Category =
+    | 'keyword'
+    | 'string'
+    | 'comment'
+    | 'type'
+    | 'number'
+    | 'operator'
+    | 'function'
+    | 'property'
+    | 'variable'
+    | 'argument'
+    | 'constant'
+    | 'boolean';
+export interface Rule {
+    category: Category;
+    pattern: RegExp;
+}
+export type LanguageRules = Rule[];
+</file>
+
+<file path="toolkit/web-components/src/index.ts">
+
+</file>
+
+<file path="docs/site/fragments/header.html">
+<fe-component name="BetaBanner">
+    <style>
+        .beta-banner {
+            background: color-mix(in srgb, var(--card-a) 15%, var(--bg));
+            border-bottom: 1px solid color-mix(in srgb, var(--card-a) 35%, transparent);
+            color: var(--ink);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 0.55rem 2rem;
+            line-height: 1.4;
+        }
+        .beta-banner a {
+            color: var(--accent);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .beta-banner a:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <div class="beta-banner">
+        pre-production · beta at v0.8 · production-ready at v1.0 · <a href="https://github.com/fe-platform/fe/releases" target="_blank" rel="noopener noreferrer">track releases</a>
+    </div>
+</fe-component>
+<fe-component name="SiteTitle">
+    <style>
+        .site-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: default;
+        }
+        .site-title img {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center center;
+            will-change: transform;
+        }
+        .site-title:hover img {
+            transform: rotate(180deg);
+        }
+    </style>
+    <span class="site-title">
+        <img src="logo.png" width="26" height="26" aria-hidden="true" alt="" />
+        fe platform · docs
+    </span>
+</fe-component>
+<fe-component name="HeaderRight">
+    <style>
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .github-link {
+            color: var(--mid);
+            display: flex;
+            align-items: center;
+            transition: color 0.2s ease;
+        }
+        .github-link:hover {
+            color: var(--ink);
+        }
+        .version-container {
+            display: flex;
+            align-items: center;
+            color: var(--mid);
+            font-weight: 400;
+        }
+        .version-select {
+            background: transparent;
+            border: 1px solid var(--rule);
+            color: var(--mid);
+            font-family: inherit;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            outline: none;
+            margin-left: auto;
+        }
+        .version-select:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+    <div class="header-right">
+        <a
+            href="https://github.com/fe-platform/fe"
+            class="github-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View on GitHub"
+        >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path
+                    d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+                />
+            </svg>
+        </a>
+        <div class="version-container">
+            <label for="version-select" class="visually-hidden"
+                >Select version</label
+            >
+            <select
+                id="version-select"
+                class="version-select"
+                onchange="if (this.value) location.href = '/' + this.value + '/';"
+            >
+                <option value="v0.1" selected>v0.1 (current)</option>
+            </select>
+        </div>
+    </div>
+</fe-component>
+<fe-component name="HeaderInner">
+    <style>
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+    </style>
+    <div class="header-inner">
+        <slot name="left"></slot>
+        <slot name="right"></slot>
+    </div>
+</fe-component>
+<fe-component name="SiteHeader">
+    <style>
+        .site-header {
+            border-bottom: 1px solid var(--rule);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 100;
+        }
+    </style>
+    <header class="site-header">
+        <slot></slot>
+    </header>
+</fe-component>
+<fe-compose name="BetaBanner"></fe-compose>
+<fe-compose name="SiteHeader">
+    <fe-compose name="HeaderInner">
+        <fe-compose name="SiteTitle" slot="left"></fe-compose>
+        <fe-compose name="HeaderRight" slot="right"></fe-compose>
+    </fe-compose>
+</fe-compose>
+</file>
+
+<file path="docs/site/fragments/hero.html">
+<fe-component name="HeroCard">
+    <style>
+        .card {
+            position: relative;
+            border: 1px solid var(--rule);
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--ink);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+        .card::before {
+            content: attr(data-char);
+            position: absolute;
+            top: -2rem;
+            right: -1rem;
+            font-size: 12rem;
+            font-weight: 900;
+            opacity: 0.08;
+            line-height: 1;
+            pointer-events: none;
+            transition:
+                opacity 0.2s ease,
+                transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        .card:hover::before {
+            opacity: 0.15;
+            transform: rotate(10deg) scale(1.1);
+        }
+        .card-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-desc {
+            font-size: 0.82rem;
+            color: var(--mid);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .card-features {
+            margin-top: auto;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            color: var(--mid);
+        }
+        .card-features span {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+    </style>
+    <a href="#" class="card">
+        <div class="card-label"><slot name="label"></slot></div>
+        <div class="card-desc"><slot name="desc"></slot></div>
+        <div class="card-features"><slot name="features"></slot></div>
+    </a>
+</fe-component>
+<fe-component name="HeroDiagram">
+    <style>
+        .diagram {
+            border: 1px solid var(--ink);
+            margin-top: auto;
+            background: var(--bg);
+        }
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .diagram-cell {
+            padding: 1rem 1.25rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: 1px solid var(--rule);
+        }
+        .diagram-cell .sub {
+            font-weight: 400;
+            font-size: 0.62rem;
+            color: var(--ink);
+            margin-top: 0.2rem;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+    </style>
+    <div class="diagram">
+        <div class="diagram-grid">
+            <div class="diagram-cell">
+                ◆ MFE teams
+                <div class="sub">
+                    <code>fe publish</code> · <code>fe dev</code> ·
+                    <code>fe new</code>
+                </div>
+            </div>
+            <div class="diagram-cell">
+                ◆ JIT server
+                <div class="sub">
+                    <code>fe serve</code> · compiles on demand
+                </div>
+            </div>
+            <div class="diagram-cell">
+                ◆ platform config
+                <div class="sub">
+                    <code>platform.json</code> · routes + packages
+                </div>
+            </div>
+            <div class="diagram-cell">
+                ◆ browser runtime
+                <div class="sub">
+                    import maps · <code>@fe/runtime</code> ·
+                    <code>render()</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</fe-component>
+<fe-component name="HeroLayout">
+    <style>
+        .hero {
+            border-bottom: 1px solid var(--rule);
+        }
+        .dot-grid {
+            background-image: radial-gradient(
+                circle,
+                var(--dot) 1px,
+                transparent 1px
+            );
+            --dot-step: 20px;
+            background-size: var(--dot-step) var(--dot-step);
+        }
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        @media (max-width: 999px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+            }
+        }
+        .hero-left {
+            padding: 2rem;
+            border-right: 1px solid var(--rule);
+            display: flex;
+            flex-direction: column;
+        }
+        @media (max-width: 999px) {
+            .hero-left {
+                border-right: none;
+                border-bottom: 1px solid var(--rule);
+            }
+        }
+        .hero-right {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1rem;
+            height: 100%;
+        }
+        @media (max-width: 600px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <section class="hero dot-grid">
+        <div class="hero-inner">
+            <div class="hero-left">
+                <slot name="left"></slot>
+            </div>
+            <div class="hero-right">
+                <div class="card-grid">
+                    <slot name="right"></slot>
+                </div>
+            </div>
+        </div>
+    </section>
+</fe-component>
+<fe-compose name="HeroLayout">
+    <div slot="left">
+        <style>
+            .hero-header-container {
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            .hero-logo {
+                width: 80px;
+                height: 80px;
+                animation: hero-logo-spin 20s linear infinite;
+            }
+            @keyframes hero-logo-spin {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            .hero-left h1 {
+                font-size: 2.25rem;
+                line-height: 1.15;
+            }
+            .hero-left h1 .light {
+                font-weight: 300;
+                display: block;
+            }
+            .hero-left h1 strong {
+                font-weight: 900;
+            }
+            .hero-tagline {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: var(--accent);
+                margin-bottom: 0.75rem;
+                text-transform: uppercase;
+            }
+            .hero-intro {
+                font-size: 0.875rem;
+                line-height: 1.65;
+                color: var(--ink);
+                margin-bottom: 1.5rem;
+            }
+        </style>
+        <div class="hero-header-container">
+            <img src="logo.png" class="hero-logo" alt="" />
+            <h1>
+                <span class="light">a platform for</span
+                ><strong>microfrontends ✦</strong>
+            </h1>
+        </div>
+        <p class="hero-tagline">Ship independently. Compose natively.</p>
+        <div class="hero-intro">
+            <p>
+                Each team publishes TypeScript source. The JIT server compiles
+                it on first request. The browser resolves every
+                <code>@scope/fe-name</code> specifier through import maps at
+                runtime.
+            </p>
+        </div>
+        <fe-compose name="HeroDiagram"></fe-compose>
+    </div>
+    <fe-compose
+        name="HeroCard"
+        slot="right"
+        data-char="⧉"
+        style="border: 2px solid var(--card-a); color: var(--card-a)"
+    >
+        <span slot="label">✦ Product engineering</span>
+        <span slot="desc"
+            >How to scaffold, develop, and publish a MFE independently.</span
+        >
+        <div slot="features">
+            <span>Scaffolding</span> <span>Dev workflow</span>
+            <span>Publishing</span>
+        </div>
+    </fe-compose>
+    <fe-compose
+        name="HeroCard"
+        slot="right"
+        data-char="۞"
+        style="border: 2px solid var(--card-b); color: var(--card-b)"
+    >
+        <span slot="label">❖ Platform engineering</span>
+        <span slot="desc"
+            >How to operate the JIT server, shell, and manifest.</span
+        >
+        <div slot="features">
+            <span>JIT Server</span> <span>Manifests</span>
+            <span>Rollbacks</span>
+        </div>
+    </fe-compose>
+    <fe-compose
+        name="HeroCard"
+        slot="right"
+        data-char="⎔"
+        style="border: 2px solid var(--card-c); color: var(--card-c)"
+    >
+        <span slot="label">◎ Architecture & design</span>
+        <span slot="desc"
+            >The fe() convention, import map lifecycle, and plugin system.</span
+        >
+        <div slot="features">
+            <span>Convention</span> <span>Import Maps</span>
+            <span>Plugins</span>
+        </div>
+    </fe-compose>
+    <fe-compose
+        name="HeroCard"
+        slot="right"
+        data-char="✺"
+        style="border: 2px solid var(--card-d); color: var(--card-d)"
+    >
+        <span slot="label">➤ Hands-on tutorials</span>
+        <span slot="desc"
+            >Step-by-step tutorials from hello world to toolkit
+            integration.</span
+        >
+        <div slot="features">
+            <span>Hello World</span> <span>State Sharing</span>
+            <span>Deps</span>
+        </div>
+    </fe-compose>
+</fe-compose>
+</file>
+
+<file path="docs/site/_headers">
+# Cache-Control for main HTML and fragments (including extension-less URLs)
+# Browser cache for 1 hour, Edge cache for 1 day, background refresh for up to a year
+
+# Match all fragments (which are extension-less in our fetches)
+/fragments/*
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000
+
+# Match .html files explicitly
+/*.html
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000
+
+# Cache-Control for static assets (images, icons)
+# These are safe to cache for a long time
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
 </file>
 
 <file path="packages/cli/package.json">
 {
   "name": "@fe/cli",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "type": "module",
   "bin": {
     "fe": "./src/index.ts"
@@ -1057,6 +1936,7 @@ function setupBuild(ctx: CliContext, hooks: Hooks): void
     "@fe/compiler": "workspace:*",
     "@fe/core": "workspace:*",
     "@fe/runtime": "workspace:*",
+    "@fe/specifier": "workspace:*",
     "kleur": "^4.1.5"
   },
   "devDependencies": {
@@ -1067,78 +1947,750 @@ function setupBuild(ctx: CliContext, hooks: Hooks): void
 }
 </file>
 
-<file path="packages/compiler/src/index.ts">
-import type { BuildOptions, JitPlugin, SourceStorage } from "@fe/core";
-import { SolidPlugin } from "bun-plugin-solid";
-import { join } from "path";
-import { existsSync, readFileSync } from "fs";
-export interface CompileOptions {
-  entrypoints: string[];
-  outdir?: string;
-  external?: string[];
-  rootDir: string;
-  naming?: string | Record<string, string>;
-  plugins?: unknown[];
+<file path="packages/jit-plugin-react/package.json">
+{
+  "name": "@fe/jit-plugin-react",
+  "version": "0.2.2",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
 }
-export async function compileMfe(options: CompileOptions)
-export interface JITBundlerOptions {
-  storage: SourceStorage;
-  external?: string[];
-  jitPlugins?: JitPlugin[];
-}
-type CacheEntry = { js: string };
-async function jitHandle(
-  req: Request,
-  storage: SourceStorage,
-  cache: Map<string, CacheEntry>,
-  external: string[],
-  jitPlugins: JitPlugin[],
-): Promise<Response | null>
-export function createJITBundler(options: JITBundlerOptions)
 </file>
 
-<file path="packages/core/src/adapters.ts">
-import type { PlatformConfig, PackageVersion, BuildOptions, BuildResult } from "./types";
-import type { FeConfig } from "./fe-config";
-export interface ConfigProvider {
-  get(): Promise<Required<FeConfig>>;
+<file path="packages/jit-plugin-solid/package.json">
+{
+  "name": "@fe/jit-plugin-solid",
+  "version": "0.2.2",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@fe/core": "workspace:*",
+    "bun-plugin-solid": "^1.0.0",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.0"
+  }
 }
+</file>
+
+<file path="packages/runtime/src/platform.ts">
+import type { PlatformConfig } from "@fe/core";
+import { parseSpecVersion } from "@fe/specifier";
+import { resolveVersion } from "./semver";
+import { readOverrides, processUrlParams } from "./overrides";
+export type RenderFn = (container: HTMLElement, props: Record<string, unknown>) => () => void;
 ⋮----
-get(): Promise<Required<FeConfig>>;
+function readConfig(): PlatformConfig
 ⋮----
-export interface ArtifactStorage {
-  upload(slug: string, version: string, distDir: string): Promise<string>;
-  exists(slug: string, version: string): Promise<boolean>;
+function resolveDeps(
+  specifier: string,
+  version: string,
+  resolved: Map<string, string> = new Map(),
+): Map<string, string>
+function injectImportMap(imports: Record<string, string>): void
+function applyOverridesAndInject(allDeps: Map<string, string>): void
+export async function preload(specifierVersion: string): Promise<void>
+export async function load(path: string): Promise<
+export async function loadDevtools(): Promise<void>
+</file>
+
+<file path="packages/specifier/package.json">
+{
+  "name": "@fe/specifier",
+  "version": "0.2.2",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
 }
-⋮----
-upload(slug: string, version: string, distDir: string): Promise<string>;
-exists(slug: string, version: string): Promise<boolean>;
-⋮----
-export interface SourceStorage {
-  upload(slug: string, version: string, srcDir: string): Promise<string>;
-  fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
-  listFiles(slug: string, version: string): Promise<string[]>;
+</file>
+
+<file path="sandbox/configs/platform.json">
+{
+  "routes": {
+    "/": "@conqueso/fe-mfe-b@1.0.0"
+  },
+  "devtools": "@fe/fe-devtools@1.0.0",
+  "packages": {
+    "@fe/fe-devtools": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/devtools/1.0.0/index.js",
+          "deps": {}
+        }
+      }
+    },
+    "@conqueso/fe-mfe-a": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-a/1.0.0/index.js",
+          "deps": {}
+        }
+      }
+    },
+    "@conqueso/fe-mfe-b": {
+      "versions": {
+        "1.0.0": {
+          "url": "./uploads/mfe-b/1.0.0/index.js",
+          "deps": {
+            "@conqueso/fe-mfe-a": "^1.0.0"
+          }
+        }
+      }
+    }
+  }
 }
-⋮----
-upload(slug: string, version: string, srcDir: string): Promise<string>;
-fetchFile(slug: string, version: string, relativePath: string): Promise<string | null>;
-listFiles(slug: string, version: string): Promise<string[]>;
-⋮----
-export interface ManifestManager {
-  read(): Promise<PlatformConfig>;
-  write(config: PlatformConfig): Promise<void>;
-  registerPackage(specifier: string, version: string, entry: PackageVersion): Promise<void>;
+</file>
+
+<file path="sandbox/host-app/tests/host.spec.ts">
+import { test, expect } from "@playwright/test";
+</file>
+
+<file path="sandbox/host-app/package.json">
+{
+  "name": "host-app",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
+  "dependencies": {
+    "@fe/runtime": "workspace:*",
+    "@fe/core": "workspace:*",
+    "@conqueso/fe-mfe-b": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  }
 }
-⋮----
-read(): Promise<PlatformConfig>;
-write(config: PlatformConfig): Promise<void>;
-registerPackage(specifier: string, version: string, entry: PackageVersion): Promise<void>;
-⋮----
-export interface Builder {
-  build(options: BuildOptions): Promise<BuildResult>;
+</file>
+
+<file path="sandbox/mfe-a/package.json">
+{
+  "name": "@conqueso/fe-mfe-a",
+  "version": "0.2.0",
+  "description": "",
+  "main": "src/index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
+</file>
+
+<file path="sandbox/mfe-b/src/index.tsx">
+import { render as renderA } from "@conqueso/fe-mfe-a";
+export function render(root: HTMLElement)
+</file>
+
+<file path="sandbox/mfe-b/package.json">
+{
+  "name": "@conqueso/fe-mfe-b",
+  "version": "0.2.0",
+  "type": "module",
+  "main": "src/index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@conqueso/fe-mfe-a": "workspace:*"
+  }
+}
+</file>
+
+<file path="toolkit/syntax-highlighter/src/languages/html.ts">
+import type { Rule } from '../types.ts';
 ⋮----
-build(options: BuildOptions): Promise<BuildResult>;
+// Brackets
+</file>
+
+<file path="toolkit/syntax-highlighter/src/themes/dark.ts">
+
+</file>
+
+<file path="toolkit/syntax-highlighter/src/themes/light.ts">
+
+</file>
+
+<file path="toolkit/web-components/src/fe-compose.ts">
+import type { FEComponent } from "./fe-component.ts";
+export class FECompose extends HTMLElement
+⋮----
+connectedCallback()
+</file>
+
+<file path="toolkit/web-components/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["bun-types"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src"]
+}
+</file>
+
+<file path="docs/site/fragments/architecture.html">
+<fe-component name="ArchitecturePage">
+<article id="content-arch">
+  <slot></slot>
+</article>
+</fe-component>
+<fe-compose name="ArchitecturePage">
+  <h2><span style="color:var(--card-c)">⎔</span> Architecture and conventions</h2>
+  <h3>Moving parts</h3>
+  <p>
+    The platform is composed of five independent pieces that each do one thing:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Package</th>
+        <th>What it does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>@fe/cli</code></td>
+        <td>The <code>fe</code> binary. Scaffold, build, dev, publish, serve.</td>
+      </tr>
+      <tr>
+        <td><code>@fe/compiler</code></td>
+        <td>Houses <code>compileMfe</code> and <code>createJITBundler</code>. Used by <code>fe serve</code>.</td>
+      </tr>
+      <tr>
+        <td><code>@fe/runtime</code></td>
+        <td>Browser-side loader. Reads config, resolves deps, injects import maps, mounts MFEs.</td>
+      </tr>
+      <tr>
+        <td><code>@fe/core</code></td>
+        <td>Shared TypeScript types and interfaces. No runtime code.</td>
+      </tr>
+      <tr>
+        <td><code>platform.json</code></td>
+        <td>Authoritative registry of routes and package versions. Read by both runtime and server.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>The fe() convention</h3>
+  <p>
+    <em>Assume you work for the **Conqueso** company/org.</em>
+  </p>
+  <p>
+    <code>@scope/fe-name</code> is a plain string used as a package name everywhere: in
+    <code>package.json</code>, in import statements, and in the platform manifest. It is
+    a bare specifier that the browser resolves through injected import maps. There is no
+    special URL scheme.
+  </p>
+  <textarea lang="json">
+// package.json
+{ "name": "@conqueso/fe-my-mfe" }
+</textarea>
+  <textarea lang="ts">
+// source
+import { store } from "@fe/fe-store";
+</textarea>
+  <textarea lang="json">
+// platform.json
+"@fe/fe-store": { "versions": { "1.0.0": { "url": "..." } } }
+</textarea>
+  <p>
+    During build, <code>fe(*)</code> entries in <code>devDependencies</code> are treated as
+    externals. At runtime, the browser resolves each specifier to a URL via the injected
+    import map. The symlinks created by <code>bun install</code> satisfy TypeScript
+    without any <code>tsconfig.paths</code> configuration.
+  </p>
+  <h3>MFE exports</h3>
+  <p>
+    A MFE is a plain <strong>ES module</strong> and the platform is foundationally
+    <strong>TypeScript-based</strong>. It can export functions, stores, API clients, or
+    anything else that makes sense for its purpose. The platform treats publish,
+    versioning, and import-map resolution the same regardless of what the module exports.
+  </p>
+  <p>
+    The one special case is a MFE registered under <code>routes</code> in
+    <code>platform.json</code>. When the runtime matches a URL to that entry, it imports
+    the module and calls <code>render()</code> to mount the UI:
+  </p>
+  <textarea lang="ts">
+export function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): () => void {
+  // mount into container
+  // return a cleanup function that removes your DOM nodes
+}
+</textarea>
+  <p>
+    The contract is intentionally minimal: no framework lifecycle, no router coupling,
+    no shared state requirement. The cleanup function is called on navigation away.
+    React, Solid.js, and vanilla DOM all satisfy it without adaptation.
+  </p>
+  <h3>Deployment model</h3>
+  <p>
+    MFEs are deployed as raw TypeScript source, not as bundles. <code>fe publish</code>
+    uploads source files and registers a new version in <code>platform.json</code>. The
+    JIT server compiles source on first request and responds with
+    <code>Cache-Control: immutable</code> headers.
+  </p>
+  <style>
+  .lifecycle {
+      display: flex;
+      flex-wrap: wrap;
+      border: 1px solid var(--ink);
+      margin: 1.5rem 0;
+  }
+  .lc-step {
+      padding: 0.75rem 1rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-right: 1px solid var(--rule);
+      flex: 1;
+  }
+  .lc-step:last-child {
+      border-right: none;
+  }
+  .lc-step .sub {
+      font-weight: 400;
+      font-size: 0.62rem;
+      color: var(--mid);
+      text-transform: none;
+      margin-top: 0.2rem;
+  }
+  </style>
+  <div class="lifecycle">
+    <div class="lc-step">fe publish<div class="sub">upload source</div>
+    </div>
+    <div class="lc-step">platform.json<div class="sub">new version registered</div>
+    </div>
+    <div class="lc-step">JIT server<div class="sub">compile on first request</div>
+    </div>
+    <div class="lc-step">CDN<div class="sub">immutable cache</div>
+    </div>
+    <div class="lc-step">browser<div class="sub">import map + render()</div>
+    </div>
+  </div>
+  <p>
+    Artifact URLs include the version, so the compiled output is stable forever. A new
+    publish creates a new URL; old versions remain available at their original addresses.
+    Rollback is a one-line edit to <code>platform.json</code>.
+  </p>
+  <h3>Local development</h3>
+  <p>
+    <code>fe dev &lt;target&gt;</code> starts a dev server for one MFE with SSE-based hot module
+    reload. The devtools overlay (if installed) lets you redirect any
+    <code>@scope/fe-name</code> specifier to a local dev URL via sessionStorage. This
+    override affects only the current browser tab and can be shared as a URL parameter.
+  </p>
+  <textarea lang="shell">
+fe dev mfe-a          # start dev server at localhost:3001
+# in devtools panel: override @conqueso/fe-mfe-a → http://localhost:3001/
+</textarea>
+  <p>
+    <code>fe check &lt;target&gt;</code> runs typecheck and simulates a build without writing
+    output. Use it in CI to catch errors early without running the full JIT pipeline.
+  </p>
+  <h3>Cross-MFE dependencies</h3>
+  <p>
+    When a MFE depends on another, declare it in <code>devDependencies</code>:
+  </p>
+  <textarea lang="json">
+// mfe-b/package.json
+{
+  "name": "@conqueso/fe-mfe-b",
+  "devDependencies": { "@conqueso/fe-mfe-a": "^1.0.0" }
+}
+</textarea>
+  <p>
+    The runtime reads the dep graph from <code>platform.json</code> and resolves the
+    highest compatible version using semver. All resolved specifiers are injected into
+    a single <code>&lt;script type="importmap"&gt;</code> before the MFE is imported.
+    Subsequent navigations skip specifiers already injected, so shared deps load once.
+  </p>
+  <h3>Extension points</h3>
+  <p>
+    Two plugin systems let organisations extend the platform without forking it:
+  </p>
+  <ul>
+    <li>
+      <strong>CLI plugins</strong> — swap adapters at bootstrap time. Replace artifact
+      storage with S3, replace config reading with an environment-variable provider,
+      or add new CLI commands. Declare in <code>fe.config.json</code> under
+      <code>"plugins"</code>.
+    </li>
+    <li>
+      <strong>JIT plugins</strong> — transform <code>BuildOptions</code> before each
+      compilation. <code>@fe/jit-plugin-react</code> and
+      <code>@fe/jit-plugin-solid</code> ship out of the box. Declare in
+      <code>fe.config.json</code> under <code>"jitPlugins"</code>.
+    </li>
+  </ul>
+  <h3>CLI quick reference</h3>
+  <textarea lang="shell">
+fe new <scope/name>   # scaffold a new MFE project
+fe dev <target>       # live-reload dev server
+fe check <target>     # typecheck + build simulation (CI)
+fe publish <target>   # upload source + register version
+fe link <mfe> <dep>   # wire a local fe() dependency
+fe build shell        # compile the host shell
+fe serve              # run the JIT server
+</textarea>
+</fe-compose>
+</file>
+
+<file path="docs/site/fragments/product-eng.html">
+<fe-component name="ProductEngPage">
+<article id="content-product">
+  <slot></slot>
+</article>
+</fe-component>
+<fe-compose name="ProductEngPage">
+  <h2><span style="color:var(--card-a)">⧉</span> For product engineers</h2>
+  <p>
+    <em>For the following examples, assume you work for the **Conqueso** company/org.</em>
+  </p>
+  <h3>What you own independently</h3>
+  <p>
+    As a product engineer working on a MFE, you own the full lifecycle of your
+    feature from scaffolding through deployment. The platform team operates the
+    infrastructure; you work entirely from the command line without touching shared
+    CI/CD pipelines or coordination tickets.
+  </p>
+  <ul>
+    <li><code>fe new conqueso/my-feature</code> — scaffold a new MFE in one command.</li>
+    <li><code>fe dev my-feature</code> — hot-reload dev server, live in your browser.</li>
+    <li><code>fe check my-feature</code> — typecheck before pushing; same check runs in CI.</li>
+    <li><code>fe publish my-feature</code> — upload source and register the new version.</li>
+    <li><code>fe link my-feature toolkit/store</code> — wire up a local toolkit dependency.</li>
+  </ul>
+  <h3>What your platform team provides</h3>
+  <p>
+    You do not need to understand how the platform works to ship features. Your platform
+    team provides:
+  </p>
+  <table>
+    <thead><tr><th>What</th><th>How you use it</th></tr></thead>
+    <tbody>
+      <tr><td>Shell app</td><td>The host HTML page that loads your MFE. You do not build or deploy it.</td></tr>
+      <tr><td>JIT server URL</td><td>The base URL where compiled bundles are served. Embedded in the shell.</td></tr>
+      <tr><td><code>platform.json</code></td><td>Routes and package registry. Your team or CI updates a route entry after publishing.</td></tr>
+      <tr><td>Toolkit packages</td><td><code>@fe/fe-store</code>, <code>@fe/fe-network</code> — resolved at runtime, no install step.</td></tr>
+    </tbody>
+  </table>
+  <h3>Day-to-day workflow</h3>
+  <p>
+    A typical feature cycle looks like this:
+  </p>
+  <ol>
+    <li>Scaffold once: <code>fe new conqueso/my-feature</code> creates <code>my-feature/</code> with a <code>render()</code> stub.</li>
+    <li>Develop: <code>fe dev my-feature</code> then open the shell with a sessionStorage override pointing at your dev URL.</li>
+    <li>Type-check in CI: <code>fe check my-feature</code> runs on every push.</li>
+    <li>Publish when ready: <code>fe publish my-feature</code> uploads source and prints the new version.</li>
+    <li>Update the route in <code>platform.json</code> from <code>@conqueso/fe-my-feature@old</code> to <code>@new</code>.</li>
+  </ol>
+  <p>
+    Steps 4 and 5 are independent of every other team. No build pipeline coordination.
+    No monorepo deployment lock. Old versions stay live at their original URLs until
+    the route is changed.
+  </p>
+  <h3>Testing against the production shell</h3>
+  <p>
+    The devtools overlay (accessible via the platform team) lets you redirect any
+    <code>@scope/fe-name</code> specifier to a local <code>fe dev</code> URL. Overrides
+    live in <code>sessionStorage</code> and affect only your current tab. No redeployment,
+    no asking anyone for access.
+  </p>
+  <textarea lang="ts">
+// manual sessionStorage override (without devtools)
+sessionStorage.setItem(
+  "fe:override:@conqueso/fe-my-feature",
+  "http://localhost:3001/"
+);
+// then reload — the production shell loads your local build
+</textarea>
+  <p>
+    The devtools share button encodes active overrides as URL parameters. Send the link
+    to a colleague and they open the same environment in their browser.
+  </p>
+  <h3>What your MFE exports</h3>
+  <p>
+    A MFE is a plain ES module and can export whatever its purpose calls for: functions,
+    a store instance, an API client, a collection of utilities. No particular shape is
+    required by the platform.
+  </p>
+  <p>
+    The exception is when your MFE is listed under <code>routes</code> in
+    <code>platform.json</code>. In that case the runtime calls <code>render()</code>
+    on navigation to mount your UI, so you must export it:
+  </p>
+  <textarea lang="ts">
+export function render(
+  container: HTMLElement,
+  props: Record<string, unknown>
+): () => void {
+  // mount your UI into container
+  // return cleanup: remove your DOM, stop timers, unsubscribe listeners
+}
+</textarea>
+  <p>
+    The runtime calls <code>render</code> on mount and the returned function on unmount.
+    Any framework satisfies this contract without adaptation.
+  </p>
+  <h3>Using toolkit packages</h3>
+  <p>
+    Toolkit packages are resolved at runtime through import maps. Declare them in
+    <code>devDependencies</code>:
+  </p>
+  <textarea lang="json">
+// package.json
+{
+  "name": "@conqueso/fe-my-feature",
+  "devDependencies": {
+    "@fe/fe-store": "^1.0.0",
+    "@fe/fe-network": "^1.0.0"
+  }
+}
+</textarea>
+  <textarea lang="ts">
+// src/index.ts
+import { createStore } from "@fe/fe-store";
+const count = createStore("my-feature:count", 0);
+export function render(container, props) {
+  // ...
+  return () => {};
+}
+</textarea>
+</fe-compose>
+</file>
+
+<file path="docs/site/fragments/tutorials.html">
+<fe-component name="TutorialsPage">
+<article id="content-tutorials">
+  <slot></slot>
+</article>
+</fe-component>
+<fe-compose name="TutorialsPage">
+  <h2><span style="color:var(--card-d)">✺</span> Tutorials</h2>
+  <p>
+    <em>For the following examples, assume you work for the **Conqueso** company/org.</em>
+  </p>
+  <p>
+    Each tutorial builds on the previous one. Start with hello world to verify
+    your setup, then progress to multi-team composition and toolkit integration.
+  </p>
+  <h3>1 · Hello world: one MFE, one shell</h3>
+  <p>
+    The shortest path to a running platform. By the end you will have one MFE
+    mounting in a shell via <code>fe serve</code>.
+  </p>
+  <textarea lang="shell">
+bun add -d @fe/cli @fe/jit-plugin-react
+# scaffold the MFE
+fe new conqueso/hello
+# scaffold the shell (or use sandbox/host-app as a template)
+# edit configs/fe.config.json and configs/platform.json
+fe publish hello
+# add route "/" : "@conqueso/fe-hello@1.0.0" to platform.json
+fe build shell
+fe serve
+</textarea>
+  <p>
+    Open <code>http://localhost:3000</code>. You should see your <code>render()</code>
+    function mount into the shell container. Source: <code>sandbox/</code>.
+  </p>
+  <h3>2 · Two teams, one shell</h3>
+  <p>
+    Add a second MFE that imports a component from the first. This demonstrates
+    cross-team dependency resolution through import maps.
+  </p>
+  <textarea lang="shell">
+fe new conqueso/mfe-a   # React MFE, no deps
+fe new conqueso/mfe-b   # Solid.js MFE, depends on mfe-a
+fe link mfe-b mfe-a  # adds mfe-a as devDependency of mfe-b
+fe publish mfe-a
+fe publish mfe-b
+</textarea>
+  <p>
+    In <code>mfe-b/src/index.ts</code>, import from <code>@conqueso/fe-mfe-a</code>.
+    The runtime will resolve both specifiers via the injected import map. The JIT
+    server compiles each independently using the appropriate JIT plugin.
+  </p>
+  <p>
+    Source: <code>sandbox/mfe-a</code> and <code>sandbox/mfe-b</code>.
+  </p>
+  <h3>3 · Using toolkit/store across MFEs</h3>
+  <p>
+    Share state between two MFEs without prop drilling or a global window variable.
+    <code>@fe/fe-store</code> provides a typed pub/sub store that persists across
+    MFE mounts and unmounts.
+  </p>
+  <textarea lang="json">
+// in both mfe-a and mfe-b package.json
+"devDependencies": { "@fe/fe-store": "^1.0.0" }
+</textarea>
+  <textarea lang="ts">
+// mfe-a/src/index.ts
+import { createStore } from "@fe/fe-store";
+const counter = createStore("app:counter", 0);
+export function render(container, props) {
+  const btn = document.createElement("button");
+  btn.textContent = "increment";
+  btn.onclick = () => counter.set(counter.get() + 1);
+  container.appendChild(btn);
+  return () => container.removeChild(btn);
+}
+</textarea>
+  <textarea lang="ts">
+// mfe-b/src/index.ts
+import { createStore } from "@fe/fe-store";
+const counter = createStore("app:counter", 0);
+export function render(container, props) {
+  const span = document.createElement("span");
+  const unsub = counter.subscribe(v => { span.textContent = String(v); });
+  container.appendChild(span);
+  return () => { unsub(); container.removeChild(span); };
+}
+</textarea>
+  <p>
+    Both MFEs resolve to the same <code>@fe/fe-store</code> version through the
+    import map. The store instance is shared because the module is loaded once.
+  </p>
+  <h3>4 · Adding a JIT plugin for a custom JSX transform</h3>
+  <p>
+    If you need a JSX transform that is not covered by the built-in React and
+    Solid.js plugins, you can write your own:
+  </p>
+  <textarea lang="ts">
+// @conqueso/fe-jit-plugin-preact/src/index.ts
+import type { JitPlugin } from "@fe/core";
+export default {
+  name: "conqueso-preact",
+  "build:options"(options) {
+    return {
+      ...options,
+      jsx: "automatic",
+      jsxImportSource: "preact",
+    };
+  },
+} satisfies JitPlugin;
+</textarea>
+  <textarea lang="json">
+// configs/fe.config.json
+{ "jitPlugins": ["@conqueso/fe-jit-plugin-preact"] }
+</textarea>
+  <p>
+    The <code>build:options</code> hook receives <code>Bun.BuildOptions</code> and
+    returns a modified copy. Plugins run in declaration order; later plugins can
+    override earlier settings. The platform team declares the plugin on the server;
+    MFE teams do not need to configure anything.
+  </p>
+  <h3>5 · Using MFEs from public registries</h3>
+  <p>
+    The platform supports consuming MFEs directly from public registries like JSR or npm,
+    either via the JIT compilation server or through direct ESM CDNs like <code>esm.sh</code>.
+  </p>
+  <div class="wip">
+    <h4>Documentation TODOs</h4>
+    <ul>
+      <li>Explain the <code>fe()</code> to <code>@jsr/</code> specifier resolution logic.</li>
+      <li>Document how to use <code>fe link</code> with JSR scopes.</li>
+      <li>Provide examples of lazy-loading MFEs from esm.sh in standard HTML pages.</li>
+      <li>Detail the JSR discovery mechanism (using description tags for visual identity).</li>
+    </ul>
+  </div>
+</fe-compose>
+</file>
+
+<file path="docs/site/shell-layout.css">
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1200px; margin: 0 auto; min-height: 70vh; scroll-margin-top: var(--header-height); }
+.layout:has(#nav-platform[open]) main { padding: 0; }
+.layout:has(#nav-arch[open]) html-include[href*="architecture"],
+#mobile-nav { position: sticky; top: var(--header-height); align-self: start; }
+#mobile-nav::before { content: ""; position: absolute; right: 0; top: 0; bottom: -100vh; width: 1px; background: var(--rule); pointer-events: none; }
+#mobile-nav > summary { display: none; }
+#mobile-nav aside { display: block !important; counter-reset: page-counter; }
+details[name="page"] { counter-increment: page-counter; position: relative; overflow: hidden; display: block; }
+details[name="page"] > summary { padding: 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-bottom: 1px solid var(--rule); list-style: none; }
+details[name="page"] > summary::-webkit-details-marker { display: none; }
+details[name="page"] > summary a { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; color: inherit; text-decoration: none; width: 100%; }
+details[name="page"] > summary a .label { display: flex; align-items: center; gap: 0.5rem; }
+details[name="page"] > summary a .icon { font-size: 1rem; vertical-align: middle; }
+details[name="page"] > summary::before { content: "0" counter(page-counter); font-family: monospace; font-size: 7rem; opacity: 0.08; position: absolute; right: 0.5rem; top: -0.5rem; font-weight: 900; pointer-events: none; line-height: 1; }
+details[name="page"] > summary .arr::before { content: "▸"; }
+#nav-arch > summary a .icon { color: var(--card-c); }
+#nav-arch > summary::before { color: var(--card-c); opacity: 0.15; }
+#nav-product > summary a .icon { color: var(--card-a); }
+#nav-product > summary::before { color: var(--card-a); opacity: 0.15; }
+#nav-platform > summary a .icon { color: var(--card-b); }
+#nav-platform > summary::before { color: var(--card-b); opacity: 0.15; }
+#nav-tutorials > summary a .icon { color: var(--card-d); }
+#nav-tutorials > summary::before { color: var(--card-d); opacity: 0.15; }
+details[name="page"][open] > summary { color: var(--accent); border-bottom-color: var(--accent); }
+details[name="page"][open] > summary .arr::before { content: "▾"; color: var(--accent); }
+main { padding: 2.5rem; }
+main html-include { display: none; }
+article section { background: var(--article-bg); color: var(--article-text); }
+article h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
+article h3 { font-size: 0.8rem; font-weight: 700; margin: 1.75rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+article p { font-size: 1rem; line-height: 1.65; margin-bottom: 1rem; }
+article ul, article ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+article li { font-size: 1rem; line-height: 1.65; margin-bottom: 0.2rem; }
+article pre, article textarea[lang] { background: var(--code-bg); color: var(--code-text); padding: 1.25rem; font-size: 85%; line-height: 1.55; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--code-rule, transparent); border-radius: 4px; max-width: 100%; }
+article textarea[lang] { display: block; width: 100%; box-sizing: border-box; resize: none; overflow: hidden; font-family: monospace; white-space: pre; field-sizing: content; }
+article :not(pre) > code { background: rgba(0, 0, 0, 0.07); padding: 0.1em 0.35em; font-size: 85%; font-family: monospace; }
+article table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 1rem 0; }
+article th { text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.68rem; padding: 0.6rem; border-bottom: 2px solid var(--ink); }
+article td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; }
+.wip { border: 2px dashed var(--rule); padding: 1.5rem; background: rgba(0, 0, 0, 0.02); border-radius: 8px; position: relative; margin: 2rem 0; }
+.wip::before { content: "🚧 WORK IN PROGRESS"; position: absolute; top: -0.6rem; left: 1rem; background: var(--bg); padding: 0 0.5rem; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1em; color: var(--mid); }
+.wip h3, .wip h4 { margin-top: 0 !important; color: var(--mid) !important; }
+.wip ul { margin-bottom: 0 !important; font-size: 0.85rem; }
+html-include[href*="header"] { position: sticky; top: 0; z-index: 100; min-height: 3.5rem; }
+html-include[href*="hero"] { min-height: 440px; }
+⋮----
+.layout { display: block; }
+html-include[href*="hero"] { min-height: 800px; }
+#mobile-nav { border-right: none; border-bottom: 1px solid var(--rule); position: static; }
+#mobile-nav::before { display: none; }
+#mobile-nav > summary { display: block; padding: 0.875rem 1.5rem; min-height: 3rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; list-style: none; border-bottom: 1px solid var(--rule); }
+#mobile-nav > summary::-webkit-details-marker { display: none; }
+main { padding: 1.5rem; }
 </file>
 
 <file path="packages/core/src/types.ts">
@@ -1154,6 +2706,7 @@ export interface PlatformConfig {
   routes: Record<string, string>;
   packages: Record<string, PackageEntry>;
   devtools?: string;
+  preload?: string[];
 }
 export interface BuildOptions {
   entrypoints: string[];
@@ -1171,14 +2724,10 @@ export interface BuildResult {
 }
 </file>
 
-<file path="packages/runtime/src/index.ts">
-
-</file>
-
 <file path="packages/runtime/package.json">
 {
   "name": "@fe/runtime",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -1188,7 +2737,8 @@ export interface BuildResult {
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
-    "@fe/core": "workspace:*"
+    "@fe/core": "workspace:*",
+    "@fe/specifier": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest",
@@ -1197,146 +2747,37 @@ export interface BuildResult {
 }
 </file>
 
-<file path="sandbox/host-app/package.json">
-{
-  "name": "host-app",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "build": "cd .. && fe build shell",
-    "check": "cd .. && fe check shell",
-    "typecheck": "bunx tsc --noEmit",
-    "test": "playwright test"
-  },
-  "dependencies": {
-    "@fe/runtime": "workspace:*"
-  },
-  "devDependencies": {
-    "fe(acme/mfe-b)": "file:../mfe-b",
-    "@fe/cli": "workspace:*"
-  }
-}
+<file path="toolkit/syntax-highlighter/src/languages/json.ts">
+import type { Rule } from '../types.ts';
 </file>
 
-<file path="sandbox/mfe-a/package.json">
-{
-  "name": "fe(acme/mfe-a)",
-  "version": "1.0.0",
-  "module": "src/index.tsx",
-  "scripts": {
-    "build": "cd ../.. && fe build sandbox/mfe-a",
-    "check": "cd ../.. && fe check sandbox/mfe-a"
-  },
-  "devDependencies": {
-    "@fe/cli": "workspace:*"
-  },
-  "dependencies": {
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
-  }
-}
-</file>
-
-<file path="sandbox/mfe-b/package.json">
-{
-  "name": "fe(acme/mfe-b)",
-  "version": "1.0.0",
-  "module": "src/index.tsx",
-  "scripts": {
-    "build": "cd ../.. && fe build sandbox/mfe-b",
-    "check": "cd ../.. && fe check sandbox/mfe-b"
-  },
-  "devDependencies": {
-    "bun-plugin-solid": "^1.0.0",
-    "fe(acme/mfe-a)": "file:../mfe-a",
-    "@fe/cli": "workspace:*"
-  },
-  "dependencies": {
-    "solid-js": "^1.9.11"
-  }
-}
-</file>
-
-<file path="packages/cli/src/bootstrap.ts">
-import { Hooks } from "@fe/core";
-import type { CliContext, JitPlugin, Plugin } from "@fe/core";
-import { loadExternalPlugins } from "./plugin-loader";
-import { createBunBuilder } from "./adapters/bun-builder";
-import { createJsonConfigProvider } from "./adapters/json-config-provider";
-import { buildPlugin } from "./plugins/build";
-import { createJsonManifestManager } from "./adapters/json-manifest-manager";
-import { createLocalArtifactStorage } from "./adapters/local-artifact-storage";
-import { createLocalSourceStorage } from "./adapters/local-source-storage";
-import { adminPlugin } from "./plugins/admin";
-import { publishPlugin } from "./plugins/publish";
-import { devPlugin } from "./plugins/dev";
-import { linkPlugin } from "./plugins/link";
-import { servePlugin } from "./plugins/serve";
-import { checkPlugin } from "./plugins/check";
+<file path="toolkit/syntax-highlighter/src/languages/shell.ts">
+import type { Rule } from '../types.ts';
 ⋮----
-export async function bootstrap(root: string): Promise<
+// Command detection: line start, operators, subshells, or substitutions
 </file>
 
-<file path="packages/core/src/context.ts">
-import type { ArtifactStorage, ManifestManager, Builder, ConfigProvider, SourceStorage } from "./adapters";
-import type { JitPlugin } from "./jit-plugin";
-export interface CommandDef {
-  name: string;
-  description: string;
-  usage: string;
-  run(args: string[]): Promise<void>;
-}
-⋮----
-run(args: string[]): Promise<void>;
-⋮----
-export interface CliContext {
-  root: string;
-  adapters: {
-    config: ConfigProvider;
-    artifactStorage: ArtifactStorage;
-    manifest: ManifestManager;
-    builder: Builder;
-    sourceStorage: SourceStorage;
-  };
-  commands: Map<string, CommandDef>;
-  jitPlugins: JitPlugin[];
-}
+<file path="toolkit/syntax-highlighter/src/languages/ts.ts">
+import type { Rule } from '../types.ts';
 </file>
 
-<file path="packages/core/src/fe-config.ts">
-export interface FeConfig {
-  plugins?: string[];
-  jitPlugins?: string[];
-  manifestPath?: string;
-  uploadsDir?: string;
-  shellDir?: string;
-  sourcesDir?: string;
-}
-</file>
-
-<file path="packages/core/src/index.ts">
-
-</file>
-
-<file path="packages/runtime/tsconfig.json">
+<file path="toolkit/syntax-highlighter/tsconfig.json">
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "types": [
-      "bun-types"
-    ],
-    "outDir": "dist",
-    "rootDir": "src"
+    "types": ["bun-types"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ]
   },
   "include": [
     "src"
@@ -1344,24 +2785,20 @@ export interface FeConfig {
 }
 </file>
 
-<file path="toolkit/devtools/package.json">
-{
-  "name": "fe(acme/devtools)",
-  "version": "1.0.0",
-  "module": "src/index.tsx",
-  "types": "src/index.tsx",
-  "scripts": {
-    "build": "cd ../.. && fe build toolkit/devtools",
-    "check": "cd ../.. && fe check toolkit/devtools"
-  },
-  "dependencies": {
-    "solid-js": "^1.9.0"
-  },
-  "devDependencies": {
-    "@fe/cli": "workspace:*",
-    "@fe/jit-plugin-solid": "workspace:*"
-  }
-}
+<file path="toolkit/web-components/src/fe-component.ts">
+export class FEComponent extends HTMLElement
+⋮----
+connectedCallback()
+get content(): DocumentFragment
+</file>
+
+<file path="toolkit/web-components/src/html-include.ts">
+export class HTMLInclude extends HTMLElement
+⋮----
+connectedCallback()
+private _cleanupObserver()
+disconnectedCallback()
+private async _load(href: string)
 </file>
 
 <file path=".gitignore">
@@ -1412,94 +2849,446 @@ uploads/
 
 # Nx
 .nx/
+# Docs
+# (style.css removed from ignore)
 </file>
 
-<file path="packages/cli/src/plugins/serve.ts">
+<file path="docs/site/fragments/platform-eng.html">
+<fe-component name="PlatformPage">
+<style>
+#content-platform {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    width: 100%;
+}
+@media (max-width: 999px) {
+    #content-platform {
+        grid-template-columns: 1fr;
+    }
+}
+#content-platform > section {
+    display: none;
+    padding: 2rem;
+    grid-column: 2;
+}
+@media (max-width: 999px) {
+    #content-platform > section {
+        grid-column: 1;
+    }
+}
+#content-platform:has(#nav-poc[open]) #content-poc { display: block; }
+#content-platform:has(#nav-cloud[open]) #content-cloud { display: block; }
+#content-platform:has(#nav-enterprise[open]) #content-enterprise { display: block; }
+</style>
+<article id="content-platform">
+  <slot></slot>
+</article>
+</fe-component>
+<fe-component name="SubNav">
+<style>
+.sub-nav {
+    grid-column: 1;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+}
+.sub-nav::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: -100vh;
+    width: 1px;
+    background: var(--rule);
+    pointer-events: none;
+}
+@media (max-width: 999px) {
+    .sub-nav {
+        border-bottom: 1px solid var(--rule);
+        position: static;
+    }
+    .sub-nav::before {
+        display: none;
+    }
+}
+details[name="plat-sub"] > summary {
+    padding: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+    color: var(--mid);
+}
+details[name="plat-sub"] > summary::-webkit-details-marker {
+    display: none;
+}
+details[name="plat-sub"] > summary a {
+    display: block;
+    padding: 0.65rem 1.25rem;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+}
+details[name="plat-sub"][open] > summary {
+    color: var(--accent);
+}
+</style>
+<div class="sub-nav">
+  <details name="plat-sub" id="nav-poc" open>
+    <summary><a href="#nav-poc"><span style="color:var(--card-b)">۞</span> POC</a></summary>
+  </details>
+  <details name="plat-sub" id="nav-cloud">
+    <summary><a href="#nav-cloud"><span style="color:var(--card-b)">۞</span> Cloud</a></summary>
+  </details>
+  <details name="plat-sub" id="nav-enterprise">
+    <summary><a href="#nav-enterprise"><span style="color:var(--card-b)">۞</span> Enterprise</a></summary>
+  </details>
+</div>
+</fe-component>
+<fe-compose name="PlatformPage">
+  <fe-compose name="SubNav"></fe-compose>
+  <section id="content-poc">
+    <h2><span style="color:var(--card-b)">۞</span> Proof of concept</h2>
+    <p>
+      <em>For the following examples, assume you work for the **Conqueso** company/org.</em>
+    </p>
+    <p>
+      The fastest path to a running platform: two MFEs, one shell, everything local.
+      No CDN, no CI/CD, no cloud setup required. This walkthrough takes you from a
+      fresh workspace to a working browser demo.
+    </p>
+    <h3>1 · Install and scaffold</h3>
+    <textarea lang="shell">
+bun add -d @fe/cli
+fe new conqueso/mfe-a
+fe new conqueso/mfe-b
+</textarea>
+    <p>
+      Each <code>fe new</code> creates a directory with <code>package.json</code>,
+      <code>tsconfig.json</code>, and a <code>src/index.ts</code> with a
+      <code>render()</code> stub. Give <code>mfe-b</code> a dependency on
+      <code>mfe-a</code>:
+    </p>
+    <textarea lang="shell">
+fe link mfe-b mfe-a
+</textarea>
+    <h3>2 · Write a minimal shell</h3>
+    <p>
+      Create <code>host-app/index.html</code> with the platform config embedded and
+      <code>host-app/src/index.ts</code> that loads the runtime:
+    </p>
+    <textarea lang="html">
+<script type="application/json" id="platform-config">
+  { "routes": {}, "packages": {} }
+</script>
+<script type="module" src="./src/index.ts"></script>
+</textarea>
+    <textarea lang="ts">
+// host-app/src/index.ts
+import { load, loadDevtools } from "@fe/runtime";
+await loadDevtools();
+await load(location.pathname);
+</textarea>
+    <h3>3 · Configure</h3>
+    <p>
+      Create <code>configs/fe.config.json</code> at the workspace root:
+    </p>
+    <textarea lang="json">
+{
+  "shellDir": "host-app",
+  "manifestPath": "configs/platform.json",
+  "jitPlugins": ["@fe/jit-plugin-react"]
+}
+</textarea>
+    <p>
+      Create <code>configs/platform.json</code> with empty routes and packages:
+    </p>
+    <textarea lang="json">
+{
+  "routes": {},
+  "packages": {}
+}
+</textarea>
+    <h3>4 · Publish both MFEs</h3>
+    <textarea lang="shell">
+fe publish mfe-a
+fe publish mfe-b
+</textarea>
+    <p>
+      Each command uploads source to <code>sources/</code> and adds an entry to
+      <code>platform.json</code>. You will see version numbers printed to stdout.
+    </p>
+    <h3>5 · Add a route and serve</h3>
+    <p>
+      Edit <code>configs/platform.json</code> to map a route:
+    </p>
+    <textarea lang="json">
+{
+  "routes": { "/": "@conqueso/fe-mfe-b@1.0.0" },
+  "packages": { ... }
+}
+</textarea>
+    <textarea lang="shell">
+fe build shell
+fe serve
+</textarea>
+    <p>
+      Open <code>http://localhost:3000</code>. The runtime resolves the route, injects
+      import maps for both <code>mfe-b</code> and its dep <code>mfe-a</code>, and
+      calls <code>render()</code>. The JIT server compiles each MFE on first request
+      and caches the result.
+    </p>
+    <h3>What CI/CD automates from here</h3>
+    <p>
+      The manual steps above map directly to CI jobs: run <code>fe check</code> on
+      every push, run <code>fe publish</code> on merge to main, and update the route
+      in <code>platform.json</code> via a CD step. Each team does this independently
+      for their own MFE.
+    </p>
+  </section>
+  <section id="content-cloud">
+    <h2><span style="color:var(--card-b)">۞</span> Cloud deployment</h2>
+    <h3>CDN and caching</h3>
+    <p>
+      JIT-compiled artifacts are served with <code>Cache-Control: immutable</code>
+      because the URL includes the version. Put a CDN in front of <code>fe serve</code>
+      with the following origin configuration:
+    </p>
+    <ul>
+      <li>Forward all <code>/bundle/</code> requests to the JIT server origin.</li>
+      <li>Cache responses that include <code>Cache-Control: immutable</code> at the edge.</li>
+      <li>The first request per version compiles; every subsequent request serves the CDN copy.</li>
+    </ul>
+    <h3>Content Security Policy</h3>
+    <p>
+      The minimum required CSP for a fe-based shell:
+    </p>
+    <textarea lang="shell">
+# Content-Security-Policy:
+  script-src 'self' https://cdn.your-domain.com;
+  script-src-elem 'self' https://cdn.your-domain.com;
+</textarea>
+    <p>
+      Import maps require no special directives beyond <code>script-src</code>. If
+      any MFE uses WebAssembly, add <code>'wasm-unsafe-eval'</code> to
+      <code>script-src</code>.
+    </p>
+    <h3>Config management</h3>
+    <p>
+      Two config files serve different audiences:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Who edits it</th>
+          <th>What it controls</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>fe.config.json</code></td>
+          <td>Platform team</td>
+          <td>JIT plugins, storage adapters, shell directory</td>
+        </tr>
+        <tr>
+          <td><code>platform.json</code></td>
+          <td>CD pipeline (or platform team)</td>
+          <td>Routes and package versions</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The platform team controls the JIT server configuration. MFE teams never edit
+      <code>fe.config.json</code>. The CD pipeline updates <code>platform.json</code>
+      when a new version is published.
+    </p>
+    <h3>Rollback</h3>
+    <p>
+      Because each publish creates a new immutable URL, rollback is a one-line change
+      to <code>platform.json</code>. Old versions remain available forever. There is no
+      "deploy" step that overwrites a previous version.
+    </p>
+    <textarea lang="json">
+// platform.json (before)
+"routes": { "/": "@conqueso/fe-mfe-a@1.2.0" }
+// platform.json (after rollback)
+"routes": { "/": "@conqueso/fe-mfe-a@1.1.0" }
+</textarea>
+    <p>
+      The runtime reads the updated manifest on the next page load. No server restart
+      required.
+    </p>
+    <h3>Monitoring and observability</h3>
+    <p>
+      The JIT server logs each compilation with timing and cache status. Integrate
+      these logs with your observability stack:
+    </p>
+    <ul>
+      <li><strong>Cache hit rate</strong> — should approach 100% after warmup.</li>
+      <li><strong>Compilation time</strong> — typically 50-200ms per MFE.</li>
+      <li><strong>Error rate</strong> — should be near zero; investigate any spike.</li>
+    </ul>
+  </section>
+  <section id="content-enterprise">
+    <h2><span style="color:var(--card-b)">۞</span> Enterprise deployment</h2>
+    <h3>Private registry</h3>
+    <p>
+      MFEs can be published to a private registry instead of the local
+      <code>sources/</code> directory. Implement a <code>SourceStorage</code> adapter
+      that reads from your artifact storage:
+    </p>
+    <textarea lang="ts">
+// @conqueso/fe-plugin-s3/src/index.ts
+import type { Plugin, CliContext } from "@fe/core";
+import { S3Client } from "@aws-sdk/client-s3";
+class S3SourceStorage implements SourceStorage {
+  private client = new S3Client({ region: "us-east-1" });
+  async read(slug: string, version: string): Promise<string> {
+    const key = `${slug}/${version}/index.ts`;
+    const resp = await this.client.getObject({ Bucket: "conqueso-mfe-sources", Key: key });
+    return await resp.Body.transformToString();
+  }
+}
+export default {
+  name: "conqueso-s3",
+  setup(ctx: CliContext) {
+    ctx.adapters.sourceStorage = new S3SourceStorage();
+  }
+} satisfies Plugin;
+</textarea>
+    <p>
+      Declare the plugin in <code>fe.config.json</code>:
+    </p>
+    <textarea lang="json">
+{
+  "plugins": ["@conqueso/fe-plugin-s3"]
+}
+</textarea>
+    <h3>Authentication</h3>
+    <p>
+      The platform does not prescribe an auth mechanism. MFEs can implement their own
+      auth flows, or the shell can inject an auth context into each <code>render()</code>
+      call via the <code>props</code> argument.
+    </p>
+    <textarea lang="ts">
+// host-app/src/index.ts
+import { load } from "@fe/runtime";
+import { getAuthState } from "./auth";
+await load(location.pathname, {
+  auth: getAuthState()
+});
+</textarea>
+    <p>
+      Each MFE receives the auth state in its <code>render()</code> props.
+    </p>
+    <h3>Multi-tenant hosting</h3>
+    <p>
+      To host multiple tenants on a single platform instance, use route prefixes:
+    </p>
+    <textarea lang="json">
+{
+  "routes": {
+    "/tenant-a/": "@conqueso/fe-tenant-a-shell@1.0.0",
+    "/tenant-b/": "@conqueso/fe-tenant-b-shell@1.0.0"
+  }
+}
+</textarea>
+    <p>
+      Each tenant shell can load a completely different set of MFEs. The runtime
+      resolves routes independently for each path prefix.
+    </p>
+    <h3>Plugin development</h3>
+    <p>
+      Plugins can swap any adapter at bootstrap time. Common use cases:
+    </p>
+    <ul>
+      <li><strong>Artifact storage</strong> — replace local <code>uploads/</code> with S3, GCS, or Azure Blob.</li>
+      <li><strong>Config provider</strong> — read <code>fe.config.json</code> from environment variables or a remote API.</li>
+      <li><strong>CLI commands</strong> — add new commands like <code>fe deploy</code> or <code>fe status</code>.</li>
+    </ul>
+    <p>
+      Plugins run after built-in adapters are initialized, so they can freely
+      override any adapter.
+    </p>
+  </section>
+</fe-compose>
+</file>
+
+<file path="packages/compiler/src/index.ts">
+import type { BuildOptions, JitPlugin, SourceStorage } from "@fe/core";
+import { SolidPlugin } from "bun-plugin-solid";
 import { join } from "path";
-import type { Plugin, CliContext, Hooks } from "@fe/core";
-import { createJITBundler } from "@fe/compiler";
-async function serveFetch(
+import { existsSync, readFileSync } from "fs";
+export interface CompileOptions {
+  entrypoints: string[];
+  outdir?: string;
+  external?: string[];
+  rootDir: string;
+  naming?: string | Record<string, string>;
+  plugins?: unknown[];
+}
+export async function compileMfe(options: CompileOptions)
+export interface JITBundlerOptions {
+  storage: SourceStorage;
+  external?: string[];
+  jitPlugins?: JitPlugin[];
+}
+type CacheEntry = { js: string };
+async function jitHandle(
   req: Request,
-  hooks: Hooks,
-  jit: { handle: (req: Request) => Promise<Response | null> },
-  root: string,
-  distDir: string,
-  uploadsPrefix: string,
-): Promise<Response>
-async function runServe(ctx: CliContext, hooks: Hooks, args: string[]): Promise<void>
-function setupServe(ctx: CliContext, hooks: Hooks): void
+  storage: SourceStorage,
+  cache: Map<string, CacheEntry>,
+  external: string[],
+  jitPlugins: JitPlugin[],
+): Promise<Response | null>
+export function createJITBundler(options: JITBundlerOptions)
 </file>
 
-<file path=".github/workflows/ci.yml">
-name: CI
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-jobs:
-  packages:
-    runs-on: ubuntu-latest
-    name: Packages (typecheck)
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-      - name: Cache Bun
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ hashFiles('**/bun.lock') }}
-          restore-keys: bun-
-      - name: Install
-        run: bun install
-      - name: Typecheck packages
-        run: |
-          bunx tsc --noEmit --project packages/core/tsconfig.json
-          bunx tsc --noEmit --project packages/cli/tsconfig.json
-          bunx tsc --noEmit --project packages/runtime/tsconfig.json
-          bunx tsc --noEmit --project packages/compiler/tsconfig.json
-          bunx tsc --noEmit --project packages/jit-plugin-react/tsconfig.json
-          bunx tsc --noEmit --project packages/jit-plugin-solid/tsconfig.json
-  sandbox:
-    runs-on: ubuntu-latest
-    name: Sandbox (typecheck + build)
-    needs: packages
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-      - name: Cache Bun
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ hashFiles('**/bun.lock') }}
-          restore-keys: bun-
-      - name: Install
-        run: bun install
-      - name: Typecheck sandbox
-        run: |
-          bunx tsc --noEmit --project sandbox/mfe-a/tsconfig.json
-          bunx tsc --noEmit --project sandbox/mfe-b/tsconfig.json
-          bunx tsc --noEmit --project sandbox/host-app/tsconfig.json
-          bunx tsc --noEmit --project toolkit/devtools/tsconfig.json
-      - name: Build sandbox
-        run: |
-          (cd sandbox/mfe-a && bun run check)
-          (cd sandbox/mfe-b && bun run check)
-          (cd toolkit/devtools && bun run check)
-          (cd sandbox/host-app && bun run check)
+<file path="toolkit/network/package.json">
+{
+  "name": "@fe/fe-network",
+  "version": "0.2.2",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "cd ../.. && fe build toolkit/network",
+    "check": "cd ../.. && fe check toolkit/network"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*"
+  }
+}
+</file>
+
+<file path="toolkit/store/package.json">
+{
+  "name": "@fe/fe-store",
+  "version": "0.2.2",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "cd ../.. && fe build toolkit/store",
+    "check": "cd ../.. && fe check toolkit/store"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*"
+  }
+}
 </file>
 
 <file path="package.json">
 {
   "name": "fe-platform",
-  "version": "0.0.0",
+  "version": "0.2.2",
   "private": true,
   "workspaces": ["packages/*", "sandbox/*", "toolkit/*"],
   "scripts": {
+    "sync-versions": "bun run scripts/sync-versions.ts",
+    "postinstall": "bun run sync-versions",
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build --projects=@fe/core,@fe/cli,@fe/runtime",
     "sandbox:build": "nx run-many -t build --projects=sandbox-*"
@@ -1507,10 +3296,236 @@ jobs:
   "devDependencies": {
     "@playwright/test": "1.56.1",
     "@types/node": "^25.3.0",
+    "glob": "^13.0.6",
     "nx": "^22.5.2",
     "typescript": "^5.9.3"
   }
 }
+</file>
+
+<file path="toolkit/devtools/package.json">
+{
+  "name": "@fe/fe-devtools",
+  "version": "0.2.2",
+  "module": "src/index.tsx",
+  "types": "src/index.tsx",
+  "scripts": {
+    "build": "cd ../.. && fe build toolkit/devtools",
+    "check": "cd ../.. && fe check toolkit/devtools"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@fe/cli": "workspace:*",
+    "@fe/jit-plugin-solid": "workspace:*"
+  }
+}
+</file>
+
+<file path="toolkit/syntax-highlighter/package.json">
+{
+  "name": "@feo/fe-syntax-highlighter",
+  "version": "0.2.2",
+  "description": "High-performance syntax highlighter using the CSS Custom Highlight API. Zero-DOM overhead, modular, and supporting TypeScript, JSON, Shell, and HTML. Auto-observes the DOM — import and done.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit",
+    "publish": "npx jsr publish"
+  },
+  "exports": {
+    ".": "./src/observe.ts",
+    "./core": "./src/core.ts",
+    "./types": "./src/types.ts",
+    "./languages/ts": "./src/languages/ts.ts",
+    "./languages/json": "./src/languages/json.ts",
+    "./languages/shell": "./src/languages/shell.ts",
+    "./languages/html": "./src/languages/html.ts",
+    "./themes/auto": "./src/themes/default.ts",
+    "./themes/light": "./src/themes/light.ts",
+    "./themes/dark": "./src/themes/dark.ts",
+    "./themes/dracula": "./src/themes/dracula.ts",
+    "./themes/github-light": "./src/themes/github-light.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
+</file>
+
+<file path="toolkit/syntax-highlighter/src/core.ts">
+import type { Category, Rule } from './types.ts';
+import { ts } from './languages/ts.ts';
+import { json } from './languages/json.ts';
+import { shell } from './languages/shell.ts';
+import { html } from './languages/html.ts';
+import { autoTheme } from './themes/default.ts';
+⋮----
+export function registerLanguage(name: string, rules: Rule[]): void
+function highlightPre(el: HTMLPreElement): void
+⋮----
+// Handle sub-languages for HTML
+⋮----
+{ pattern: /<style\b[^>]*>([\s\S]*?)<\/style>/gi, lang: 'ts' }, // Using TS for CSS-like is better than nothing
+⋮----
+// Force the regex to only match exactly at the current pointer
+⋮----
+break; // Move to the next token
+⋮----
+// Fallback if range creation fails
+⋮----
+index++; // No rule matched at this position, skip one character
+⋮----
+/**
+ * Ensures the highlight stylesheet is adopted by the document or shadow root.
+ */
+function applySheet(root: Document | Element): void
+/**
+ * Applies syntax highlighting to all `<pre class="lang-*">` elements inside `root`,
+ * or to `root` itself if it is a matching `<pre>`. Adds the default stylesheet to
+ * `root.ownerDocument.adoptedStyleSheets` on first call.
+ *
+ * @param root - The root element (Document, Element, or ShadowRoot) to search.
+ */
+export function highlight(root: Document | Element): void
+⋮----
+// Clear highlights only if we're highlighting the entire document.
+// Individual element highlighting is incremental.
+⋮----
+/**
+ * Sets CSS custom properties on `document.documentElement` to override individual token colors.
+ * Property names map to `--hl-<key>` (e.g. `{ keyword: "#ff0" }` sets `--hl-keyword: #ff0`).
+ */
+export function applyTheme(theme: Partial<Record<Category | 'comment-style', string>>): void
+export function setHighlightSheet(css: string): void
+</file>
+
+<file path="toolkit/web-components/package.json">
+{
+  "name": "@feo/fe-web-components",
+  "version": "0.2.2",
+  "description": "Zero-dependency web components for fragment-based page assembly: html-include, fe-component, fe-compose.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit",
+    "publish": "npx jsr publish"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./html-include": "./src/html-include.ts",
+    "./fe-component": "./src/fe-component.ts",
+    "./fe-compose": "./src/fe-compose.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
+</file>
+
+<file path="docs/site/style.css">
+:root {
+⋮----
+body { background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; margin: 0; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</file>
+
+<file path="docs/site/index.html">
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>fe platform · docs</title>
+        <link rel="icon" type="image/svg+xml" href="logo.png" />
+        <link rel="icon" type="image/png" href="favicon.png" />
+        <link rel="preconnect" href="https://esm.sh" crossorigin />
+        <link rel="preload" href="fragments/header" as="fetch" crossorigin="anonymous" />
+        <link rel="preload" href="fragments/hero" as="fetch"  crossorigin="anonymous"/>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@feo/fe-syntax-highlighter": "https://esm.sh/jsr/@feo/fe-syntax-highlighter@0.2.2?bundle=true&standalone",
+                    "@feo/fe-web-components": "https://esm.sh/jsr/@feo/fe-web-components@0.2.2?bundle=true&standalone"
+                }
+            }
+        </script>
+        <meta name="description" content="fe platform: a source-first microfrontend system." />
+        <link rel="stylesheet" href="style.css" />
+        <script type="module">
+            import "@feo/fe-web-components";
+            import "@feo/fe-syntax-highlighter";
+            function getTarget(root, id) {
+                const el = root.querySelector?.('[id="' + id + '"]');
+                if (el) return el;
+                for (const inc of root.querySelectorAll?.("html-include") || []) {
+                    const found = getTarget(inc, id);
+                    if (found) return found;
+                }
+                return null;
+            }
+            function sync() {
+                const id = window.location.hash.slice(1);
+                const target = getTarget(document, id);
+                if (target && target.tagName === "DETAILS") {
+                    let current = target;
+                    while (current) { if (current.tagName === "DETAILS") current.open = true; current = current.parentElement; }
+                    document.getElementById("main-content")?.scrollIntoView();
+                }
+            }
+            window.addEventListener("hashchange", sync);
+            // Trigger sync when fragments are loaded
+            document.body.addEventListener("fragments-ready", sync);
+            // Also handle individual fragment loads for non-eager ones
+            document.body.addEventListener("load", (e) => {
+                if (e.target.tagName === "HTML-INCLUDE" && window.location.hash) {
+                    setTimeout(sync, 10);
+                }
+            });
+        </script>
+    </head>
+    <body id="top">
+        <fe-component name="ShellLayout">
+            <link rel="stylesheet" href="shell-layout.css" />
+            <slot name="header"></slot>
+            <slot name="hero"></slot>
+            <div id="main-content" class="layout">
+                <details id="mobile-nav" open>
+                    <summary>▸ menu</summary>
+                    <aside>
+                        <details name="page" id="nav-arch" open>
+                            <summary><a href="#nav-arch"><span class="label"><span class="icon">⎔</span> Architecture</span><span class="arr"></span></a></summary>
+                        </details>
+                        <details name="page" id="nav-product">
+                            <summary><a href="#nav-product"><span class="label"><span class="icon">⧉</span> Product</span><span class="arr"></span></a></summary>
+                        </details>
+                        <details name="page" id="nav-platform">
+                            <summary><a href="#nav-platform"><span class="label"><span class="icon">۞</span> Platform</span><span class="arr"></span></a></summary>
+                        </details>
+                        <details name="page" id="nav-tutorials">
+                            <summary><a href="#nav-tutorials"><span class="label"><span class="icon">✺</span> Tutorials</span><span class="arr"></span></a></summary>
+                        </details>
+                    </aside>
+                </details>
+                <main>
+                    <slot name="architecture"></slot>
+                    <slot name="product-eng"></slot>
+                    <slot name="platform-eng"></slot>
+                    <slot name="tutorials"></slot>
+                </main>
+            </div>
+        </fe-component>
+        <fe-compose name="ShellLayout">
+            <html-include loading="eager" href="fragments/header" slot="header"></html-include>
+            <html-include loading="eager" href="fragments/hero" slot="hero"></html-include>
+            <html-include loading="eager" href="fragments/architecture" slot="architecture"></html-include>
+            <html-include href="fragments/product-eng" slot="product-eng"></html-include>
+            <html-include href="fragments/platform-eng" slot="platform-eng"></html-include>
+            <html-include href="fragments/tutorials" slot="tutorials"></html-include>
+        </fe-compose>
+    </body>
+</html>
 </file>
 
 </files>
