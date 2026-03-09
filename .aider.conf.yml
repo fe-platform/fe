@@ -1,5 +1,1 @@
-# <contextstream>
-# ContextStream managed rules reference
-read:
-  - .contextstream/rules.md
-# </contextstream>
+.agents/aider.conf.yml
