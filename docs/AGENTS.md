@@ -42,8 +42,8 @@ attr: state="loaded"            set after successful fetch · guards against dou
 - **lazy** ⟿ `connectedCallback` checks `getBoundingClientRect`; if off-screen → `IntersectionObserver` (rootMargin: 400px)
 - **eager** ⟿ adds self to static `_eagerPending: Set` + calls `_load` immediately
 - **`disconnectedCallback`** ⟿ cleans up observer only; fetch in-flight continues
-- **body.ready** ⟿ `document.body.classList.add("ready")` fires when `_eagerPending.size === 0`; body starts at `opacity:0`, transitions to `opacity:1`
-- **double-connectedCallback** ⟿ `fe-compose` disconnects + reconnects html-include elements during its own `connectedCallback`; two guards prevent double-load: `_fetching` (in-flight flag, reset in `finally`) prevents concurrent fetches; state check before `_eagerPending.add` prevents re-adding an already-loaded eager element (which would leave it in the set forever)
+- **body.ready** ⟿ `document.body.classList.add("ready")` fires when `_eagerPending.size === 0`; fragments-ready event also dispatched.
+- **double-connectedCallback** ⟿ `fe-compose` disconnects + reconnects html-include elements during its own `connectedCallback`; two guards prevent double-load: `_fetching` (in-flight flag, reset in `finally`) prevents concurrent fetches; state check before `_eagerPending.add` prevents re-adding an already-loaded eager element (which would leave it in the set forever). `_eagerPending.delete` is called in `finally` to ensure set is cleared even on failure.
 
 ---
 
@@ -53,7 +53,9 @@ attr: state="loaded"            set after successful fetch · guards against dou
 attr: name="ComponentName"   used as scope key (NOT id — avoids duplicate-ID issues)
 ```
 
-- **`connectedCallback`** ⟿ iterates `querySelectorAll("style")` · rewrites every selector to `[data-fe-id="ComponentName"] <selector>` · moves each `<style>` to `document.head` · then snapshots remaining child nodes into `this._snapshot`
+- **visibility** ⟿ `opacity: 0` by default; `opacity: 1` when `body.ready` (transition: 0.5s)
+- **`connectedCallback`** ⟿ iterates `querySelectorAll("style")` · rewrites every selector to `[data-fe-id="ComponentName"] <selector>`
+ · moves each `<style>` to `document.head` · then snapshots remaining child nodes into `this._snapshot`
   - skips selectors starting with `@` or containing `:root`
   - idempotent: skips rewrite if `[data-fe-id]` already present in CSS
 - **`get content()`** ⟿ returns a fresh `DocumentFragment` cloned from `_snapshot` each call · supports multiple `fe-compose` elements referencing the same component (e.g. a card used four times)
@@ -68,9 +70,10 @@ attr: name="ComponentName"   used as scope key (NOT id — avoids duplicate-ID i
 attr: name="ComponentName"   must match a <fe-component name="ComponentName"> in the document
 ```
 
+- **visibility** ⟿ `opacity: 0` by default; `opacity: 1` when `body.ready` (transition: 0.5s)
 - **`connectedCallback`** ⟿ synchronous; runs after html-include and fe-component are already upgraded
-  1. `getTarget(document, id)` → finds `<fe-component id="ComponentName">`; returns early if not found or wrong tag
-  2. `this.setAttribute("data-fe-id", id)` ← set BEFORE DOM manipulation so scoped CSS applies to newly inserted children
+  1. `getTarget(document, name)` → finds `<fe-component name="ComponentName">`; returns early if not found or wrong tag
+  2. `this.setAttribute("data-fe-id", name)` ← set BEFORE DOM manipulation so scoped CSS applies to newly inserted children
   3. snapshots `children = Array.from(this.childNodes)` (includes html-include elements with `slot` attrs)
   4. `this.innerHTML = ""` → triggers `disconnectedCallback` on each child (observer cleanup)
   5. `target.content` → fresh `DocumentFragment` cloned from the component's snapshot (structural nodes only; styles are already in `<head>`)

@@ -15,3 +15,31 @@
 body { background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; margin: 0; }
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+#loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    z-index: 1000;
+    transition: opacity 0.4s ease-out;
+}
+
+#loader img {
+    width: 80px;
+    height: 80px;
+    animation: rotate 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    filter: drop-shadow(0 0 20px rgba(67, 56, 202, 0.2));
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+body.ready #loader {
+    opacity: 0;
+    pointer-events: none;
+}

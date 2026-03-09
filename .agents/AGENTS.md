@@ -157,7 +157,7 @@ trigger: push→main | PR→main
 
 ## docs
 documentation lives at https://fe-frustrated.dev
-pre-PR: update all affected AGENTS.md, README.md, CONTRIBUTING.md
+update all affected AGENTS.md, README.md, CONTRIBUTING.md as part of the task (before finality)
 
 ## git diff hygiene (token efficiency)
 When summarising branch changes (e.g. to draft a PR title/body):
