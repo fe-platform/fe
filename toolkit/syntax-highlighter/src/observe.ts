@@ -5,8 +5,8 @@ export * from './core.ts';
 const uiSheet = new CSSStyleSheet();
 uiSheet.replaceSync(`
 textarea[lang]{display:none}
-pre[data-linenumbers]{display:flex;align-items:flex-start;overflow-x:auto}
-pre[data-linenumbers] code{flex:1;min-width:max-content;display:block;white-space:pre}
+pre[data-linenumbers]{display:flex;align-items:flex-start;overflow-x:auto !important}
+pre[data-linenumbers] code{flex:1;min-width:max-content !important;display:block;white-space:pre !important}
 pre[data-linenumbers]::before{
   content:attr(data-linenumbers);
   white-space:pre;
