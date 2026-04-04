@@ -41,28 +41,29 @@ export function registerLanguage(name: string, rules: Rule[]): void {
 
 /**
  * Internal worker to highlight a single <pre> element.
- * Uses a single-pass, pointer-based scanner for performance and correctness.
+ * Returns the number of lines found (used to populate data-linenumbers).
  */
-function highlightPre(el: HTMLPreElement): void {
+function highlightPre(el: HTMLPreElement): number {
     const langMatch = el.className.match(/lang-(\w+)/);
     const lang = langMatch ? langMatch[1] : null;
-    if (!lang || !languages[lang]) return;
+    if (!lang || !languages[lang]) return 0;
 
     const rules = languages[lang];
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let node: Text | null;
+    let lines = 1;
 
     while (node = walker.nextNode() as Text | null) {
         const text = node.textContent || "";
+        lines += (text.match(/\n/g)?.length ?? 0);
         let index = 0;
 
         while (index < text.length) {
             let matched = false;
 
-            // Handle sub-languages for HTML
             if (lang === 'html') {
                 const subLangs = [
-                    { pattern: /<style\b[^>]*>([\s\S]*?)<\/style>/gi, lang: 'ts' }, // Using TS for CSS-like is better than nothing
+                    { pattern: /<style\b[^>]*>([\s\S]*?)<\/style>/gi, lang: 'ts' },
                     { pattern: /<script\b[^>]*>([\s\S]*?)<\/script>/gi, lang: 'ts' }
                 ];
 
@@ -97,7 +98,6 @@ function highlightPre(el: HTMLPreElement): void {
             if (matched) continue;
 
             for (const { category, pattern } of rules) {
-                // Force the regex to only match exactly at the current pointer
                 pattern.lastIndex = index;
                 const m = pattern.exec(text);
 
@@ -107,59 +107,48 @@ function highlightPre(el: HTMLPreElement): void {
                         range.setStart(node, index);
                         range.setEnd(node, index + m[0].length);
                         categories[category].add(range);
-                        
                         index += m[0].length;
                         matched = true;
-                        break; // Move to the next token
-                    } catch (e) {
-                        // Fallback if range creation fails
-                    }
+                        break;
+                    } catch (e) {}
                 }
             }
 
-            if (!matched) {
-                index++; // No rule matched at this position, skip one character
-            }
+            if (!matched) index++;
         }
     }
-}
 
-/**
- * Ensures the highlight stylesheet is adopted by the document or shadow root.
- */
-function applySheet(root: Document | Element): void {
-    const doc = root instanceof Document ? root : root.ownerDocument;
-    if (doc && !doc.adoptedStyleSheets.includes(sheet)) {
-        doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
-    }
-    const rootNode = root.getRootNode();
-    if (rootNode instanceof ShadowRoot && !rootNode.adoptedStyleSheets.includes(sheet)) {
-        rootNode.adoptedStyleSheets = [...rootNode.adoptedStyleSheets, sheet];
-    }
+    return lines;
 }
 
 /**
  * Applies syntax highlighting to all `<pre class="lang-*">` elements inside `root`,
  * or to `root` itself if it is a matching `<pre>`. Adds the default stylesheet to
  * `root.ownerDocument.adoptedStyleSheets` on first call.
- * 
+ *
  * @param root - The root element (Document, Element, or ShadowRoot) to search.
  */
 export function highlight(root: Document | Element): void {
     if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
 
-    // Clear highlights only if we're highlighting the entire document.
-    // Individual element highlighting is incremental.
     if (root instanceof Document) {
         Object.values(categories).forEach(h => h.clear());
     }
 
-    applySheet(root);
+    const doc = root instanceof Document ? root : root.ownerDocument;
+    if (doc && !doc.adoptedStyleSheets.includes(sheet)) doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
+    const rootNode = root.getRootNode();
+    if (rootNode instanceof ShadowRoot && !rootNode.adoptedStyleSheets.includes(sheet)) rootNode.adoptedStyleSheets = [...rootNode.adoptedStyleSheets, sheet];
 
     const blocks = root instanceof Element && root.matches('pre[class*="lang-"]')
         ? [root as HTMLPreElement]
         : [...root.querySelectorAll<HTMLPreElement>('pre[class*="lang-"]')];
-    blocks.forEach(highlightPre);
+
+    for (const pre of blocks) {
+        const lines = highlightPre(pre);
+        if ('linenumbers' in pre.dataset)
+            pre.dataset.linenumbers = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+    }
 }
 
 /**
