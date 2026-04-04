@@ -122,6 +122,20 @@ function highlightPre(el: HTMLPreElement): number {
 }
 
 /**
+ * Ensures the highlight stylesheet is adopted by the document or shadow root.
+ */
+function applySheet(root: Document | Element): void {
+    const doc = root instanceof Document ? root : root.ownerDocument;
+    if (doc && !doc.adoptedStyleSheets.includes(sheet)) {
+        doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
+    }
+    const rootNode = root.getRootNode();
+    if (rootNode instanceof ShadowRoot && !rootNode.adoptedStyleSheets.includes(sheet)) {
+        rootNode.adoptedStyleSheets = [...rootNode.adoptedStyleSheets, sheet];
+    }
+}
+
+/**
  * Applies syntax highlighting to all `<pre class="lang-*">` elements inside `root`,
  * or to `root` itself if it is a matching `<pre>`. Adds the default stylesheet to
  * `root.ownerDocument.adoptedStyleSheets` on first call.
@@ -135,10 +149,7 @@ export function highlight(root: Document | Element): void {
         Object.values(categories).forEach(h => h.clear());
     }
 
-    const doc = root instanceof Document ? root : root.ownerDocument;
-    if (doc && !doc.adoptedStyleSheets.includes(sheet)) doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
-    const rootNode = root.getRootNode();
-    if (rootNode instanceof ShadowRoot && !rootNode.adoptedStyleSheets.includes(sheet)) rootNode.adoptedStyleSheets = [...rootNode.adoptedStyleSheets, sheet];
+    applySheet(root);
 
     const blocks = root instanceof Element && root.matches('pre[class*="lang-"]')
         ? [root as HTMLPreElement]
