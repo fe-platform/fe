@@ -102,18 +102,10 @@ interface CommandDef {
 ```ts
 interface Plugin {
   name: string;
-  updatePolicy?: {
-    onOutdated: "warn" | "block";
-  };
   setup(ctx: CliContext, hooks: Hooks): void | Promise<void>;
 }
 ```
 `setup` is called once at bootstrap. Plugins register commands and/or swap adapters.
-
-`updatePolicy` is optional. When present, bootstrap compares the plugin's installed version
-(from its `node_modules/<pkg>/package.json`) against the latest version on the npm registry.
-If the installed version is behind, `"warn"` prints a warning and continues; `"block"` aborts
-with an error. Network errors during the registry check are silently swallowed.
 
 ## JitPlugin (jit-plugin.ts)
 ```ts
@@ -134,7 +126,7 @@ Bootstrap loads them from `FeConfig.jitPlugins` and applies their transforms via
 When `BuildOptions.plugins` is set (by any JIT plugin), `@fe/compiler` uses it directly and
 skips Solid.js auto-detection. When it is `undefined`, auto-detection runs as a fallback.
 
-Published packages: `@fe/jit-plugin-solid`, `@fe/jit-plugin-react`.
+Published: `@fe/jit-plugin-solid`.
 
 ## Hooks (hooks.ts)
 ```ts

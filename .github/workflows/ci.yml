@@ -30,7 +30,6 @@ jobs:
           bunx tsc --noEmit --project packages/cli/tsconfig.json
           bunx tsc --noEmit --project packages/runtime/tsconfig.json
           bunx tsc --noEmit --project packages/compiler/tsconfig.json
-          bunx tsc --noEmit --project packages/jit-plugin-react/tsconfig.json
           bunx tsc --noEmit --project packages/jit-plugin-solid/tsconfig.json
 
   sandbox:
@@ -58,7 +57,8 @@ jobs:
           bunx tsc --noEmit --project toolkit/devtools/tsconfig.json
       - name: Build sandbox
         run: |
-          (cd sandbox/mfe-a && bun run check)
-          (cd sandbox/mfe-b && bun run check)
-          (cd toolkit/devtools && bun run check)
-          (cd sandbox/host-app && bun run check)
+          cd sandbox
+          bun fe check mfe-a
+          bun fe check mfe-b
+          bun fe check ../toolkit/devtools
+          bun fe check host-app

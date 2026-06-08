@@ -73,10 +73,8 @@ async function devFetch(req: Request, distDir: string, name: string): Promise<Re
 
 async function devWatchRebuild(ctx: CliContext, hooks: Hooks, target: string, shellDir: string): Promise<void> {
   process.stdout.write(`Rebuilding ${target}... `);
-  await hooks.callHook("dev:rebuild", target);
   await buildTarget(ctx, hooks, target, shellDir);
   notifyReload();
-  await hooks.callHook("dev:reload");
   console.log("done.");
 }
 
@@ -100,8 +98,6 @@ async function runDev(ctx: CliContext, hooks: Hooks, args: string[]): Promise<vo
     port,
     fetch: (req) => devFetch(req, distDir, name),
   });
-
-  await hooks.callHook("dev:start", target, port);
 
   watch(join(dir, "src"), { recursive: true }, () => {
     devWatchRebuild(ctx, hooks, target, feConfig.shellDir);

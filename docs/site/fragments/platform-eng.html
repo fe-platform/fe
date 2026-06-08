@@ -59,7 +59,7 @@
         border-bottom: 1px solid var(--rule);
         position: static;
     }
-    
+
     .sub-nav::before {
         display: none;
     }
@@ -107,7 +107,7 @@ details[name="plat-sub"][open] > summary {
 
 <fe-compose name="PlatformPage">
   <fe-compose name="SubNav"></fe-compose>
-  
+
   <section id="content-poc">
     <h2><span style="color:var(--card-b)">۞</span> Proof of concept</h2>
     <p>
@@ -161,7 +161,7 @@ await load(location.pathname);
 {
   "shellDir": "host-app",
   "manifestPath": "configs/platform.json",
-  "jitPlugins": ["@fe/jit-plugin-react"]
+  "jitPlugins": ["@fe/jit-plugin-solid"]
 }
 </textarea>
     <p>
@@ -321,7 +321,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 
 class S3SourceStorage implements SourceStorage {
   private client = new S3Client({ region: "us-east-1" });
-  
+
   async read(slug: string, version: string): Promise<string> {
     const key = `${slug}/${version}/index.ts`;
     const resp = await this.client.getObject({ Bucket: "conqueso-mfe-sources", Key: key });

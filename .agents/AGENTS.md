@@ -12,7 +12,6 @@ CLAUDE.md→symlink→here
 │  ├─ runtime/          @fe/runtime           v0.1.0  browser platform loader (published)
 │  ├─ compiler/         @fe/compiler          v1.0.0  MFE bundler + JIT bundler (published)
 │  ├─ specifier/        @fe/specifier         v0.1.0  MFE specifier utilities (published)
-│  ├─ jit-plugin-react/ @fe/jit-plugin-react  v0.1.0  JIT plugin: React JSX (published)
 │  └─ jit-plugin-solid/ @fe/jit-plugin-solid  v0.1.0  JIT plugin: Solid.js JSX (published)
 ├─ sandbox/                                           example workspace (not published)
 │  ├─ host-app/         name=host-app                 shell using @fe/runtime · builds to host-app/dist/
@@ -152,11 +151,15 @@ fe build shell → fe serve
 
 ## CI · .github/workflows/ci.yml
 trigger: push→main | PR→main
-`packages` job: typecheck @fe/core @fe/specifier @fe/cli @fe/runtime @fe/compiler @fe/jit-plugin-react @fe/jit-plugin-solid
+`packages` job: typecheck @fe/core @fe/specifier @fe/cli @fe/runtime @fe/compiler @fe/jit-plugin-solid
 `sandbox` job (needs: packages): typecheck+build sandbox MFEs + host-app + toolkit/devtools
 
 ## docs
 documentation lives at https://fe-frustrated.dev
+`docs/architecture/FUTURE-FEATURES.md` catalogues partially built or planned features
+that are not yet exercised by real use (CLI plugin system, pre-built artifact path,
+per-project config mode, scaffolding, toolkit primitives). Read it before rebuilding
+any of those surfaces.
 update all affected AGENTS.md, README.md, CONTRIBUTING.md as part of the task (before finality)
 
 ## git diff hygiene (token efficiency)

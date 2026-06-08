@@ -4,14 +4,11 @@ import { createJITBundler } from "@fe/compiler";
 
 async function serveFetch(
   req: Request,
-  hooks: Hooks,
   jit: { handle: (req: Request) => Promise<Response | null> },
   root: string,
   distDir: string,
   uploadsPrefix: string,
 ): Promise<Response> {
-  await hooks.callHook("serve:request", req);
-
   const jitResponse = await jit.handle(req);
   if (jitResponse) return jitResponse;
 
@@ -42,10 +39,9 @@ async function runServe(ctx: CliContext, hooks: Hooks, args: string[]): Promise<
 
   Bun.serve({
     port,
-    fetch: (req) => serveFetch(req, hooks, jit, ctx.root, distDir, feConfig.uploadsDir),
+    fetch: (req) => serveFetch(req, jit, ctx.root, distDir, feConfig.uploadsDir),
   });
 
-  await hooks.callHook("serve:start", port);
   console.log(`Serving at http://localhost:${port}`);
   console.log(`JIT bundler active at /bundle/`);
   console.log(`Uploads served from: ${uploadsDir}`);

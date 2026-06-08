@@ -62,7 +62,6 @@ async function runCheck(ctx: CliContext, hooks: Hooks, args: string[]): Promise<
   }
 
   options = await hooks.waterfall("build:options", options);
-  await hooks.callHook("build:before", target, options);
 
   const result = await ctx.adapters.builder.build(options);
   if (!result.success) {

@@ -1,37 +1,7 @@
-import type { BuildOptions, BuildResult, PackageVersion } from "./types";
+import type { BuildOptions } from "./types";
 
 export interface HookMap {
-  // build plugin
-  "build:before": [target: string, options: BuildOptions];
-  "build:after": [target: string, result: BuildResult];
   "build:options": [options: BuildOptions];
-  "build:shell:before": [];
-  "build:shell:after": [];
-
-  // serve plugin
-  "serve:start": [port: number];
-  "serve:request": [req: Request];
-
-  // dev plugin
-  "dev:start": [target: string, port: number];
-  "dev:rebuild": [target: string];
-  "dev:reload": [];
-
-  // link plugin
-  "link:before": [consumer: string, dep: string];
-  "link:after": [consumer: string, depName: string];
-
-  // admin plugin
-  "admin:upload:before": [target: string, meta: { name: string; version: string }];
-  "admin:upload:after": [target: string, url: string, deps: Record<string, string>];
-  "admin:register:before": [specifier: string, version: string, entry: PackageVersion];
-  "admin:register:after": [];
-
-  // publish plugin
-  "publish:before": [target: string, meta: { name: string; version: string }];
-  "publish:after": [target: string, url: string, deps: Record<string, string>];
-  "publish:register:before": [specifier: string, version: string, entry: PackageVersion];
-  "publish:register:after": [];
 }
 
 type HookName = keyof HookMap & string;

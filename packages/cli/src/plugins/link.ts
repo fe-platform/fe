@@ -11,8 +11,6 @@ async function runLink(ctx: CliContext, hooks: Hooks, args: string[]): Promise<v
     process.exit(1);
   }
 
-  await hooks.callHook("link:before", consumer, dep);
-
   const consumerDir = join(ctx.root, consumer);
   const depDir = join(ctx.root, dep);
   const { name: depName } = readPackageMeta(depDir);
@@ -28,7 +26,6 @@ async function runLink(ctx: CliContext, hooks: Hooks, args: string[]): Promise<v
   const proc = Bun.spawn(["bun", "install"], { cwd: consumerDir, stdout: "inherit", stderr: "inherit" });
   await proc.exited;
 
-  await hooks.callHook("link:after", consumer, depName);
   console.log(`Linked ${depName} in ${consumer}`);
 }
 

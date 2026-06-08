@@ -15,7 +15,6 @@ src/
   helpers.ts                         readPackageMeta · readFeDepKeys · readFeDeps · slugFromSpecifier · isMfeSpecifier
   adapters/
     json-config-provider.ts          ConfigProvider: reads configs/fe-config.json
-    package-json-config-provider.ts  ConfigProvider: reads "fe" key from package.json
     json-manifest-manager.ts         ManifestManager: reads/writes configs/platform.json
     local-source-storage.ts          SourceStorage: cp src/→sources/<slug>/<ver>/
     local-artifact-storage.ts        ArtifactStorage: cp dist/→uploads/<slug>/<ver>/
@@ -52,8 +51,7 @@ src/
 The `configProvider` is stored in `ctx.adapters.config` so plugins can swap it or call `.get()`.
 CLI plugins added before step 6 can push to `ctx.jitPlugins` in their `setup()`.
 
-## ConfigProvider adapters
-Two config provider implementations are available:
+## ConfigProvider adapter
 
 ### json-config-provider.ts (monorepo / shell mode)
 ```ts
@@ -61,21 +59,7 @@ createJsonConfigProvider(root: string): ConfigProvider
 ```
 Reads `<root>/configs/fe-config.json`. This is the default used at bootstrap.
 
-### package-json-config-provider.ts (per-project mode)
-```ts
-createPackageJsonConfigProvider(root: string): ConfigProvider
-```
-Reads the `"fe"` key from `<root>/package.json`. Use this when running `fe`
-commands from an MFE project directory rather than the monorepo root:
-```json
-{ "name": "@conqueso/fe-my-mfe", "fe": { "jitPlugins": ["@fe/jit-plugin-react"] } }
-```
-A CLI plugin can swap to this adapter in its `setup()`:
-```ts
-ctx.adapters.config = createPackageJsonConfigProvider(ctx.root);
-```
-
-Both return `Required<FeConfig>` with defaults merged:
+Returns `Required<FeConfig>` with defaults merged:
 ```
 plugins:      []                      npm packages loaded as CLI plugins
 jitPlugins:   []                      npm packages loaded as JIT compiler plugins
@@ -189,9 +173,6 @@ loadExternalPlugins(root, pluginNames): Promise<Plugin[]>
   for each name: dynamic import(name)
   expects: mod.default or mod.plugin implementing Plugin interface
   throws on missing export or failed import
-  after loading: if plugin.updatePolicy set, checks npm registry for latest version
-    "warn"  → console.warn if installed < latest (network errors silently ignored)
-    "block" → throws if installed < latest (network errors silently ignored)
 ```
 
 ## ✗ invariants

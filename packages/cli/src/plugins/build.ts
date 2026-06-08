@@ -22,7 +22,6 @@ export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string,
   };
 
   options = await hooks.waterfall("build:options", options);
-  await hooks.callHook("build:before", target, options);
 
   const result = await ctx.adapters.builder.build(options);
   if (!result.success) {
@@ -31,15 +30,12 @@ export async function buildTarget(ctx: CliContext, hooks: Hooks, target: string,
     process.exit(1);
   }
 
-  await hooks.callHook("build:after", target, result);
   console.log(`Built ${target} → ${target}/dist/`);
 }
 
 async function buildShell(ctx: CliContext, hooks: Hooks, shellDir: string): Promise<void> {
   const dir = join(ctx.root, shellDir);
   const config = await ctx.adapters.manifest.read();
-
-  await hooks.callHook("build:shell:before");
 
   let options: BuildOptions = {
     entrypoints: [join(dir, "src", "index.ts")],
@@ -64,7 +60,6 @@ async function buildShell(ctx: CliContext, hooks: Hooks, shellDir: string): Prom
   const html = template.replace("<!-- __PLATFORM_CONFIG__ -->", configTag);
   await Bun.write(join(dir, "dist", "index.html"), html);
 
-  await hooks.callHook("build:shell:after");
   console.log(`Built shell → ${shellDir}/dist/`);
 }
 

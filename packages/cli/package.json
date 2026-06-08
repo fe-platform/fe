@@ -17,11 +17,9 @@
     "@fe/compiler": "workspace:*",
     "@fe/core": "workspace:*",
     "@fe/runtime": "workspace:*",
-    "@fe/specifier": "workspace:*",
-    "kleur": "^4.1.5"
+    "@fe/specifier": "workspace:*"
   },
   "devDependencies": {
-    "@fe/core": "workspace:*",
     "bun-types": "latest",
     "typescript": "^5.0.0"
   }

@@ -14,8 +14,6 @@ async function adminUpload(ctx: CliContext, hooks: Hooks, target: string): Promi
   const { name, version } = readPackageMeta(dir);
   const slug = slugFromSpecifier(name);
 
-  await hooks.callHook("admin:upload:before", target, { name, version });
-
   const url = await ctx.adapters.artifactStorage.upload(slug, version, distDir);
 
   const rawFeDeps = readFeDeps(dir);
@@ -32,10 +30,7 @@ async function adminUpload(ctx: CliContext, hooks: Hooks, target: string): Promi
   }
 
   const entry: PackageVersion = { url, deps };
-  await hooks.callHook("admin:register:before", name, version, entry);
   await ctx.adapters.manifest.registerPackage(name, version, entry);
-  await hooks.callHook("admin:register:after");
-  await hooks.callHook("admin:upload:after", target, url, deps);
 
   console.log(`Uploaded ${name}@${version}`);
   console.log(`URL: ${url}`);

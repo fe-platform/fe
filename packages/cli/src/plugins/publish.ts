@@ -49,8 +49,6 @@ async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<v
   const { name, version } = readPackageMeta(dir);
   const slug = slugFromSpecifier(name);
 
-  await hooks.callHook("publish:before", target, { name, version });
-
   // --- Assemble source for upload (src/ content + package.json) ---
   // We use a temporary directory to flatten the structure for the JIT bundler
   const tmpDir = join(process.env.TEMP || "/tmp", `fe-publish-${slug}-${Date.now()}`);
@@ -79,10 +77,7 @@ async function publish(ctx: CliContext, hooks: Hooks, target: string): Promise<v
   }
 
   const entry: PackageVersion = { url: bundleUrl, deps };
-  await hooks.callHook("publish:register:before", name, version, entry);
   await ctx.adapters.manifest.registerPackage(name, version, entry);
-  await hooks.callHook("publish:register:after");
-  await hooks.callHook("publish:after", target, bundleUrl, deps);
 
   console.log(`Published ${name}@${version}`);
   console.log(`Source stored at: ${storedBase}`);
